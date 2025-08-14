@@ -36,7 +36,7 @@ const History = () => {
 
   useEffect(() => {
     if (!user?.token) {
-      navigate("/login");
+      navigate("/api/auth/login");
     }
   }, [user, navigate]);
 
@@ -44,7 +44,7 @@ const History = () => {
     queryKey: ["quizHistory", user?.token, currentPage],
     queryFn: async () => {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/user/quiz-history`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/user/quiz-history`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -55,7 +55,7 @@ const History = () => {
 
       console.log("this is the response:", response);
       if (!response.ok) {
-        if (response.status === 401) navigate("/login");
+        if (response.status === 401) navigate("/api/auth/login");
         throw new Error("Failed to fetch quiz history");
       }
       return response.json();
@@ -66,7 +66,7 @@ const History = () => {
   const deleteMutation = useMutation({
     mutationFn: async (quizId) => {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/user/quiz-history/${quizId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/user/quiz-history/${quizId}`,
         {
           method: "DELETE",
           headers: {
@@ -129,7 +129,7 @@ const History = () => {
   };
 
   const handleRetakeQuiz = (quizId, quizTitle) => {
-    console.log("Retaking quiz:", { quizId, quizTitle }); // Debug retake
+    console.log("Retaking quiz:", { quizId, quizTitle }); 
     toast.success(`Retaking "${quizTitle || "Untitled Quiz"}"...`);
     navigate("/user/dashboard", {
       state: { retakeQuizId: quizId, retakeQuizTitle: quizTitle || "Retake Quiz" },
@@ -137,13 +137,13 @@ const History = () => {
   };
 
   const handleViewDetails = (result) => {
-    console.log("Viewing quiz result:", result); // Debug view details
+    console.log("Viewing quiz result:", result); 
     localStorage.setItem("quizResult", JSON.stringify(result));
     navigate("/user/quiz-results");
   };
 
   const handleDeleteQuiz = (quizId, quizTitle) => {
-    console.log("Deleting quiz:", { quizId, quizTitle }); // Debug delete
+    console.log("Deleting quiz:", { quizId, quizTitle }); 
     if (window.confirm(`Are you sure you want to delete "${quizTitle || "Untitled Quiz"}"?`)) {
       deleteMutation.mutate(quizId);
     }
@@ -162,7 +162,7 @@ const History = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  console.log("Paginated results:", paginatedResults); // Debug paginated results
+  console.log("Paginated results:", paginatedResults); 
 
   return (
     <DashboardLayout>
