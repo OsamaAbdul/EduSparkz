@@ -20,13 +20,13 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
           throw new Error("No quiz ID provided");
         }
 
-        const API_BASE_URL = "http://localhost:5000";
+       
         const token = user.token || localStorage.getItem("authToken");
         if (!token) {
           throw new Error("No authentication token found. Please log in.");
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/user/quiz/${quizId}`, {
+        const response = await fetch(`${API_BACKEND_URL}/api/user/quiz/${quizId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
