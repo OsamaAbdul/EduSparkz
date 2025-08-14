@@ -7,7 +7,7 @@ export const FeaturesSection = () => {
     {
       icon: FileText,
       title: "PDF Text Extraction",
-      description: "Upload PDFs and extract clean, structured content with advanced AI processing.",
+      description: "Upload PDFs, .DOCX, images and extract clean, structured content with advanced AI processing.",
       gradient: "from-blue-500 to-cyan-500"
     },
     {
