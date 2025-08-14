@@ -1,0 +1,58 @@
+/* Spinner.css */
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Full viewport height */
+  background-color: #f0f2f5; /* Light background for contrast */
+  animation: fadeIn 0.5s ease-in; /* Fade-in effect for the container */
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #e0e0e0; /* Light gray border */
+  border-top: 5px solid #007bff; /* Blue top border for spinning effect */
+  border-radius: 50%;
+  animation: spin 1s linear infinite, pulse 1.5s ease-in-out infinite; /* Spin and pulse animations */
+}
+
+.spinner-container p {
+  margin-top: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #333;
+  animation: fadeIn 0.5s ease-in; /* Fade-in for the text */
+}
+
+/* Keyframes for animations */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

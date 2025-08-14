@@ -1,0 +1,50 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Sensitive files
+*.key
+*.pem
+*.cert
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Build artifacts
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+.DS_Store
+
+# MongoDB local data (if applicable)
+data/
+*.mongo
+
+# Coverage reports (if you run tests)
+coverage/
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Miscellaneous
+*.pid
+*.seed
+*.pid.lock
