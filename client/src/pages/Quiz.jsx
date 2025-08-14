@@ -26,7 +26,7 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
           throw new Error("No authentication token found. Please log in.");
         }
 
-        const response = await fetch(`${API_BACKEND_URL}/api/user/quiz/${quizId}`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/quiz/${quizId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
