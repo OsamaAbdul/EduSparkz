@@ -21,21 +21,19 @@ export const Dashboard = () => {
 
   useEffect(() => {
     const { retakeQuizId, retakeQuizTitle } = location.state || {};
-    if (retakeQuizId && !isMobile) {
+    if (retakeQuizId) {
       setLoading(true);
       setQuizId(retakeQuizId);
       setQuizTitle(retakeQuizTitle || "Retaking Quiz....");
       setTimeout(() => setLoading(false), 1000);
     }
-  }, [location.state, isMobile]);
+  }, [location.state]);
 
   const handleQuizGenerated = (id, title = "Generated Quiz") => {
-    if (!isMobile) {
-      setLoading(true);
-      setQuizId(id);
-      setQuizTitle(title);
-      setTimeout(() => setLoading(false), 1000);
-    }
+    setLoading(true);
+    setQuizId(id);
+    setQuizTitle(title);
+    setTimeout(() => setLoading(false), 1000);
   };
 
   const resetQuiz = () => {
@@ -69,30 +67,20 @@ export const Dashboard = () => {
         </div>
       )}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Header: Hidden on mobile, otherwise conditional */}
-        {!isMobile && (
-          <div className="sticky top-0 z-50 bg-black/80">
-            {loading ? (
-              <div className="p-4 flex items-center justify-between">
-                <Skeleton className="h-8 w-32" />
-                <Skeleton className="h-8 w-8" />
-              </div>
-            ) : (
-              <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-            )}
-          </div>
-        )}
+        {/* Header: Always shown, with toggle for sidebar */}
+        <div className="sticky top-0 z-50 bg-black/80">
+          {loading && !isMobile ? (
+            <div className="p-4 flex items-center justify-between">
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-8 w-8" />
+            </div>
+          ) : (
+            <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+          )}
+        </div>
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="grid grid-cols-1 items-center justify-center min-h-full">
-            {isMobile ? (
-              // On mobile, always show FileUploadCard, no skeletons
-              <FileUploadCard
-                title="Upload PDF and start Quizzing"
-                description="Upload a PDF to generate a quiz"
-                accept="application/pdf"
-                onQuizGenerated={handleQuizGenerated}
-              />
-            ) : loading ? (
+            {loading && !isMobile ? (
               quizId ? (
                 // Skeleton for Quiz component (non-mobile)
                 <Card className="max-w-2xl mx-auto">
