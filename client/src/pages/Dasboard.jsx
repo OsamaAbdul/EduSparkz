@@ -1,3 +1,138 @@
+// import { useMediaQuery } from "react-responsive";
+// import { useState, useEffect } from "react";
+// import { useLocation } from "react-router-dom";
+// import { DashboardLayout } from "../components/dasboard/DashboardLayout.jsx";
+// import { Sidebar } from "../components/dasboard/Sidebar.jsx";
+// import { Header } from "../components/dasboard/Header.jsx";
+// import { FileUploadCard } from "../components/dasboard/FileUploadCard.jsx";
+// import Quiz from "../pages/Quiz.jsx";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+// export const Dashboard = () => {
+//   const [sidebarOpen, setSidebarOpen] = useState(true);
+//   const [quizId, setQuizId] = useState(null);
+//   const [quizTitle, setQuizTitle] = useState("");
+//   const [loading, setLoading] = useState(false);
+
+//   // Laptop breakpoint ~1024px, below is tablet/mobile
+//   const isLaptop = useMediaQuery({ minWidth: 1024 });
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     const { retakeQuizId, retakeQuizTitle } = location.state || {};
+//     if (retakeQuizId) {
+//       setLoading(true);
+//       setQuizId(retakeQuizId);
+//       setQuizTitle(retakeQuizTitle || "Retaking Quiz....");
+//       setTimeout(() => setLoading(false), 1000);
+//     }
+//   }, [location.state]);
+
+//   const handleQuizGenerated = (id, title = "Generated Quiz") => {
+//     setLoading(true);
+//     setQuizId(id);
+//     setQuizTitle(title);
+//     setTimeout(() => setLoading(false), 1000);
+//   };
+
+//   const resetQuiz = () => {
+//     setQuizId(null);
+//     setQuizTitle("");
+//     setLoading(false);
+//   };
+
+//   const toggleSidebar = () => setSidebarOpen(prev => !prev);
+
+//   return (
+//     <DashboardLayout>
+//       {/* Sidebar */}
+//       <div
+//         className={`sticky top-0 h-screen transition-all duration-300
+//           ${isLaptop ? (sidebarOpen ? "w-64" : "w-16") : sidebarOpen ? "w-64" : "w-16"}
+//         `}
+//       >
+//         {loading && isLaptop ? (
+//           <div className="h-full bg-gray-900 p-4 space-y-4">
+//             <Skeleton className="h-8 w-3/4" />
+//             <Skeleton className="h-10 w-full" />
+//             <Skeleton className="h-10 w-full" />
+//             <Skeleton className="h-10 w-full" />
+//           </div>
+//         ) : (
+//           <Sidebar
+//             key={sidebarOpen ? "open" : "closed"}
+//             isOpen={sidebarOpen}
+//             iconOnly={!isLaptop && !sidebarOpen}
+//             toggleSidebar={toggleSidebar}
+//           />
+
+//         )}
+//       </div>
+
+//       {/* Main content */}
+//       <div className="flex-1 flex flex-col min-h-screen">
+//         {/* Header */}
+//         <div className="sticky top-0 z-50 bg-black/80">
+//           {loading && isLaptop ? (
+//             <div className="p-4 flex items-center justify-between">
+//               <Skeleton className="h-8 w-32" />
+//               <Skeleton className="h-8 w-8" />
+//             </div>
+//           ) : (
+//             <Header toggleSidebar={toggleSidebar} />
+//           )}
+//         </div>
+
+//         {/* Page Content */}
+//         <main className="flex-1 p-6 overflow-y-auto">
+//           <div className="grid grid-cols-1 items-center justify-center min-h-full">
+//             {loading && isLaptop ? (
+//               quizId ? (
+//                 <Card className="max-w-2xl mx-auto">
+//                   <CardHeader>
+//                     <Skeleton className="h-6 w-1/2" />
+//                   </CardHeader>
+//                   <CardContent className="space-y-4">
+//                     <Skeleton className="h-4 w-3/4" />
+//                     <Skeleton className="h-10 w-full" />
+//                     <Skeleton className="h-10 w-full" />
+//                     <Skeleton className="h-10 w-full" />
+//                     <Skeleton className="h-10 w-1/4" />
+//                   </CardContent>
+//                 </Card>
+//               ) : (
+//                 <Card className="max-w-md mx-auto">
+//                   <CardHeader>
+//                     <Skeleton className="h-6 w-2/3" />
+//                     <Skeleton className="h-4 w-4/5" />
+//                   </CardHeader>
+//                   <CardContent>
+//                     <Skeleton className="h-10 w-full" />
+//                     <Skeleton className="h-10 w-1/2 mt-4" />
+//                   </CardContent>
+//                 </Card>
+//               )
+//             ) : quizId ? (
+//               <Quiz quizId={quizId} quizTitle={quizTitle} onComplete={resetQuiz} />
+//             ) : (
+//               <FileUploadCard
+//                 title="Upload PDF and start Quizzing"
+//                 description="Upload a PDF to generate a quiz"
+//                 accept="application/pdf"
+//                 onQuizGenerated={handleQuizGenerated}
+//               />
+//             )}
+//           </div>
+//         </main>
+//       </div>
+//     </DashboardLayout>
+//   );
+// };
+
+// export default Dashboard;
+
+
 import { useMediaQuery } from "react-responsive";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -15,9 +150,18 @@ export const Dashboard = () => {
   const [quizTitle, setQuizTitle] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Laptop breakpoint ~1024px, below is tablet/mobile
+  // Detect laptop and larger screens (≥ 1024px)
   const isLaptop = useMediaQuery({ minWidth: 1024 });
   const location = useLocation();
+
+  // Auto-adjust sidebar visibility based on screen size
+  useEffect(() => {
+    if (!isLaptop) {
+      setSidebarOpen(false); // Collapse to icons on mobile/tablet
+    } else {
+      setSidebarOpen(true); // Fully open on desktop/laptop
+    }
+  }, [isLaptop]);
 
   useEffect(() => {
     const { retakeQuizId, retakeQuizTitle } = location.state || {};
@@ -49,7 +193,7 @@ export const Dashboard = () => {
       {/* Sidebar */}
       <div
         className={`sticky top-0 h-screen transition-all duration-300
-          ${isLaptop ? (sidebarOpen ? "w-64" : "w-16") : sidebarOpen ? "w-64" : "w-16"}
+          ${sidebarOpen ? "w-64" : "w-16"}
         `}
       >
         {loading && isLaptop ? (
@@ -63,10 +207,9 @@ export const Dashboard = () => {
           <Sidebar
             key={sidebarOpen ? "open" : "closed"}
             isOpen={sidebarOpen}
-            iconOnly={!isLaptop && !sidebarOpen}
+            iconOnly={!sidebarOpen}
             toggleSidebar={toggleSidebar}
           />
-
         )}
       </div>
 
@@ -131,3 +274,4 @@ export const Dashboard = () => {
 };
 
 export default Dashboard;
+
