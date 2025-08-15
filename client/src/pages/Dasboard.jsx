@@ -14,7 +14,7 @@ export const Dashboard = () => {
   const [quizId, setQuizId] = useState(null);
   const [quizTitle, setQuizTitle] = useState("");
   const [loading, setLoading] = useState(false);
-  const isMobile = useMediaQuery({ maxWidth: 628, maxHeight: 632 });
+  const isMobile = useMediaQuery({ maxWidth: 1025, maxHeight: 1280 });
   const location = useLocation();
 
   useEffect(() => {
@@ -69,8 +69,8 @@ export const Dashboard = () => {
           </div>
         ) : (
           <Sidebar
-            key={sidebarOpen ? "open" : "closed"} // Force re-render
-            isOpen={isMobile ? false : sidebarOpen} // Icons only on mobile
+            key={sidebarOpen ? "open" : "closed"} 
+            isOpen={isMobile ? false : sidebarOpen} 
             toggleSidebar={toggleSidebar}
           />
         )}
