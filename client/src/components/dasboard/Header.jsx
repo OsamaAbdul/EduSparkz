@@ -44,7 +44,7 @@ export const Header = ({ toggleSidebar }) => {
             variant="ghost"
             size="sm"
             onClick={toggleSidebar}
-            className="text-white hover:bg-white/10"
+            className="text-white "
           >
             <Menu className="w-5 h-5" />
           </Button>
