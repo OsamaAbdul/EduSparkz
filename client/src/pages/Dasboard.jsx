@@ -7,20 +7,21 @@ import { Header } from "../components/dasboard/Header.jsx";
 import { FileUploadCard } from "../components/dasboard/FileUploadCard.jsx";
 import Quiz from "../pages/Quiz.jsx";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [quizId, setQuizId] = useState(null);
   const [quizTitle, setQuizTitle] = useState("");
   const [loading, setLoading] = useState(false);
-  const isMobile = useMediaQuery({ maxWidth: 1025, maxHeight: 1280 });
+
+  // Laptop breakpoint ~1024px, below is tablet/mobile
+  const isLaptop = useMediaQuery({ minWidth: 1024 });
   const location = useLocation();
 
   useEffect(() => {
     const { retakeQuizId, retakeQuizTitle } = location.state || {};
     if (retakeQuizId) {
-      console.log("Retake quiz triggered:", { retakeQuizId, retakeQuizTitle });
       setLoading(true);
       setQuizId(retakeQuizId);
       setQuizTitle(retakeQuizTitle || "Retaking Quiz....");
@@ -29,7 +30,6 @@ export const Dashboard = () => {
   }, [location.state]);
 
   const handleQuizGenerated = (id, title = "Generated Quiz") => {
-    console.log("Quiz generated:", { id, title });
     setLoading(true);
     setQuizId(id);
     setQuizTitle(title);
@@ -37,30 +37,22 @@ export const Dashboard = () => {
   };
 
   const resetQuiz = () => {
-    console.log("Resetting quiz");
     setQuizId(null);
     setQuizTitle("");
     setLoading(false);
   };
 
-  const toggleSidebar = () => {
-    setSidebarOpen((prev) => {
-      console.log("Toggling sidebar, new state:", !prev);
-      return !prev;
-    });
-  };
-
-  console.log("Rendering Dashboard, sidebarOpen:", sidebarOpen, "isMobile:", isMobile);
+  const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
   return (
     <DashboardLayout>
-      {/* Sidebar: Always shown, icons only on mobile */}
+      {/* Sidebar */}
       <div
-        className={`sticky top-0 h-screen transition-all duration-300 ${
-          isMobile ? "w-16" : sidebarOpen ? "w-64" : "w-16"
-        }`}
+        className={`sticky top-0 h-screen transition-all duration-300
+          ${isLaptop ? (sidebarOpen ? "w-64" : "w-16") : sidebarOpen ? "w-64" : "w-16"}
+        `}
       >
-        {loading && !isMobile ? (
+        {loading && isLaptop ? (
           <div className="h-full bg-gray-900 p-4 space-y-4">
             <Skeleton className="h-8 w-3/4" />
             <Skeleton className="h-10 w-full" />
@@ -69,16 +61,20 @@ export const Dashboard = () => {
           </div>
         ) : (
           <Sidebar
-            key={sidebarOpen ? "open" : "closed"} 
-            isOpen={isMobile ? false : sidebarOpen} 
+            key={sidebarOpen ? "open" : "closed"}
+            isOpen={sidebarOpen}
+            iconOnly={!isLaptop && !sidebarOpen}
             toggleSidebar={toggleSidebar}
           />
+
         )}
       </div>
+
+      {/* Main content */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Header: Always shown */}
+        {/* Header */}
         <div className="sticky top-0 z-50 bg-black/80">
-          {loading && !isMobile ? (
+          {loading && isLaptop ? (
             <div className="p-4 flex items-center justify-between">
               <Skeleton className="h-8 w-32" />
               <Skeleton className="h-8 w-8" />
@@ -87,9 +83,11 @@ export const Dashboard = () => {
             <Header toggleSidebar={toggleSidebar} />
           )}
         </div>
+
+        {/* Page Content */}
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="grid grid-cols-1 items-center justify-center min-h-full">
-            {loading && !isMobile ? (
+            {loading && isLaptop ? (
               quizId ? (
                 <Card className="max-w-2xl mx-auto">
                   <CardHeader>
