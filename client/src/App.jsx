@@ -15,7 +15,7 @@ import Quiz from './pages/Quiz.jsx';
 import QuizResults from './pages/QuizResults.jsx';
 import History from "./pages/History.jsx";
 import Leaderboard from "./pages/LeaderBoard.jsx";
-import VerifyOtp from "./components/verifyOtp.jsx";
+import VerifyOtp from "./components/VerifyOtp.jsx";
 import ResendOtp from "./components/ResendOtp.jsx";
 
 
@@ -33,7 +33,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/api/auth/login" element={<Login />} />
           <Route path="/api/auth/register" element={<Register />} />
-          
+          <Route path="/api/auth/verify-otp" element={<VerifyOtp />} />
+          <Route path="/api/auth/resend-otp" element={<ResendOtp />} />
 
           {/**Protected Route */}
 
@@ -42,8 +43,7 @@ const App = () => (
             <Route path="/user/quiz-result" element={<ProtectedRoute><QuizResults /></ProtectedRoute>} />
             <Route path="/user/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
             <Route path="/user/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
-            <Route path="/api/auth/verify-otp" element={<ProtectedRoute><VerifyOtp /></ProtectedRoute>} />
-            <Route path="/api/auth/resend-otp" element={<ProtectedRoute><ResendOtp /></ProtectedRoute>} />
+            
 
           <Route path="*" element={<NotFound />} />
         </Routes>
