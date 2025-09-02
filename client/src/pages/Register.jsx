@@ -80,7 +80,8 @@ export const Register = () => {
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white">Email</Label>
-                <div className="relative">
+                <div className="relative flex items-center">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="email"
                     type="email"
@@ -90,12 +91,13 @@ export const Register = () => {
                     className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
                     required
                   />
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-white">Username</Label>
-                <div className="relative">
+                <div className="relative flex items-center">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="username"
                     type="text"
@@ -105,12 +107,13 @@ export const Register = () => {
                     className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
                     required
                   />
-                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-white">Password</Label>
-                <div className="relative">
+                <div className="relative flex items-center">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -120,7 +123,7 @@ export const Register = () => {
                     className="pl-10 pr-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
                     required
                   />
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}

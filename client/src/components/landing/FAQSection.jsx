@@ -1,6 +1,6 @@
-
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { HelpCircle } from "lucide-react";
+// import { MailQuestionMark } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 export const FAQSection = () => {
   const faqs = [
@@ -47,12 +47,13 @@ export const FAQSection = () => {
             <AccordionItem key={index} value={`item-${index}`} className="bg-white/5 backdrop-blur-sm border-white/10 rounded-lg px-6">
               <AccordionTrigger className="text-white hover:text-purple-300 text-left">
                 <div className="flex items-center space-x-3">
-                  <HelpCircle className="w-5 h-5 text-purple-400" />
-                  <span>{faq.question}</span>
+                  {/* <MailQuestionMark className="w-5 h-5 text-purple-500" /> */}
+                  {/* <HelpCircle className="w-5 h-5 text-purple-500"/> */}
+                  <span>Question:  {faq.question}</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="text-gray-300 pb-4 leading-relaxed">
-                {faq.answer}
+                Answer: {faq.answer}
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -61,3 +62,6 @@ export const FAQSection = () => {
     </section>
   );
 };
+
+
+

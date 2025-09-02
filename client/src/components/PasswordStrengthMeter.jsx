@@ -1,4 +1,3 @@
-// components/ui/PasswordStrengthMeter.jsx
 import React from 'react';
 
 const rules = [
@@ -9,7 +8,7 @@ const rules = [
 ];
 
 const getStrength = (validCount) => {
-  if (validCount === 4) return { label: 'Strong', color: 'bg-green-500' };
+  if (validCount === 4) return { label: 'Strong', color: 'bg-[#00FF00]' };
   if (validCount >= 2) return { label: 'Medium', color: 'bg-yellow-400' };
   return { label: 'Weak', color: 'bg-red-500' };
 };
@@ -27,9 +26,13 @@ const PasswordStrengthMeter = ({ password }) => {
     <div className="mt-2 text-white">
       <ul className="text-sm space-y-1 pl-4">
         {validations.map((item, idx) => (
-          <li key={idx} className={`flex items-center gap-2 ${item.valid ? 'text-green-400' : 'text-red-400'}`}>
-            <span className="transition-all">{item.valid ? '✔' : '❌'}</span>
-            {item.label}
+          <li key={idx} className="flex items-center gap-2">
+            <span className={`transition-all ${item.valid ? 'text-red-400' : 'text-red-400'}`}>
+              {item.valid ? '✔' : '❌'}
+            </span>
+            <span className={`transition-all ${item.valid ? 'text-blue-400' : 'text-red-400'}`}>
+              {item.label}
+            </span>
           </li>
         ))}
       </ul>
@@ -42,7 +45,7 @@ const PasswordStrengthMeter = ({ password }) => {
           />
         </div>
         <p className="mt-1 text-sm text-white/80">
-          Strength: <span className={`font-medium ${strength.color.replace('bg-', 'text-')}`}>{strength.label}</span>
+          Strength: <span className={`font-medium ${strength.color === 'bg-[#00FF00]' ? 'text-[#00FF00]' : strength.color.replace('bg-', 'text-')}`}>{strength.label}</span>
         </p>
       </div>
     </div>
