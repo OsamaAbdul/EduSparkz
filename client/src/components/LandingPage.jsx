@@ -50,8 +50,8 @@ const backgroundClass = isDarkBackground
       <div className="relative z-10 pt-20">
         <HeroSection isVisible={isVisible} />
         <FeaturesSection />
-        <DeveloperSection />
-        <TechStackSection />
+        {/* <DeveloperSection /> */}
+        {/* <TechStackSection /> */}
         <TestimonialsSection />
         <ContactSection />
         <FAQSection />

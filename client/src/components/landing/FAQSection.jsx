@@ -1,59 +1,67 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-// import { MailQuestionMark } from 'lucide-react';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle } from "lucide-react";
 
 export const FAQSection = () => {
   const faqs = [
     {
       question: "How accurate is the EduSparkz content?",
-      answer: "Our AI uses advanced language models  to ensure high accuracy. The system analyzes your Uploaded Material content contextually and generates relevant questions with 95%+ accuracy rate."
+      answer:
+        "Our AI uses advanced language models to ensure high accuracy. The system analyzes your uploaded material contextually and generates relevant questions with over 95% accuracy.",
     },
     {
       question: "What file formats are supported for upload?",
-      answer: "We support PDF, Text Document(.DOCX) and Image up to 10MB in size. We're working on adding support for  PowerPoint presentations, and other common educational formats."
+      answer:
+        "We support PDF, DOCX, and image files up to 10MB. We're working on adding support for PowerPoint presentations and other common educational formats.",
     },
     {
       question: "Is my data secure and private?",
-      answer: "Absolutely! We use JWT-based authentication, encrypt all data in transit and at rest, and never share your content with third parties. Your uploaded documents and quiz results are completely private."
+      answer:
+        "Absolutely! We use JWT-based authentication, encrypt all data in transit and at rest, and never share your content with third parties.",
     },
     {
       question: "Can I customize the difficulty level of generated quizzes?",
-      answer: "We are currently working on adding levels to the app."
+      answer:
+        "We are currently working on adding difficulty levels to the app for more personalized quiz experiences.",
     },
     {
       question: "How does the instant evaluation system work?",
-      answer: "Our AI evaluates your answers in real-time, providing detailed explanations for both correct and incorrect responses. It also offers helpful hints and suggests related topics for further study."
+      answer:
+        "Our AI evaluates your answers in real-time, providing detailed explanations and hints to guide your learning process.",
     },
     {
       question: "Is there a limit to how many quizzes I can generate?",
-      answer: "Free users can generate up to 5 quizzes per day. Premium users enjoy unlimited quiz generation, advanced analytics, and priority AI processing."
-    }
+      answer:
+        "Free users can generate up to 5 quizzes per day. Premium users enjoy unlimited quiz generation and advanced analytics.",
+    },
   ];
 
   return (
-    <section className="relative z-10 px-6 py-20">
+    <section className="relative z-10 px-6 py-20 bg-white dark:bg-[#1E2D4C] transition-colors duration-300">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-[#1E2D4C] dark:text-[#ACBDAA]">
             Frequently Asked Questions
           </h2>
-          <p className="text-xl text-gray-400">
+          <p className="text-lg text-[#858585]">
             Everything you need to know about EduSparkz
           </p>
         </div>
-        
+
         <Accordion type="single" collapsible className="space-y-4">
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="bg-white/5 backdrop-blur-sm border-white/10 rounded-lg px-6">
-              <AccordionTrigger className="text-white hover:text-purple-300 text-left">
+            <AccordionItem
+              key={index}
+              value={`item-${index}`}
+              className="bg-[#ACBDAA]/20 dark:bg-[#ACBDAA]/10 border border-[#ACBDAA]/30 rounded-xl px-6 hover:shadow-sm transition-all"
+            >
+              <AccordionTrigger className="text-[#1E2D4C] dark:text-[#ACBDAA] hover:text-[#858585] text-left font-semibold">
                 <div className="flex items-center space-x-3">
-                  {/* <MailQuestionMark className="w-5 h-5 text-purple-500" /> */}
-                  {/* <HelpCircle className="w-5 h-5 text-purple-500"/> */}
-                  <span>Question:  {faq.question}</span>
+                  <HelpCircle className="w-5 h-5 text-[#858585]" />
+                  <span>{faq.question}</span>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="text-gray-300 pb-4 leading-relaxed">
-                Answer: {faq.answer}
+              <AccordionContent className="text-[#858585] pb-4 leading-relaxed">
+                {faq.answer}
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -62,6 +70,3 @@ export const FAQSection = () => {
     </section>
   );
 };
-
-
-

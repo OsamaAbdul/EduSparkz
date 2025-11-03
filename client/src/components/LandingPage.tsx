@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -22,41 +21,49 @@ export const LandingPage = () => {
     setIsVisible(true);
   }, []);
 
-  const backgroundClass = isDarkBackground 
-    ? "min-h-screen bg-black text-white overflow-x-hidden"
-    : "min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-x-hidden";
+  const backgroundClass = isDarkBackground
+    ? "min-h-screen bg-[#1E2D4C] text-[#CECOBB] overflow-x-hidden"
+    : "min-h-screen bg-gradient-to-br from-[#ACBDAA] via-[#CEC0BB] to-[#ACBDAA] text-[#1E2D4C] overflow-x-hidden";
 
   return (
     <div className={backgroundClass}>
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#ACBDAA]/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#CEC0BB]/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#858585]/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
       {/* Navigation */}
       <nav className="relative z-10 p-6 flex justify-between items-center backdrop-blur-sm">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
-            <Brain className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-gradient-to-r from-[#ACBDAA] to-[#CEC0BB] rounded-lg flex items-center justify-center shadow-md">
+            <Brain className="w-5 h-5 text-[#1E2D4C]" />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+          <span className="text-xl font-bold bg-gradient-to-r from-[#CEC0BB] to-[#ACBDAA] bg-clip-text text-transparent">
             AI Quiz Generator
           </span>
         </div>
+
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-400">Background</span>
+            <span className="text-sm text-[#858585]">Background</span>
             <Switch
               checked={isDarkBackground}
               onCheckedChange={setIsDarkBackground}
             />
           </div>
-          <Badge variant="outline" className="border-purple-500/50 text-purple-300">
+          <Badge
+            variant="outline"
+            className="border-[#ACBDAA]/50 text-[#ACBDAA]"
+          >
             MIT License
           </Badge>
-          <Button variant="outline" size="sm" className="border-white/20 hover:bg-white/10">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-[#CEC0BB]/30 text-[#CEC0BB] hover:bg-[#ACBDAA]/10 hover:text-[#1E2D4C]"
+          >
             GitHub
           </Button>
         </div>
