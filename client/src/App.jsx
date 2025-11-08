@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ThemeProvider from "@/context/ThemeProvider";  // ✅ Added
+import ThemeProvider from "@/context/ThemeProvider";  
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dasboard.jsx";
@@ -24,7 +24,7 @@ const App = () => (
   <UserProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <ThemeProvider> {/* ✅ Wrap everything */}
+        <ThemeProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -34,6 +34,12 @@ const App = () => (
               <Route path="/api/auth/register" element={<Register />} />
               <Route path="/api/auth/verify-otp" element={<VerifyOtp />} />
               <Route path="/api/auth/resend-otp" element={<ResendOtp />} />
+              {/* <Route path="/user/dashboard" element={<Dashboard />} />
+              <Route path="/user/quiz" element={<Quiz />} />
+              <Route path="/user/quiz-result" element={<QuizResults />} />
+              <Route path="/user/history" element={<History />} />
+              <Route path="/user/leaderboard" element={<Leaderboard />} /> */}
+
 
               {/* Protected Routes */}
               <Route

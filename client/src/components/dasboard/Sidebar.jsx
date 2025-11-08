@@ -1,11 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Home,
-  BookX,
-  ChartNoAxesCombined,
-  LogOut,
-  Brain,
-} from "lucide-react";
+import { Home, BookX, ChartNoAxesCombined, LogOut, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "../../context/useContext";
 
@@ -21,37 +15,25 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
   };
 
   const navItems = [
-    {
-      to: "/user/dashboard",
-      label: "Start Quiz",
-      icon: <Home className="w-5 h-5" />,
-    },
-    {
-      to: "/user/history",
-      label: "History",
-      icon: <BookX className="w-5 h-5" />,
-    },
-    {
-      to: "/user/leaderboard",
-      label: "Leaderboard",
-      icon: <ChartNoAxesCombined className="w-5 h-5" />,
-    },
+    { to: "/user/dashboard", label: "Start Quiz", icon: <Home className="w-5 h-5" /> },
+    { to: "/user/history", label: "History", icon: <BookX className="w-5 h-5" /> },
+    { to: "/user/leaderboard", label: "Leaderboard", icon: <ChartNoAxesCombined className="w-5 h-5" /> },
   ];
 
   return (
     <div
       className={`${
         isOpen ? "w-64" : "w-16"
-      } bg-black/50 backdrop-blur-xl border-r border-white/10 transition-all duration-300 overflow-y-auto h-full relative`}
+      } bg-[#1E2D4C]/80 backdrop-blur-xl border-r border-[#ACBDAA]/30 transition-all duration-300 overflow-y-auto h-full relative`}
     >
       {/* Brand */}
       <div className="p-4">
         <div className="flex items-center justify-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
-            <Brain className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-[#ACBDAA] rounded-full flex items-center justify-center shadow-md">
+            <Brain className="w-5 h-5 text-[#1E2D4C]" />
           </div>
           {!iconOnly && isOpen && (
-            <span className="text-white font-semibold whitespace-nowrap">
+            <span className="text-[#ACBDAA] font-semibold whitespace-nowrap">
               EduSparkz
             </span>
           )}
@@ -69,10 +51,10 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
                 to={item.to}
                 className={`flex items-center ${
                   iconOnly || !isOpen ? "justify-center" : "space-x-3"
-                } px-3 py-2 rounded-lg transition-colors ${
+                } px-3 py-2 rounded-full transition-all duration-200 transform ${
                   isActive
-                    ? "bg-purple-600/20 text-purple-400"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                    ? "bg-[#ACBDAA]/20 text-[#ACBDAA] shadow-md"
+                    : "text-[#ACBDAA]/70 hover:text-[#ACBDAA] hover:bg-[#ACBDAA]/10 hover:shadow-lg hover:-translate-y-1"
                 }`}
               >
                 {item.icon}
@@ -89,7 +71,7 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
           onClick={handleLogOut}
           className={`flex items-center ${
             iconOnly || !isOpen ? "justify-center" : "space-x-3"
-          } px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 w-full`}
+          } px-3 py-2 rounded-full text-[#ACBDAA]/70 hover:text-[#ACBDAA] hover:bg-[#ACBDAA]/10 w-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1`}
         >
           <LogOut className="w-5 h-5" />
           {!iconOnly && isOpen && <span>Logout</span>}

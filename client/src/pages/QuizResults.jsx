@@ -1,47 +1,56 @@
-// import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button";
-// import { Badge } from "@/components/ui/badge";
-// import { CheckCircle, XCircle, Clock, Trophy, RotateCcw } from "lucide-react";
-// import { toast } from "sonner";
+
+// import { useEffect, useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// import { Button } from '@/components/ui/button';
+// import { Badge } from '@/components/ui/badge';
+// import { CheckCircle, XCircle, Clock, Trophy, RotateCcw } from 'lucide-react';
+// import { toast } from 'sonner';
 
 // const QuizResults = () => {
 //   const [results, setResults] = useState(null);
 //   const navigate = useNavigate();
 
 //   useEffect(() => {
-//     const storedResults = localStorage.getItem("quizResult");
+//     const storedResults = localStorage.getItem('quizResult');
 //     if (storedResults) {
-//       setResults(JSON.parse(storedResults));
+//       const parsedResults = JSON.parse(storedResults);
+//       setResults(parsedResults);
+//       // Display motivational message as a toast
+//       toast.success(parsedResults.motivationalMessage, {
+//         style: {
+//           background: parsedResults.score / parsedResults.total >= 0.7 ? '#10B981' : '#3B82F6',
+//           color: '#FFFFFF',
+//         },
+//       });
 //     } else {
-//       navigate("/user/dashboard");
+//       navigate('/user/dashboard');
 //     }
 //   }, [navigate]);
 
 //   const formatTime = (seconds) => {
 //     const mins = Math.floor(seconds / 60);
 //     const secs = seconds % 60;
-//     return `${mins}:${secs.toString().padStart(2, "0")}`;
+//     return `${mins}:${secs.toString().padStart(2, '0')}`;
 //   };
 
 //   const getScoreColor = (percentage) => {
-//     if (percentage >= 80) return "text-green-400";
-//     if (percentage >= 60) return "text-yellow-400";
-//     return "text-red-400";
+//     if (percentage >= 80) return 'text-green-400';
+//     if (percentage >= 60) return 'text-yellow-400';
+//     return 'text-red-400';
 //   };
 
 //   const getScoreBg = (percentage) => {
-//     if (percentage >= 80) return "from-green-600 to-emerald-600";
-//     if (percentage >= 60) return "from-yellow-600 to-orange-600";
-//     return "from-red-600 to-pink-600";
+//     if (percentage >= 80) return 'from-green-600 to-emerald-600';
+//     if (percentage >= 60) return 'from-yellow-600 to-orange-600';
+//     return 'from-red-600 to-pink-600';
 //   };
 
 //   const handleRetakeQuiz = () => {
 //     if (results?.quizId) {
-//       toast.success("Retaking quiz...");
-//       navigate("/user/dashboard", {
-//         state: { retakeQuizId: results.quizId, retakeQuizTitle: results.quizTitle || "Retake Quiz" },
+//       toast.success('Retaking quiz...');
+//       navigate('/user/dashboard', {
+//         state: { retakeQuizId: results.quizId, retakeQuizTitle: results.quizTitle || 'Retake Quiz' },
 //       });
 //     }
 //   };
@@ -49,12 +58,13 @@
 //   if (!results) {
 //     return (
 //       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-//         <div className="text-white text-xl">Loading results...</div>
+//         <div className="text-white text-xl">Loading quiz results...</div>
 //       </div>
 //     );
 //   }
 
 //   const percentage = (results.score / results.total) * 100;
+//   const avgAnswerTime = results.results.reduce((sum, r) => sum + (r.timeTaken || 0), 0) / results.results.length || 0;
 
 //   return (
 //     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
@@ -77,7 +87,7 @@
 //             </CardTitle>
 //           </CardHeader>
 //           <CardContent className="space-y-4">
-//             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 //               <div className="text-center p-4 bg-purple-900/30 rounded-lg">
 //                 <div className="text-2xl font-bold text-white">{results.score}</div>
 //                 <div className="text-purple-300">Correct Answers</div>
@@ -87,15 +97,19 @@
 //                   <Clock className="w-6 h-6" />
 //                   {formatTime(results.duration)}
 //                 </div>
-//                 <div className="text-purple-300">Time Taken</div>
+//                 <div className="text-purple-300">Total Time</div>
 //               </div>
 //               <div className="text-center p-4 bg-purple-900/30 rounded-lg">
 //                 <div className="text-2xl font-bold text-white">{results.level}</div>
 //                 <div className="text-purple-300">Level</div>
 //               </div>
+//               <div className="text-center p-4 bg-purple-900/30 rounded-lg">
+//                 <div className="text-2xl font-bold text-white">{avgAnswerTime.toFixed(2)}s</div>
+//                 <div className="text-purple-300">Avg. Answer Time</div>
+//               </div>
 //             </div>
 //             <div className="text-center p-4 bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-lg">
-//               <p className="text-white text-lg">{results.motivationalMessage}</p>
+//               <p className={`text-lg font-semibold ${getScoreColor(percentage)}`}>{results.motivationalMessage}</p>
 //             </div>
 //           </CardContent>
 //         </Card>
@@ -108,7 +122,7 @@
 //             {results.results.map((result, index) => (
 //               <div key={index} className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
 //                 <div className="flex items-start gap-3 mb-3">
-//                   {result.status === "correct" ? (
+//                   {result.status === 'correct' ? (
 //                     <CheckCircle className="text-green-400 mt-1 flex-shrink-0" />
 //                   ) : (
 //                     <XCircle className="text-red-400 mt-1 flex-shrink-0" />
@@ -120,11 +134,11 @@
 //                     <div className="space-y-2">
 //                       <div className="flex items-center gap-2">
 //                         <span className="text-purple-300">Your answer:</span>
-//                         <Badge variant={result.status === "correct" ? "default" : "destructive"}>
+//                         <Badge variant={result.status === 'correct' ? 'default' : 'destructive'}>
 //                           {result.selectedAnswer}
 //                         </Badge>
 //                       </div>
-//                       {result.status === "incorrect" && (
+//                       {result.status === 'incorrect' && (
 //                         <div className="flex items-center gap-2">
 //                           <span className="text-purple-300">Correct answer:</span>
 //                           <Badge variant="default" className="bg-green-600">
@@ -133,6 +147,9 @@
 //                         </div>
 //                       )}
 //                       <div className="text-gray-300 text-sm mt-2">{result.explanation}</div>
+//                       <div className="text-purple-300 text-sm">
+//                         Time Taken: {result.timeTaken.toFixed(2)} seconds
+//                       </div>
 //                     </div>
 //                   </div>
 //                 </div>
@@ -150,7 +167,7 @@
 //             Retake Quiz
 //           </Button>
 //           <Button
-//             onClick={() => navigate("/user/dashboard")}
+//             onClick={() => navigate('/user/dashboard')}
 //             variant="outline"
 //             className="bg-transparent border-purple-500 text-purple-300 hover:bg-purple-900/30"
 //           >
@@ -163,7 +180,6 @@
 // };
 
 // export default QuizResults;
-
 
 
 import { useEffect, useState } from 'react';
@@ -183,10 +199,9 @@ const QuizResults = () => {
     if (storedResults) {
       const parsedResults = JSON.parse(storedResults);
       setResults(parsedResults);
-      // Display motivational message as a toast
       toast.success(parsedResults.motivationalMessage, {
         style: {
-          background: parsedResults.score / parsedResults.total >= 0.7 ? '#10B981' : '#3B82F6',
+          background: '#7C3AED', // Purple accent for consistency
           color: '#FFFFFF',
         },
       });
@@ -202,15 +217,15 @@ const QuizResults = () => {
   };
 
   const getScoreColor = (percentage) => {
-    if (percentage >= 80) return 'text-green-400';
+    if (percentage >= 80) return 'text-blue-400';
     if (percentage >= 60) return 'text-yellow-400';
     return 'text-red-400';
   };
 
   const getScoreBg = (percentage) => {
-    if (percentage >= 80) return 'from-green-600 to-emerald-600';
-    if (percentage >= 60) return 'from-yellow-600 to-orange-600';
-    return 'from-red-600 to-pink-600';
+    if (percentage >= 80) return 'from-blue-600 to-blue-500';
+    if (percentage >= 60) return 'from-yellow-600 to-orange-500';
+    return 'from-red-600 to-pink-500';
   };
 
   const handleRetakeQuiz = () => {
@@ -224,8 +239,8 @@ const QuizResults = () => {
 
   if (!results) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading quiz results...</div>
+      <div className="min-h-screen bg-[#1E2D4C] flex items-center justify-center">
+        <div className="text-[#ACBDAA] text-xl">Loading quiz results...</div>
       </div>
     );
   }
@@ -234,7 +249,7 @@ const QuizResults = () => {
   const avgAnswerTime = results.results.reduce((sum, r) => sum + (r.timeTaken || 0), 0) / results.results.length || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="min-h-screen bg-[#1E2D4C] p-4">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="text-center space-y-4 pt-8">
           <h1 className="text-4xl font-bold text-white mb-2">Quiz Results</h1>
@@ -275,7 +290,7 @@ const QuizResults = () => {
                 <div className="text-purple-300">Avg. Answer Time</div>
               </div>
             </div>
-            <div className="text-center p-4 bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-lg">
+            <div className="text-center p-4 bg-purple-900/30 rounded-lg">
               <p className={`text-lg font-semibold ${getScoreColor(percentage)}`}>{results.motivationalMessage}</p>
             </div>
           </CardContent>
@@ -301,14 +316,14 @@ const QuizResults = () => {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="text-purple-300">Your answer:</span>
-                        <Badge variant={result.status === 'correct' ? 'default' : 'destructive'}>
+                        <Badge variant={result.status === 'correct' ? 'default' : 'destructive'} className="bg-purple-700 text-white">
                           {result.selectedAnswer}
                         </Badge>
                       </div>
                       {result.status === 'incorrect' && (
                         <div className="flex items-center gap-2">
                           <span className="text-purple-300">Correct answer:</span>
-                          <Badge variant="default" className="bg-green-600">
+                          <Badge className="bg-green-600 text-white">
                             {result.correctAnswer}
                           </Badge>
                         </div>

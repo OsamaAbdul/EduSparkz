@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,16 +11,16 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import Tesseract from 'tesseract.js';
 import mammoth from 'mammoth';
 
-// Set up pdf.js worker
+// PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js`;
 
-// Custom CSS for spinner
+// Spinner CSS
 const spinnerStyles = `
   .custom-spinner {
     width: 32px;
     height: 32px;
-    border: 4px solid rgba(255, 255, 255, 0.1);
-    border-top: 4px solid #a855f7; /* Matches purple-400 */
+    border: 4px solid rgba(172, 189, 170, 0.2);
+    border-top: 4px solid #ACBDAA;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -29,7 +31,6 @@ const spinnerStyles = `
 `;
 
 export const FileUploadCard = ({
-  
   accept = "application/pdf,text/plain,image/jpeg,image/png,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   onQuizGenerated,
 }) => {
@@ -45,6 +46,7 @@ export const FileUploadCard = ({
 
   const { user } = useUser();
 
+  // Reset error after timeout
   useEffect(() => {
     if (fileError) {
       const timer = setTimeout(() => setFileError(""), 3000);
@@ -52,9 +54,10 @@ export const FileUploadCard = ({
     }
   }, [fileError]);
 
+  // Loading text animation
   useEffect(() => {
     if (loading) {
-      const texts = ["Getting ready...", "Processing...", "Almost ready...", "Hold on a little....."];
+      const texts = ["Getting ready...", "Processing...", "Almost ready...", "Hold on a little..."];
       let index = 0;
       const interval = setInterval(() => {
         setLoadingText(texts[index]);
@@ -64,28 +67,24 @@ export const FileUploadCard = ({
     }
   }, [loading]);
 
+  // Extract text from different file types
   const extractTextFromFile = async (file) => {
     const fileType = file.type;
     try {
       if (fileType === "application/pdf") {
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/extract-pdf-text`, {
-        method: 'POST',
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error('PDF text extraction failed');
-      }
-      const { text } = await response.json();
-      return text;
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/extract-pdf-text`, { method: 'POST', body: formData });
+        if (!response.ok) throw new Error('PDF text extraction failed');
+        const { text } = await response.json();
+        return text;
       } else if (fileType === "text/plain") {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
+          reader.onload = e => resolve(e.target.result);
           reader.readAsText(file);
         });
-      } else if (fileType === "image/jpeg" || fileType === "image/png") {
+      } else if (["image/jpeg", "image/png"].includes(fileType)) {
         const { data: { text } } = await Tesseract.recognize(file, 'eng');
         return text;
       } else if (fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
@@ -109,83 +108,46 @@ export const FileUploadCard = ({
       "image/png",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
-    const maxSize = 10 * 1024 * 1024; // 10MB limit
-    if (selectedFile && allowedTypes.includes(selectedFile.type)) {
-      if (selectedFile.size > maxSize) {
-        setFileError("File size exceeds 10MB limit.");
-        return;
-      }
-      setFileError("");
-      setFileName(selectedFile.name);
-      setFile(selectedFile);
-      setLoading(true);
-      try {
-        const text = await extractTextFromFile(selectedFile);
-        console.log("Extracted text length:", text.length);
-        setExtractedText(text);
-      } catch (err) {
-        setFileError(`Text extraction failed: ${err.message}. Try a different file.`);
-        setFileName("No file selected");
-        setFile(null);
-        setExtractedText("");
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setFileError("Only PDF, text (.txt), image (JPEG, PNG), or Word (.docx) files are allowed");
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (!selectedFile || !allowedTypes.includes(selectedFile.type)) {
+      setFileError("Only PDF, text, image, or Word (.docx) files allowed");
       setFileName("No file selected");
       setFile(null);
       setExtractedText("");
+      return;
+    }
+    if (selectedFile.size > maxSize) {
+      setFileError("File exceeds 10MB limit");
+      return;
+    }
+    setFileName(selectedFile.name);
+    setFile(selectedFile);
+    setLoading(true);
+    try {
+      const text = await extractTextFromFile(selectedFile);
+      setExtractedText(text);
+    } catch (err) {
+      setFileError(err.message);
+      setFile(null);
+      setFileName("No file selected");
+      setExtractedText("");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDrag = (e) => {
+  const handleDrag = e => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setIsDragging(true);
-    } else if (e.type === "dragleave") {
-      setIsDragging(false);
-    }
+    setIsDragging(["dragenter","dragover"].includes(e.type));
   };
 
-  const handleDrop = async (e) => {
+  const handleDrop = async e => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
     const droppedFile = e.dataTransfer.files[0];
-    const allowedTypes = [
-      "text/plain",
-      "application/pdf",
-      "image/jpeg",
-      "image/png",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
-    const maxSize = 10 * 1024 * 1024; // 10MB limit
-    if (droppedFile && allowedTypes.includes(droppedFile.type)) {
-      if (droppedFile.size > maxSize) {
-        setFileError("File size exceeds 10MB limit.");
-        return;
-      }
-      setFileError("");
-      setFileName(droppedFile.name);
-      setFile(droppedFile);
-      setLoading(true);
-      try {
-        const text = await extractTextFromFile(droppedFile);
-        console.log("Extracted text length:", text.length);
-        setExtractedText(text);
-      } catch (err) {
-        setFileError(`Text extraction failed: ${err.message}. Try a different file.`);
-        setFileName("No file selected");
-        setFile(null);
-        setExtractedText("");
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setFileError("Only PDF, text (.txt), image (JPEG, PNG), or Word (.docx) files are allowed");
-    }
+    if (droppedFile) handleFileChange({ target: { files: [droppedFile] } });
   };
 
   const handleUploadAndGenerate = async () => {
@@ -195,41 +157,25 @@ export const FileUploadCard = ({
     }
     setLoading(true);
     try {
-      const parsedQuizCount = quizCount ? parseInt(quizCount) : 5;
-      if (isNaN(parsedQuizCount) || parsedQuizCount < 1 || parsedQuizCount > 20) {
-        throw new Error("Quiz count must be a number between 1 and 20");
-      }
-      const payload = {
-        text: extractedText,
-        userPrompt,
-        quizCount: parsedQuizCount,
-        title: file.name || userPrompt || "Generated Quiz",
-      };
-      console.log("Sending payload to backend:", payload);
+      const count = quizCount ? parseInt(quizCount) : 5;
+      if (isNaN(count) || count < 1 || count > 20) throw new Error("Quiz count must be 1-20");
+      const payload = { text: extractedText, userPrompt, quizCount: count, title: file.name || userPrompt || "Generated Quiz" };
       const token = user.token;
-      if (!token) {
-        navigate('/api/auth/login');
-        throw new Error("No authentication token found. Please log in.");
-      }
+      if (!token) throw new Error("No auth token found.");
       localStorage.setItem("authToken", token);
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/generate-quiz`, {
         method: "POST",
         body: JSON.stringify(payload),
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Server error: ${response.statusText}`);
+        const data = await response.json();
+        throw new Error(data.error || "Server error");
       }
       const result = await response.json();
-      console.log("API response:", result);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       onQuizGenerated(result.quizId, file.name || userPrompt || "Generated Quiz");
     } catch (err) {
-      console.error("🚨 Error:", err);
       setFileError(err.message);
     } finally {
       setLoading(false);
@@ -245,16 +191,16 @@ export const FileUploadCard = ({
   return (
     <div className="space-y-6">
       <style>{spinnerStyles}</style>
-      <Card className="bg-black/50 backdrop-blur-xl border-white/10 w-full h-full flex flex-col">
+      <Card className="bg-[#1E2D4C]/90 backdrop-blur-xl border border-[#ACBDAA]/30 w-full flex flex-col">
         <CardHeader>
-          <CardTitle className="text-white">Upload Study Materials</CardTitle>
-          <CardDescription className="text-gray-400">Upload only .docx, PDF or Image to start quizzing.....</CardDescription>
+          <CardTitle className="flex items-center text-[#ACBDAA]">Upload Study Materials</CardTitle>
+          <CardDescription className="text-[#ACBDAA]/70">Upload only .docx, PDF or Image to start quizzing...</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex items-center justify-center">
           {loading ? (
             <div className="flex flex-col items-center space-y-2">
               <div className="custom-spinner" />
-              <span className="text-white">{loadingText}</span>
+              <span className="text-[#ACBDAA]">{loadingText}</span>
             </div>
           ) : (
             <div className="w-full max-w-md space-y-4">
@@ -265,25 +211,20 @@ export const FileUploadCard = ({
                 onDragLeave={handleDrag}
                 onDrop={handleDrop}
                 whileHover={{ scale: 1.02 }}
-                className={`block w-full p-4 bg-white/5 rounded-lg text-gray-300 text-center cursor-pointer border-2 transition-all ${
-                  isDragging ? "border-purple-500 bg-purple-600/20" : "border-white/10"
-                }`}
+                className={`block w-full p-4 rounded-full text-center cursor-pointer border-2 transition-all
+                  ${isDragging ? "border-[#ACBDAA] bg-[#ACBDAA]/20" : "border-[#ACBDAA]/30 bg-[#1E2D4C]/30"}
+                `}
               >
                 <motion.div
-                  animate={{ scale: file ? 1.1 : 1 }}
+                  animate={{ scale: file ? 1.05 : 1 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <Upload className="mx-auto h-8 w-8 text-purple-400" />
-                  <span className="font-medium">{fileName}</span>
+                  <Upload className="mx-auto h-8 w-8 text-[#ACBDAA]" />
+                  <span className="font-medium text-[#ACBDAA]">{fileName}</span>
                 </motion.div>
-                <input
-                  id="file"
-                  type="file"
-                  accept={accept}
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
+                <input id="file" type="file" accept={accept} onChange={handleFileChange} className="hidden" />
               </motion.label>
+
               <AnimatePresence>
                 {fileError && (
                   <motion.p
@@ -297,75 +238,67 @@ export const FileUploadCard = ({
                   </motion.p>
                 )}
               </AnimatePresence>
-              <div className="relative">
-                <motion.input
-                  type="text"
-                  placeholder="Enter a prompt (optional). e.g, the quiz should cover a particular topic from the file"
-                  value={userPrompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  maxLength={500}
-                  whileFocus={{ scale: 1.02 }}
-                  className="w-full p-3 bg-white/5 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <span className="absolute right-3 top-3 text-gray-500 text-xs">
-                  {userPrompt.length}/500
-                </span>
-              </div>
+
+              <motion.input
+                type="text"
+                placeholder="Enter a prompt (optional)"
+                value={userPrompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                maxLength={500}
+                whileFocus={{ scale: 1.02 }}
+                className="w-full p-3 rounded-lg text-[#ACBDAA] placeholder-[#ACBDAA]/70 bg-[#1E2D4C]/30 focus:outline-none focus:ring-2 focus:ring-[#ACBDAA] border-[#ACBDAA]/30 bg-[#1E2D4C]/30"
+              />
               <motion.input
                 type="number"
                 placeholder="Number of quiz questions (default: 5)"
                 value={quizCount}
                 onChange={(e) => setQuizCount(e.target.value)}
-                min="1"
-                max="20"
+                min="1" max="20"
                 whileFocus={{ scale: 1.02 }}
-                className="w-full p-3 bg-white/5 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full p-3 rounded-lg text-[#ACBDAA] placeholder-[#ACBDAA]/70 bg-[#1E2D4C]/30 focus:outline-none focus:ring-2 focus:ring-[#ACBDAA]"
               />
             </div>
           )}
         </CardContent>
-      </Card>
-
-      <AnimatePresence>
         {extractedText && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3 }}
+            className="mt-4"
           >
-            <Card className="bg-black/50 backdrop-blur-xl border-white/10 w-full">
+            <Card className="bg-[#1E2D4C]/80 border border-[#ACBDAA]/30">
               <CardHeader>
-                <CardTitle className="text-white">Preview Document Texts</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Review the text below. Click <span className="text-red-500">Generate Quiz</span> to proceed or "Cancel" to select a different file.
+                <CardTitle className="text-[#ACBDAA]">Preview Document Texts</CardTitle>
+                <CardDescription className="text-[#ACBDAA]/70">
+                  Review below. Click <span className="text-[#ACBDAA]">Generate Quiz</span> or "Cancel".
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {loading ? (
                   <div className="flex flex-col items-center space-y-2">
                     <div className="custom-spinner" />
-                    <span className="text-white">{loadingText}</span>
+                    <span className="text-[#ACBDAA]">{loadingText}</span>
                   </div>
                 ) : (
                   <>
                     <textarea
                       value={extractedText}
                       readOnly
-                      className="w-full h-64 p-3 bg-white/5 rounded-lg text-white placeholder-gray-400 focus:outline-none border border-white/10"
-                      placeholder="Extracted text will appear here..."
+                      className="w-full h-64 p-3 rounded-lg bg-[#1E2D4C]/30 text-[#ACBDAA] placeholder-[#ACBDAA]/50 border border-[#ACBDAA]/30 focus:outline-none"
                     />
                     <div className="mt-4 flex justify-end space-x-2">
                       <Button
                         variant="outline"
                         onClick={handleCancel}
-                        className="text-black border-white/20 "
+                        className="text-[#ACBDAA] border-[#ACBDAA]/30"
                       >
                         Cancel
                       </Button>
                       <Button
                         onClick={handleUploadAndGenerate}
-                        className="bg-purple-600 "
+                        className="bg-[#ACBDAA] text-[#1E2D4C] hover:opacity-90"
                       >
                         Generate Quiz
                       </Button>
@@ -376,7 +309,7 @@ export const FileUploadCard = ({
             </Card>
           </motion.div>
         )}
-      </AnimatePresence>
+      </Card>
     </div>
   );
 };

@@ -16,9 +16,9 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen bg-[#1E2D4C] relative overflow-hidden flex items-center justify-center">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-black/10" />
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
       <div className="absolute top-20 left-10 w-20 h-20 bg-purple-500/10 rounded-full blur-xl animate-pulse" />
       <div className="absolute top-40 right-20 w-32 h-32 bg-cyan-500/10 rounded-full blur-xl animate-pulse delay-1000" />
@@ -30,10 +30,10 @@ const NotFound = () => {
             <CardTitle className="text-center text-2xl font-semibold text-white">
               <div className="mb-6 pt-4 text-center">
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-purple-700 rounded-lg flex items-center justify-center">
                     <Brain className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                  <span className="text-xl font-bold text-[#ACBDAA] animate-bounce-slow">
                     EduSparkz
                   </span>
                 </div>
@@ -47,15 +47,31 @@ const NotFound = () => {
             </p>
             <Button
               onClick={() => navigate('/')}
-              className="bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold py-2 px-4"
+              className="bg-[#ACBDAA] text-[#1E2D4C] font-semibold py-2 px-4 hover:bg-[#ACBDAA]/80"
             >
               Return to Home
             </Button>
           </CardContent>
         </Card>
       </div>
+
+      {/* Custom bounce animation */}
+      <style>
+        {`
+          @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+          }
+          .animate-bounce-slow {
+            animation: bounce-slow 2s infinite;
+          }
+        `}
+      </style>
     </div>
   );
 };
 
 export default NotFound;
+
+
+
