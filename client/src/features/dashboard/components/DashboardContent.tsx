@@ -5,6 +5,7 @@ import { ProjectsSection } from "./sections/ProjectsSection";
 import { TeamSection } from "./sections/TeamSection";
 import { PerformanceSection } from "./sections/PerformanceSection";
 import { SettingsSection } from "./sections/SettingsSection";
+import { useUser } from "@/context/useContext";
 
 interface DashboardContentProps {
   activeSection: string;
@@ -20,6 +21,8 @@ const sectionTitles = {
 };
 
 export const DashboardContent = ({ activeSection, onToggleSidebar }: DashboardContentProps) => {
+  const { user } = useUser();
+
   const renderSection = () => {
     switch (activeSection) {
       case "analytics":
@@ -84,3 +87,4 @@ export const DashboardContent = ({ activeSection, onToggleSidebar }: DashboardCo
     </div>
   );
 };
+

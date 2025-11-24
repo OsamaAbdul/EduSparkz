@@ -2,10 +2,11 @@ import { useMediaQuery } from "react-responsive";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { DashboardLayout } from "../components/dasboard/DashboardLayout.jsx";
-import { Sidebar } from "../components/dasboard/Sidebar.jsx";
-import { Header } from "../components/dasboard/Header.jsx";
-import { FileUploadCard } from "../components/dasboard/FileUploadCard.jsx";
+import { DashboardLayout } from "../layouts/DashboardLayout.jsx";
+import { Sidebar } from "../layouts/Sidebar.jsx";
+import Header from "../layouts/Header.jsx";
+import { FileUploadCard } from "../features/dashboard/components/FileUploadCard.jsx";
+import { Chatbot } from "../features/dashboard/components/Chatbot.jsx";
 import Quiz from "../pages/Quiz.jsx";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -102,20 +103,19 @@ export const Dashboard = () => {
                 <Skeleton className="h-8 w-8 bg-[#ACBDAA]/30" />
               </div>
             ) : (
-              <Header toggleSidebar={toggleSidebar} className="w-full"/>
+              <Header toggleSidebar={toggleSidebar} className="w-full" />
             )}
           </header>
 
           {/* Page Body */}
           <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
             <div
-              className={`flex flex-col items-center justify-center min-h-[70vh] space-y-6 ${
-                loading ? "animate-pulse" : ""
-              }`}
+              className={`flex flex-col items-center justify-center min-h-[70vh] space-y-6 ${loading ? "animate-pulse" : ""
+                }`}
             >
               {loading && isLaptop ? (
                 quizId ? (
-                  <Card className="w-full max-w-2xl mx-auto border border-[#ACBDAA]/30 shadow-lg backdrop-blur-xl bg-white/70 dark:bg-[#1E2D4C]/70 dark:border-[#ACBDAA]/20">
+                  <Card className="w-full max-w-2xl mx-auto border border-[#ACBDAA]/30 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-[#1E2D4C]/80 dark:border-[#ACBDAA]/20">
                     <CardHeader>
                       <Skeleton className="h-6 w-1/2 bg-[#ACBDAA]/20" />
                     </CardHeader>
@@ -128,7 +128,7 @@ export const Dashboard = () => {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="w-full max-w-md mx-auto border border-[#ACBDAA]/30 shadow-lg backdrop-blur-xl bg-white/70 dark:bg-[#1E2D4C]/70 dark:border-[#ACBDAA]/20">
+                  <Card className="w-full max-w-md mx-auto border border-[#ACBDAA]/30 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-[#1E2D4C]/80 dark:border-[#ACBDAA]/20">
                     <CardHeader>
                       <Skeleton className="h-6 w-2/3 bg-[#ACBDAA]/20" />
                       <Skeleton className="h-4 w-4/5 bg-[#ACBDAA]/20" />
@@ -154,7 +154,7 @@ export const Dashboard = () => {
                     description="Upload a PDF to generate an engaging quiz"
                     accept="application/pdf"
                     onQuizGenerated={handleQuizGenerated}
-                    className="w-full border border-[#ACBDAA]/30 bg-white/70 dark:bg-[#1E2D4C]/70 dark:border-[#ACBDAA]/20 shadow-lg rounded-xl"
+                    className="w-full border border-[#ACBDAA]/30 bg-white/80 dark:bg-[#1E2D4C]/80 dark:border-[#ACBDAA]/20 shadow-lg rounded-xl"
                   />
                 </div>
               )}
@@ -176,6 +176,7 @@ export const Dashboard = () => {
           )}
         </AnimatePresence>
       </div>
+      <Chatbot />
     </DashboardLayout>
   );
 };

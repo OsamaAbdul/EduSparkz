@@ -123,7 +123,7 @@ export const TestimonialsSection = () => {
       </div>
 
       {/* Swiper button styles */}
-      <style jsx>{`
+      <style jsx="true">{`
         .swiper-button-prev,
         .swiper-button-next {
           background-color: rgba(172, 189, 170, 0.3);

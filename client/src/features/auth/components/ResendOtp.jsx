@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, CheckCircle, Brain, Mail } from "lucide-react";
-import BackButton from '../components/landing/BackButton';
+import BackButton from '@/features/landing/components/BackButton';
 import { toast } from 'sonner';
+import { supabase } from "@/lib/supabase";
 
 export const ResendOtp = () => {
   const navigate = useNavigate();
@@ -24,21 +25,16 @@ export const ResendOtp = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/auth/resend-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
       });
 
-      const data = await response.json();
+      if (error) throw error;
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to resend OTP.');
-      }
-
-      setSuccess(data.message);
-      toast.success(data.message);
-      setTimeout(() => navigate('/verify', { state: { email } }), 2000); // Redirect to Verify OTP
+      setSuccess('OTP resent successfully!');
+      toast.success('OTP resent successfully!');
+      setTimeout(() => navigate('/api/auth/verify-otp', { state: { identifier: email } }), 2000); // Redirect to Verify OTP
     } catch (err) {
       setError(err.message);
       toast.error(err.message);
@@ -88,7 +84,7 @@ export const ResendOtp = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    disabled
+                    disabled={false}
                     placeholder="Enter your email"
                     className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
                     required
@@ -119,7 +115,7 @@ export const ResendOtp = () => {
             <div className="mt-6 text-center">
               <p className="text-gray-400">
                 Back to{' '}
-                <Link to="/verify" state={{ email }} className="text-purple-400 hover:text-purple-300 underline">
+                <Link to="/api/auth/verify-otp" state={{ identifier: email }} className="text-purple-400 hover:text-purple-300 underline">
                   Verify OTP
                 </Link>
               </p>

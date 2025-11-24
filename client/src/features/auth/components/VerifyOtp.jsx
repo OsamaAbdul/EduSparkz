@@ -6,14 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, CheckCircle, Brain, Mail } from "lucide-react";
-import BackButton from './landing/BackButton.jsx';
+import BackButton from '@/features/landing/components/BackButton.jsx';
 import { toast } from 'sonner';
+import { supabase } from "@/lib/supabase";
 
 export const VerifyOtp = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [identifier, setIdentifier] = useState(location.state?.identifier || '');
-  const [email, setEmail] = useState(''); // To store the email from backend response
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -26,27 +27,21 @@ export const VerifyOtp = () => {
 
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
       if (isEmail) {
-        setEmail(identifier); 
+        setEmail(identifier);
         return;
       }
 
-      // If identifier is a username, fetch the associated email
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/auth/get-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: identifier }),
-        });
-        const data = await response.json();
-        if (response.ok && data.success) {
-          setEmail(data.email);
-        } else {
-          setError(data.message || 'Unable to fetch email for this username.');
-          toast.error(data.message || 'Unable to fetch email for this username.');
-        }
-      } catch (err) {
-        setError('Error connecting to the server.');
-        toast.error('Error connecting to the server.');
+      // If identifier is a username, we cannot easily fetch email from Supabase client-side for security.
+      // For now, we assume identifier is email or we ask user to enter email.
+      // Or we could query the profiles table if we allow public read access to emails (bad idea).
+      // Let's assume identifier MUST be email for OTP verification in this new flow,
+      // or we rely on the user knowing their email.
+      // If the previous flow passed username, we might be stuck.
+      // However, since we updated Login/Register to prioritize Email, we should encourage Email usage.
+
+      // For migration compatibility, if it looks like a username, we might warn the user.
+      if (!isEmail) {
+        setError('Please enter your email address for verification.');
       }
     };
 
@@ -60,20 +55,16 @@ export const VerifyOtp = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, otp }), 
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email,
+        token: otp,
+        type: 'signup'
       });
 
-      const data = await response.json();
+      if (error) throw error;
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to verify OTP.');
-      }
-
-      setSuccess(data.message);
-      toast.success(data.message);
+      setSuccess('Verification successful!');
+      toast.success('Verification successful!');
       setTimeout(() => navigate('/api/auth/login'), 2000);
     } catch (err) {
       setError(err.message);
@@ -91,19 +82,14 @@ export const VerifyOtp = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/auth/resend-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
       });
 
-      const data = await response.json();
+      if (error) throw error;
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to resend OTP.');
-      }
-
-      toast.success(data.message);
+      toast.success('OTP resent successfully!');
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -147,15 +133,17 @@ export const VerifyOtp = () => {
           <CardContent>
             <form onSubmit={handleVerify} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="identifier" className="text-white">Email or Username</Label>
+                <Label htmlFor="identifier" className="text-white">Email</Label>
                 <div className="relative">
                   <Input
                     id="identifier"
-                    type="text"
-                    value={identifier}
-                    disabled
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="Enter your email or username"
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setIdentifier(e.target.value);
+                    }}
+                    placeholder="Enter your email"
                     className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
                     required
                   />

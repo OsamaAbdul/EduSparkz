@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, BookX, ChartNoAxesCombined, LogOut, Brain } from "lucide-react";
+import { Home, BookX, ChartNoAxesCombined, LogOut, Brain, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { useUser } from "../../context/useContext";
+import { useUser } from "@/context/useContext";
 
 export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
   const { logOut } = useUser();
@@ -16,24 +16,22 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
 
   const navItems = [
     { to: "/user/dashboard", label: "Start Quiz", icon: <Home className="w-5 h-5" /> },
+    { to: "/user/materials", label: "My Materials", icon: <FileText className="w-5 h-5" /> },
     { to: "/user/history", label: "History", icon: <BookX className="w-5 h-5" /> },
     { to: "/user/leaderboard", label: "Leaderboard", icon: <ChartNoAxesCombined className="w-5 h-5" /> },
   ];
 
   return (
     <div
-      className={`${
-        isOpen ? "w-64" : "w-16"
-      } bg-[#1E2D4C]/80 backdrop-blur-xl border-r border-[#ACBDAA]/30 transition-all duration-300 overflow-y-auto h-full relative`}
+      className={`${isOpen ? "w-64" : "w-16"
+        } bg-white/80 dark:bg-[#1E2D4C]/80 backdrop-blur-xl border-r border-[#ACBDAA]/30 transition-all duration-300 overflow-y-auto h-full relative`}
     >
       {/* Brand */}
       <div className="p-4">
         <div className="flex items-center justify-center space-x-2">
-          <div className="w-10 h-10 bg-[#ACBDAA] rounded-full flex items-center justify-center shadow-md">
-            <Brain className="w-5 h-5 text-[#1E2D4C]" />
-          </div>
+          <img src="/logo.png" alt="EduSparkz Logo" className="w-10 h-10 rounded-lg shadow-md object-cover bg-white" />
           {!iconOnly && isOpen && (
-            <span className="text-[#ACBDAA] font-semibold whitespace-nowrap">
+            <span className="text-[#1E2D4C] dark:text-[#ACBDAA] font-semibold whitespace-nowrap">
               EduSparkz
             </span>
           )}
@@ -49,13 +47,11 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`flex items-center ${
-                  iconOnly || !isOpen ? "justify-center" : "space-x-3"
-                } px-3 py-2 rounded-full transition-all duration-200 transform ${
-                  isActive
-                    ? "bg-[#ACBDAA]/20 text-[#ACBDAA] shadow-md"
-                    : "text-[#ACBDAA]/70 hover:text-[#ACBDAA] hover:bg-[#ACBDAA]/10 hover:shadow-lg hover:-translate-y-1"
-                }`}
+                className={`flex items-center ${iconOnly || !isOpen ? "justify-center" : "space-x-3"
+                  } px-3 py-2 rounded-full transition-all duration-200 transform ${isActive
+                    ? "bg-[#ACBDAA]/20 text-[#1E2D4C] dark:text-[#ACBDAA] shadow-md"
+                    : "text-[#1E2D4C]/70 dark:text-[#ACBDAA]/70 hover:text-[#1E2D4C] dark:hover:text-[#ACBDAA] hover:bg-[#ACBDAA]/10 hover:shadow-lg hover:-translate-y-1"
+                  }`}
               >
                 {item.icon}
                 {!iconOnly && isOpen && <span>{item.label}</span>}
@@ -69,9 +65,8 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
       <div className="absolute bottom-4 left-0 right-0 px-2">
         <button
           onClick={handleLogOut}
-          className={`flex items-center ${
-            iconOnly || !isOpen ? "justify-center" : "space-x-3"
-          } px-3 py-2 rounded-full text-[#ACBDAA]/70 hover:text-[#ACBDAA] hover:bg-[#ACBDAA]/10 w-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1`}
+          className={`flex items-center ${iconOnly || !isOpen ? "justify-center" : "space-x-3"
+            } px-3 py-2 rounded-full text-[#1E2D4C]/70 dark:text-[#ACBDAA]/70 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 w-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1`}
         >
           <LogOut className="w-5 h-5" />
           {!iconOnly && isOpen && <span>Logout</span>}

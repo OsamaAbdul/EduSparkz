@@ -22,9 +22,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-md flex items-center justify-center bg-[#ACBDAA] dark:bg-[#ACBDAA]/20">
-              <Brain className="w-5 h-5 text-[#1E2D4C] dark:text-[#ACBDAA]" />
-            </div>
+            <img src="/logo.png" alt="EduSparkz Logo" className="w-8 h-8 rounded-md object-cover bg-white" />
             <span className="text-xl font-bold text-[#1E2D4C] dark:text-[#ACBDAA]">
               EduSparkz
             </span>

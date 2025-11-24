@@ -273,22 +273,23 @@ export const QuizCard = ({ quiz, onSubmit, onCancel }) => {
   const progress = ((currentQuestion + 1) / quiz?.questions?.length) * 100;
 
   return (
-    <div className="min-h-screen bg-[#1E2D4C] flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl bg-[#1E2D4C]/80 border-[#ACBDAA]/30 backdrop-blur-sm shadow-2xl shadow-[#ACBDAA]/20">
+    <div className="w-full flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl bg-white/80 dark:bg-[#1E2D4C]/80 border border-[#ACBDAA]/30 backdrop-blur-sm shadow-2xl shadow-[#ACBDAA]/10 dark:shadow-[#ACBDAA]/20">
         <CardHeader className="pb-4">
           <div className="flex justify-between items-center mb-4">
-            <CardTitle className="text-2xl font-bold text-[#ACBDAA]">
+            <CardTitle className="text-2xl font-bold text-[#1E2D4C] dark:text-[#ACBDAA]">
               {quiz.title} - Question {currentQuestion + 1} of {quiz?.questions?.length}
             </CardTitle>
             <div
-              className={`text-lg font-mono px-3 py-1 rounded ${
-                timeLeft <= 30 ? 'text-red-400 bg-red-900/30' : 'text-[#ACBDAA] bg-[#1E2D4C]/30'
-              }`}
+              className={`text-lg font-mono px-3 py-1 rounded ${timeLeft <= 30
+                ? 'text-red-500 bg-red-100 dark:text-red-400 dark:bg-red-900/30'
+                : 'text-[#1E2D4C] bg-[#ACBDAA]/20 dark:text-[#ACBDAA] dark:bg-[#1E2D4C]/30'
+                }`}
             >
               {formatTime(timeLeft)}
             </div>
           </div>
-          <div className="w-full bg-[#1E2D4C]/50 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-[#1E2D4C]/50 rounded-full h-2">
             <div
               className="bg-gradient-to-r from-[#ACBDAA] to-[#ACBDAA]/70 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -297,7 +298,7 @@ export const QuizCard = ({ quiz, onSubmit, onCancel }) => {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="text-[#ACBDAA] text-lg leading-relaxed">{currentQ?.question}</div>
+          <div className="text-[#1E2D4C] dark:text-[#ACBDAA] text-lg leading-relaxed">{currentQ?.question}</div>
 
           <RadioGroup
             value={answers[currentQuestion]?.selectedAnswer || ''}
@@ -311,9 +312,16 @@ export const QuizCard = ({ quiz, onSubmit, onCancel }) => {
                   key={index}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-[#ACBDAA]/10 transition-colors"
                 >
-                  <RadioGroupItem value={optionLetter} id={`option-${index}`} className="border-[#ACBDAA] text-[#ACBDAA]" />
-                  <Label htmlFor={`option-${index}`} className="text-[#ACBDAA] cursor-pointer flex-1 text-base">
-                    <span className="font-medium text-[#ACBDAA] mr-2">{optionLetter})</span>
+                  <RadioGroupItem
+                    value={optionLetter}
+                    id={`option-${index}`}
+                    className="border-[#ACBDAA] text-[#ACBDAA] dark:border-[#ACBDAA] dark:text-[#ACBDAA]"
+                  />
+                  <Label
+                    htmlFor={`option-${index}`}
+                    className="text-[#1E2D4C] dark:text-[#ACBDAA] cursor-pointer flex-1 text-base"
+                  >
+                    <span className="font-medium text-[#1E2D4C] dark:text-[#ACBDAA] mr-2">{optionLetter})</span>
                     {option}
                   </Label>
                 </div>
@@ -326,7 +334,7 @@ export const QuizCard = ({ quiz, onSubmit, onCancel }) => {
               onClick={handleBack}
               disabled={currentQuestion === 0}
               variant="outline"
-              className="bg-transparent border-[#ACBDAA] text-[#ACBDAA]/80 hover:bg-[#ACBDAA]/10 hover:text-[#ACBDAA]"
+              className="bg-transparent border-[#ACBDAA] text-[#1E2D4C] dark:text-[#ACBDAA]/80 hover:bg-[#ACBDAA]/10"
             >
               Back
             </Button>
@@ -334,7 +342,7 @@ export const QuizCard = ({ quiz, onSubmit, onCancel }) => {
               <Button
                 onClick={onCancel}
                 variant="outline"
-                className="bg-transparent border-gray-500 text-gray-300 hover:bg-gray-900/30"
+                className="bg-transparent border-gray-400 text-gray-500 dark:border-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/30"
               >
                 Cancel Quiz
               </Button>
