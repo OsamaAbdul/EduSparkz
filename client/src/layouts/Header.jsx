@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, User, Loader2, Bell, Trash2, CheckCheck, Crown } from "lucide-react";
+import { Menu, User, Loader2, Bell, Trash2, CheckCheck, Crown, LogIn, LogOut } from "lucide-react";
 import { useUser } from "@/context/useContext.jsx";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -191,7 +191,7 @@ const Header = ({ toggleSidebar }) => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (!window.confirm("Are you sure you want to logout your account? ")) {
       return;
     }
 
@@ -203,8 +203,8 @@ const Header = ({ toggleSidebar }) => {
 
       await supabase.auth.signOut();
       window.location.href = "/";
-      toast.success("Account deleted successfully.");
-
+      toast.success("You have been logged out successfully.");
+      s
     } catch (error) {
       console.error("Delete account error:", error);
       toast.error("Failed to delete account. Please contact support.");
@@ -430,15 +430,16 @@ const Header = ({ toggleSidebar }) => {
                     variant="destructive"
                     onClick={handleDeleteAccount}
                     disabled={isUpdating}
-                    className="bg-red-500 hover:bg-red-600 text-white"
+                    className="bg-red-500 hover:bg-red-600 text-white mb-4"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Account
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Log Out
                   </Button>
+                  <br />
                   <Button
                     type="submit"
                     disabled={isUpdating}
-                    className="bg-[#ACBDAA] text-[#1E2D4C] hover:bg-[#ACBDAA]/90"
+                    className="bg-[#ACBDAA] text-[#1E2D4C] hover:bg-[#ACBDAA]/90 pt-4"
                   >
                     {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Save changes
