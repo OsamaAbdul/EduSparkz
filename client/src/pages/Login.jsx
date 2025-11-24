@@ -81,7 +81,7 @@ const Login = () => {
   return (
     <>
       {/* <Header /> */}
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gray-50 dark:bg-[#0D1117] transition-colors duration-300 mt-10">
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gray-50 dark:bg-[#0D1117] transition-colors duration-300">
         {/* Subtle background accents */}
         {/* <div className="absolute top-10 left-10 w-24 h-24 bg-[#ACBDAA]/10 rounded-full blur-2xl" />
         <div className="absolute bottom-20 right-16 w-32 h-32 bg-[#1E2D4C]/10 rounded-full blur-2xl" /> */}

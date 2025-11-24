@@ -358,7 +358,7 @@ export const FileUploadCard = ({
                       onDragLeave={handleDrag}
                       onDrop={handleDrop}
                       whileHover={{ scale: 1.01 }}
-                      className={`block w-full p-8 rounded-xl text-center cursor-pointer border-2 border-dashed transition-all
+                      className={`block w-full p-6 sm:p-8 rounded-xl text-center cursor-pointer border-2 border-dashed transition-all
                         ${isDragging ? "border-[#ACBDAA] bg-[#ACBDAA]/20" : "border-[#ACBDAA]/30 bg-white/50 dark:bg-[#1E2D4C]/30"}
                       `}
                     >
@@ -464,7 +464,7 @@ export const FileUploadCard = ({
                   className="w-full p-3 rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] placeholder-[#1E2D4C]/50 dark:placeholder-[#ACBDAA]/70 bg-white/50 dark:bg-[#1E2D4C]/30 focus:outline-none focus:ring-2 focus:ring-[#ACBDAA] border border-[#ACBDAA]/30"
                 />
 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <motion.input
                     type="number"
                     placeholder="Count (5)"
@@ -472,11 +472,11 @@ export const FileUploadCard = ({
                     onChange={(e) => setQuizCount(e.target.value)}
                     min="1" max="20"
                     whileFocus={{ scale: 1.01 }}
-                    className="w-1/3 p-3 rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] placeholder-[#1E2D4C]/50 dark:placeholder-[#ACBDAA]/70 bg-white/50 dark:bg-[#1E2D4C]/30 focus:outline-none focus:ring-2 focus:ring-[#ACBDAA] border border-[#ACBDAA]/30"
+                    className="w-full sm:w-1/3 p-3 rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] placeholder-[#1E2D4C]/50 dark:placeholder-[#ACBDAA]/70 bg-white/50 dark:bg-[#1E2D4C]/30 focus:outline-none focus:ring-2 focus:ring-[#ACBDAA] border border-[#ACBDAA]/30"
                   />
 
                   <Select value={quizType} onValueChange={setQuizType}>
-                    <SelectTrigger className="w-2/3 p-3 h-auto rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] bg-white/50 dark:bg-[#1E2D4C]/30 border-[#ACBDAA]/30 focus:ring-[#ACBDAA]">
+                    <SelectTrigger className="w-full sm:w-2/3 p-3 h-auto rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] bg-white/50 dark:bg-[#1E2D4C]/30 border-[#ACBDAA]/30 focus:ring-[#ACBDAA]">
                       <SelectValue placeholder="Quiz Type" />
                     </SelectTrigger>
                     <SelectContent className="bg-white dark:bg-[#1E2D4C] border-[#ACBDAA]/30">

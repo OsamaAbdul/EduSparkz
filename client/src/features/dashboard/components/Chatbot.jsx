@@ -73,18 +73,18 @@ export const Chatbot = () => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
             {!isOpen && (
                 <Button
                     onClick={() => setIsOpen(true)}
-                    className="rounded-full w-14 h-14 bg-[#ACBDAA] hover:bg-[#ACBDAA]/90 text-[#1E2D4C] shadow-lg flex items-center justify-center"
+                    className="rounded-full w-12 h-12 sm:w-14 sm:h-14 bg-[#ACBDAA] hover:bg-[#ACBDAA]/90 text-[#1E2D4C] shadow-lg flex items-center justify-center"
                 >
-                    <MessageCircle className="w-8 h-8" />
+                    <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8" />
                 </Button>
             )}
 
             {isOpen && (
-                <div className="bg-white dark:bg-[#1E2D4C] border border-[#ACBDAA]/30 rounded-2xl shadow-2xl w-80 sm:w-96 flex flex-col overflow-hidden transition-all duration-300 ease-in-out h-[500px]">
+                <div className="bg-white dark:bg-[#1E2D4C] border border-[#ACBDAA]/30 rounded-2xl shadow-2xl w-[calc(100vw-2rem)] sm:w-96 flex flex-col overflow-hidden transition-all duration-300 ease-in-out h-[450px] sm:h-[500px]">
                     {/* Header */}
                     <div className="bg-[#ACBDAA] p-4 flex justify-between items-center">
                         <h3 className="font-bold text-[#1E2D4C] flex items-center gap-2">

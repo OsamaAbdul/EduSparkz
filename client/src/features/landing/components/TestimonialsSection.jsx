@@ -38,7 +38,7 @@ export const TestimonialsSection = () => {
   ];
 
   return (
-    <section className="relative z-10 px-4 py-16 bg-[#FFFFFF] dark:bg-[#1E2D4C] transition-colors duration-500">
+    <section className="relative z-10 px-4 py-10 md:py-16 bg-[#FFFFFF] dark:bg-[#1E2D4C] transition-colors duration-500">
       <div className="max-w-5xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12">

@@ -36,7 +36,7 @@ export const FAQSection = () => {
   ];
 
   return (
-    <section className="relative z-10 px-6 py-20 bg-white dark:bg-[#1E2D4C] transition-colors duration-300">
+    <section className="relative z-10 px-6 py-12 md:py-20 bg-white dark:bg-[#1E2D4C] transition-colors duration-300">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-[#1E2D4C] dark:text-[#ACBDAA]">

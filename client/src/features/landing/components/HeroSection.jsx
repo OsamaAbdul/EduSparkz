@@ -62,7 +62,7 @@ export const HeroSection = ({ isVisible }) => {
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           {/* Orbit 1 */}
           <motion.div
-            className="absolute w-[300px] h-[300px] border border-gray-300 dark:border-[#ACBDAA]/10 rounded-full transition-colors duration-300"
+            className="absolute w-[200px] h-[200px] md:w-[300px] md:h-[300px] border border-gray-300 dark:border-[#ACBDAA]/10 rounded-full transition-colors duration-300"
             custom={0}
             variants={orbitVariants}
             animate="animate"
@@ -74,7 +74,7 @@ export const HeroSection = ({ isVisible }) => {
 
           {/* Orbit 2 */}
           <motion.div
-            className="absolute w-[500px] h-[500px] border border-gray-300 dark:border-[#ACBDAA]/10 rounded-full transition-colors duration-300"
+            className="absolute w-[350px] h-[350px] md:w-[500px] md:h-[500px] border border-gray-300 dark:border-[#ACBDAA]/10 rounded-full transition-colors duration-300"
             custom={1}
             variants={orbitVariants}
             animate="animate"
@@ -89,7 +89,7 @@ export const HeroSection = ({ isVisible }) => {
 
           {/* Orbit 3 */}
           <motion.div
-            className="absolute w-[700px] h-[700px] border border-gray-200 dark:border-[#ACBDAA]/5 rounded-full transition-colors duration-300"
+            className="absolute w-[500px] h-[500px] md:w-[700px] md:h-[700px] border border-gray-200 dark:border-[#ACBDAA]/5 rounded-full transition-colors duration-300"
             custom={2}
             variants={orbitVariants}
             animate="animate"
@@ -110,7 +110,7 @@ export const HeroSection = ({ isVisible }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-5xl md:text-7xl font-bold mb-6 text-[#1E2D4C] dark:text-[#ACBDAA] leading-tight drop-shadow-sm dark:drop-shadow-lg transition-colors duration-300"
+          className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 text-[#1E2D4C] dark:text-[#ACBDAA] leading-tight drop-shadow-sm dark:drop-shadow-lg transition-colors duration-300"
         >
           EduSparkz
         </motion.h1>

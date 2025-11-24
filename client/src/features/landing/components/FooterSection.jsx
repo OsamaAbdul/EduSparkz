@@ -11,7 +11,7 @@ import {
 
 export const FooterSection = () => {
   return (
-    <footer className="relative z-10 px-6 py-16 border-t border-[#858585]/20 bg-white dark:bg-[#1E2D4C] text-[#1E2D4C] dark:text-[#ACBDAA] transition-colors duration-500">
+    <footer className="relative z-10 px-6 py-10 md:py-16 border-t border-[#858585]/20 bg-white dark:bg-[#1E2D4C] text-[#1E2D4C] dark:text-[#ACBDAA] transition-colors duration-500">
       <div className="max-w-6xl mx-auto">
         {/* Grid Layout */}
         <div className="grid md:grid-cols-4 gap-10 mb-12">

@@ -60,7 +60,7 @@ export const Register = () => {
   return (
     <>
       {/* <Header /> */}
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gray-50 dark:bg-[#0D1117] transition-colors duration-300 mt-10">
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gray-50 dark:bg-[#0D1117] transition-colors duration-300">
         {/* Subtle Background Accent */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#ACBDAA]/10 via-transparent to-transparent dark:from-[#ACBDAA]/10" />
 

@@ -3,10 +3,10 @@ import { Star } from "lucide-react";
 
 export const CTASection = () => {
   return (
-    <section className="relative z-10 px-6 py-20 bg-white dark:bg-[#1E2D4C] transition-colors duration-500">
+    <section className="relative z-10 px-6 py-12 md:py-20 bg-white dark:bg-[#1E2D4C] transition-colors duration-500">
       <div className="max-w-4xl mx-auto text-center">
-        <div className="bg-[#ACBDAA]/10 dark:bg-[#ACBDAA]/20 backdrop-blur-md rounded-2xl p-12 border border-[#E4E6E3] dark:border-[#858585]/30 shadow-lg transition-all duration-500">
-          
+        <div className="bg-[#ACBDAA]/10 dark:bg-[#ACBDAA]/20 backdrop-blur-md rounded-2xl p-6 md:p-12 border border-[#E4E6E3] dark:border-[#858585]/30 shadow-lg transition-all duration-500">
+
           {/* Heading */}
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#1E2D4C] dark:text-[#ACBDAA]">
             Ready to Transform Your Learning?

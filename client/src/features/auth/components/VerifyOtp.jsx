@@ -110,7 +110,7 @@ export const VerifyOtp = () => {
 
       <BackButton />
 
-      <div className="relative z-10 px-4 sm:px-6" style={{ width: '600px', maxWidth: '600px' }}>
+      <div className="relative z-10 px-4 sm:px-6 w-full max-w-xl">
         <Card className="bg-black/50 backdrop-blur-xl border-white/10">
           <CardHeader className="text-center">
             <div className="mb-6 pt-4 text-center">

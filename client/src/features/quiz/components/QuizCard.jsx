@@ -329,27 +329,27 @@ export const QuizCard = ({ quiz, onSubmit, onCancel }) => {
             })}
           </RadioGroup>
 
-          <div className="flex justify-between pt-6">
+          <div className="flex flex-col-reverse sm:flex-row justify-between pt-6 gap-3 sm:gap-0">
             <Button
               onClick={handleBack}
               disabled={currentQuestion === 0}
               variant="outline"
-              className="bg-transparent border-[#ACBDAA] text-[#1E2D4C] dark:text-[#ACBDAA]/80 hover:bg-[#ACBDAA]/10"
+              className="bg-transparent border-[#ACBDAA] text-[#1E2D4C] dark:text-[#ACBDAA]/80 hover:bg-[#ACBDAA]/10 w-full sm:w-auto"
             >
               Back
             </Button>
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
               <Button
                 onClick={onCancel}
                 variant="outline"
-                className="bg-transparent border-gray-400 text-gray-500 dark:border-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/30"
+                className="bg-transparent border-gray-400 text-gray-500 dark:border-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/30 w-full sm:w-auto"
               >
                 Cancel Quiz
               </Button>
               <Button
                 onClick={handleNext}
                 disabled={!answers[currentQuestion]?.selectedAnswer}
-                className="bg-[#ACBDAA] hover:bg-[#ACBDAA]/80 text-[#1E2D4C]"
+                className="bg-[#ACBDAA] hover:bg-[#ACBDAA]/80 text-[#1E2D4C] w-full sm:w-auto"
               >
                 {currentQuestion === quiz?.questions?.length - 1 ? 'Submit Quiz' : 'Next'}
               </Button>

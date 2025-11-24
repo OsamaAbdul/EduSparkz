@@ -108,7 +108,7 @@ const Materials = () => {
                 </AnimatePresence>
 
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col min-h-screen">
+                <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
                     <header className="w-full sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#1E2D4C]/70 border-b border-[#ACBDAA]/20 transition-colors duration-300">
                         <Header toggleSidebar={toggleSidebar} className="w-full" />
                     </header>
@@ -184,7 +184,7 @@ const Materials = () => {
                                                                         {material.title}
                                                                     </DialogTitle>
                                                                 </DialogHeader>
-                                                                <div className="mt-4 whitespace-pre-wrap text-gray-700 dark:text-gray-300 font-mono text-sm">
+                                                                <div className="mt-4 whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300 font-mono text-sm">
                                                                     {material.content}
                                                                 </div>
                                                             </DialogContent>
@@ -221,7 +221,7 @@ const Materials = () => {
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">
                                                     Added on {new Date(material.created_at).toLocaleDateString()}
                                                 </p>
-                                                <div className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
+                                                <div className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-3 break-words">
                                                     {material.content?.substring(0, 150)}...
                                                 </div>
                                             </CardContent>
