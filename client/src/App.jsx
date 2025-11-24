@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "@/context/ThemeProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import StartQuiz from "./pages/StartQuiz.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -65,6 +66,14 @@ const App = () => (
                 }
               />
               <Route
+                path="/user/start-quiz"
+                element={
+                  <ProtectedRoute>
+                    <StartQuiz />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/user/materials"
                 element={
                   <ProtectedRoute>
@@ -106,12 +115,12 @@ const App = () => (
               />
 
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ThemeProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </UserProvider>
+            </Routes >
+          </BrowserRouter >
+        </ThemeProvider >
+      </TooltipProvider >
+    </QueryClientProvider >
+  </UserProvider >
 );
 
 export default App;

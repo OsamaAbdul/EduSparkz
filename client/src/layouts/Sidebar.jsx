@@ -15,7 +15,8 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
   };
 
   const navItems = [
-    { to: "/user/dashboard", label: "Start Quiz", icon: <Home className="w-5 h-5" /> },
+    { to: "/user/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
+    { to: "/user/start-quiz", label: "Start Quiz", icon: <Brain className="w-5 h-5" /> },
     { to: "/user/materials", label: "My Materials", icon: <FileText className="w-5 h-5" /> },
     { to: "/user/history", label: "History", icon: <BookX className="w-5 h-5" /> },
     { to: "/user/leaderboard", label: "Leaderboard", icon: <ChartNoAxesCombined className="w-5 h-5" /> },
