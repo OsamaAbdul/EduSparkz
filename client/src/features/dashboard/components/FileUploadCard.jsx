@@ -11,7 +11,7 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import Tesseract from 'tesseract.js';
 import mammoth from 'mammoth';
 import { supabase } from "@/lib/supabase";
-import { useReactMediaRecorder } from "react-media-recorder";
+
 import {
   Select,
   SelectContent,
@@ -76,19 +76,59 @@ export const FileUploadCard = ({
   const [isDragging, setIsDragging] = useState(false);
   const [activeTab, setActiveTab] = useState("file");
   const [urlInput, setUrlInput] = useState("");
-  const [audioBlob, setAudioBlob] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const [recognition, setRecognition] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = true;
+      recognitionInstance.interimResults = true;
+
+      recognitionInstance.onresult = (event) => {
+        let currentTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript;
+        }
+        setTranscript(prev => prev + ' ' + currentTranscript);
+      };
+
+      recognitionInstance.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+        setIsListening(false);
+      };
+
+      setRecognition(recognitionInstance);
+    }
+  }, []);
+
+  const startListening = () => {
+    if (recognition) {
+      try {
+        recognition.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error("Error starting recognition:", error);
+      }
+    } else {
+      setFileError("Speech recognition not supported in this browser.");
+    }
+  };
+
+  const stopListening = () => {
+    if (recognition) {
+      recognition.stop();
+      setIsListening(false);
+    }
+  };
 
   // Confirmation Dialog State
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [pendingPayload, setPendingPayload] = useState(null);
 
   const { user } = useUser();
-
-  const { status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl } =
-    useReactMediaRecorder({
-      audio: true,
-      onStop: (blobUrl, blob) => setAudioBlob(blob)
-    });
 
   // Reset error after timeout
   useEffect(() => {
@@ -217,8 +257,8 @@ export const FileUploadCard = ({
       setFileError("Please enter a valid URL.");
       return;
     }
-    if (activeTab === 'audio' && !audioBlob) {
-      setFileError("Please record some audio first.");
+    if (activeTab === 'audio' && !transcript) {
+      setFileError("Please transcribe some speech first.");
       return;
     }
 
@@ -245,13 +285,11 @@ export const FileUploadCard = ({
       payload.title = urlInput;
       payload.sourceType = 'link';
     } else if (activeTab === 'audio') {
-      payload.title = "Audio Recording " + new Date().toLocaleTimeString();
-      payload.sourceType = 'audio';
-      // We'll convert blob later to avoid holding large strings in state if possible, 
-      // but for simplicity we can do it here or inside the confirm handler.
-      // Let's do it here to ensure it's ready.
-      const base64Audio = await convertBlobToBase64(audioBlob);
-      payload.audio = base64Audio;
+      payload.title = "Speech Transcript " + new Date().toLocaleTimeString();
+      payload.sourceType = 'audio'; // Keep as audio or change to text, but backend might expect 'audio' source type logic. 
+      // Actually, since we have text now, we can treat it as text content.
+      payload.text = transcript;
+      // We don't need audio blob anymore.
     }
 
     setPendingPayload(payload);
@@ -314,8 +352,9 @@ export const FileUploadCard = ({
     setFile(null);
     setFileName("No file selected");
     setUrlInput("");
-    setAudioBlob(null);
-    clearBlobUrl();
+    setTranscript("");
+    setIsListening(false);
+    if (recognition) recognition.stop();
   };
 
   return (
@@ -401,37 +440,40 @@ export const FileUploadCard = ({
                   <TabsContent value="audio" className="space-y-4">
                     <div className="p-8 rounded-xl border-2 border-dashed border-[#ACBDAA]/30 bg-white/50 dark:bg-[#1E2D4C]/30">
                       <div className="flex flex-col items-center gap-6">
-                        <div className={`relative p-6 rounded-full transition-all duration-300 ${status === 'recording' ? 'blob' : 'bg-[#ACBDAA]/10'}`}>
-                          <Mic className={`h-10 w-10 ${status === 'recording' ? 'text-white' : 'text-[#1E2D4C] dark:text-[#ACBDAA]'}`} />
+                        <div className={`relative p-6 rounded-full transition-all duration-300 ${isListening ? 'blob' : 'bg-[#ACBDAA]/10'}`}>
+                          <Mic className={`h-10 w-10 ${isListening ? 'text-white' : 'text-[#1E2D4C] dark:text-[#ACBDAA]'}`} />
                         </div>
 
                         <div className="flex gap-4">
-                          {status !== 'recording' ? (
+                          {!isListening ? (
                             <Button
-                              onClick={startRecording}
+                              onClick={startListening}
                               className="bg-[#1E2D4C] dark:bg-[#ACBDAA] text-white dark:text-[#1E2D4C] hover:opacity-90"
                             >
-                              Start Recording
+                              Start Listening
                             </Button>
                           ) : (
                             <Button
-                              onClick={stopRecording}
+                              onClick={stopListening}
                               variant="destructive"
                               className="animate-pulse"
                             >
-                              <StopCircle className="w-4 h-4 mr-2" /> Stop Recording
+                              <StopCircle className="w-4 h-4 mr-2" /> Stop Listening
                             </Button>
                           )}
                         </div>
 
-                        {mediaBlobUrl && status === 'stopped' && (
-                          <div className="w-full max-w-md bg-white dark:bg-[#0D1117] p-4 rounded-lg border border-[#ACBDAA]/30">
-                            <audio src={mediaBlobUrl} controls className="w-full" />
-                          </div>
-                        )}
+                        <div className="w-full max-w-md">
+                          <textarea
+                            value={transcript}
+                            onChange={(e) => setTranscript(e.target.value)}
+                            placeholder="Speak to transcribe..."
+                            className="w-full h-32 p-3 rounded-lg bg-white dark:bg-[#0D1117] border border-[#ACBDAA]/30 text-[#1E2D4C] dark:text-[#ACBDAA] focus:outline-none focus:ring-2 focus:ring-[#ACBDAA]"
+                          />
+                        </div>
 
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {status === 'recording' ? 'Recording in progress...' : 'Record your lecture or notes'}
+                          {isListening ? 'Listening...' : 'Click start to convert speech to text'}
                         </p>
                       </div>
                     </div>
@@ -488,7 +530,7 @@ export const FileUploadCard = ({
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2">
-                  {(extractedText || urlInput || audioBlob) && (
+                  {(extractedText || urlInput || transcript) && (
                     <Button
                       variant="outline"
                       onClick={handleCancel}
@@ -500,7 +542,7 @@ export const FileUploadCard = ({
                   <Button
                     onClick={handleUploadAndGenerate}
                     className="bg-[#ACBDAA] text-[#1E2D4C] hover:opacity-90 px-8"
-                    disabled={loading || (activeTab === 'file' && !extractedText) || (activeTab === 'link' && !urlInput) || (activeTab === 'audio' && !audioBlob)}
+                    disabled={loading || (activeTab === 'file' && !extractedText) || (activeTab === 'link' && !urlInput) || (activeTab === 'audio' && !transcript)}
                   >
                     Generate Quiz
                   </Button>

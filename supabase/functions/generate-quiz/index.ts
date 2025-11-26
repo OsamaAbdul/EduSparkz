@@ -30,30 +30,28 @@ Deno.serve(async (req) => {
     // Handle Audio input (Base64)
     if (audio) {
       try {
-        // Convert base64 to blob for OpenAI API
-        // Decode base64 to binary
-        const binaryString = atob(audio.split(',')[1]);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const file = new File([bytes], "recording.webm", { type: "audio/webm" });
+        // Extract base64 data (remove "data:audio/webm;base64," prefix if present)
+        const base64Data = audio.split(',')[1] || audio;
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("model", "whisper-1");
-
-        const transcriptionResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-          method: "POST",
+        const geminiAudioResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${Deno.env.get('GEMINI_API_KEY')}`, {
+          method: 'POST',
           headers: {
-            "Authorization": `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+            'Content-Type': 'application/json',
           },
-          body: formData,
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: "Transcribe the following audio exactly as it is spoken." },
+                { inline_data: { mime_type: "audio/webm", data: base64Data } }
+              ]
+            }]
+          }),
         });
 
-        const transcriptionData = await transcriptionResponse.json();
+        const transcriptionData = await geminiAudioResponse.json();
         if (transcriptionData.error) throw new Error(transcriptionData.error.message);
-        processedText = transcriptionData.text;
+
+        processedText = transcriptionData.candidates[0].content.parts[0].text;
 
       } catch (e) {
         throw new Error(`Audio transcription failed: ${e.message}`);
@@ -73,7 +71,7 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
     )
 
-    // Generate Quiz using OpenAI
+    // Generate Quiz using Gemini
     const prompt = `
       Generate a ${quizCount}-question quiz based on the following text.
       Quiz Type: ${quizType} (If 'mixed', include both Multiple Choice and True/False. If 'multiple-choice', only MCQs. If 'true-false', only T/F).
@@ -90,29 +88,29 @@ Deno.serve(async (req) => {
       ${userPrompt ? `Additional Instructions: ${userPrompt}` : ''}
     `;
 
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${Deno.env.get('GEMINI_API_KEY')}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are a helpful AI that generates quizzes from text. Output ONLY valid JSON.' },
-          { role: 'user', content: prompt }
-        ],
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          responseMimeType: "application/json"
+        }
       }),
     })
 
-    const aiData = await openAIResponse.json()
+    const aiData = await geminiResponse.json()
 
     if (aiData.error) {
       throw new Error(aiData.error.message)
     }
 
-    let quizContent = aiData.choices[0].message.content
-    // Clean up markdown code blocks if present
+    let quizContent = aiData.candidates[0].content.parts[0].text
+    // Clean up markdown code blocks if present (though responseMimeType should handle it, it's good to be safe)
     quizContent = quizContent.replace(/```json/g, '').replace(/```/g, '').trim()
 
     let questions;

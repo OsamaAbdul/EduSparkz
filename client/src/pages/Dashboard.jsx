@@ -9,7 +9,7 @@ import Header from "../layouts/Header.jsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, Trophy, Users, Quote, ArrowRight, Upload, FileText, Brain } from "lucide-react";
+import { BookOpen, Trophy, Users, Quote, ArrowRight, Upload, FileText, Brain, Zap, Star } from "lucide-react";
 import { useUser } from "../context/useContext.jsx";
 import { supabase } from "../lib/supabase";
 
@@ -42,10 +42,11 @@ export const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboardStats", user?.id],
     queryFn: async () => {
-      const [materials, quizzes, leaderboard] = await Promise.all([
+      const [materials, quizzes, leaderboard, profile] = await Promise.all([
         supabase.from("materials").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_results").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("quiz_results").select("score, total").eq("user_id", user.id) // For average score
+        supabase.from("quiz_results").select("score, total").eq("user_id", user.id), // For average score
+        supabase.from("profiles").select("xp, current_streak, level").eq("id", user.id).single()
       ]);
 
       const totalScore = leaderboard.data?.reduce((acc, curr) => acc + (curr.score / curr.total) * 100, 0) || 0;
@@ -55,6 +56,9 @@ export const Dashboard = () => {
         materialsCount: materials.count || 0,
         quizzesCount: quizzes.count || 0,
         avgScore: avgScore,
+        xp: profile.data?.xp || 0,
+        streak: profile.data?.current_streak || 0,
+        level: profile.data?.level || 1
       };
     },
     enabled: !!user?.id,
@@ -198,6 +202,40 @@ export const Dashboard = () => {
                       <div className="text-2xl font-bold text-[#1E2D4C] dark:text-[#ACBDAA]">{stats?.avgScore}%</div>
                     )}
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Your performance average</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/80 dark:bg-[#1E2D4C]/80 border border-[#ACBDAA]/30 shadow-sm hover:shadow-md transition-all">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium text-gray-500 dark:text-[#ACBDAA]/70">
+                      Total XP
+                    </CardTitle>
+                    <Star className="h-4 w-4 text-yellow-500" />
+                  </CardHeader>
+                  <CardContent>
+                    {statsLoading ? (
+                      <Skeleton className="h-8 w-16 bg-[#ACBDAA]/20" />
+                    ) : (
+                      <div className="text-2xl font-bold text-[#1E2D4C] dark:text-[#ACBDAA]">{stats?.xp}</div>
+                    )}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Level {stats?.level}</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/80 dark:bg-[#1E2D4C]/80 border border-[#ACBDAA]/30 shadow-sm hover:shadow-md transition-all">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium text-gray-500 dark:text-[#ACBDAA]/70">
+                      Day Streak
+                    </CardTitle>
+                    <Zap className="h-4 w-4 text-orange-500" />
+                  </CardHeader>
+                  <CardContent>
+                    {statsLoading ? (
+                      <Skeleton className="h-8 w-16 bg-[#ACBDAA]/20" />
+                    ) : (
+                      <div className="text-2xl font-bold text-[#1E2D4C] dark:text-[#ACBDAA]">{stats?.streak}</div>
+                    )}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Keep it up!</p>
                   </CardContent>
                 </Card>
               </motion.div>

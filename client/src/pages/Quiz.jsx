@@ -293,14 +293,32 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
       const score = results.filter(r => r.status === 'correct').length;
       const total = results.length;
       const scorePercentage = total ? (score / total) * 100 : 0;
+      const avgTimePerQuestion = total ? submissionData.duration / total : 0;
 
-      // Determine level and message (simplified logic)
+      // Determine level
       let level = 'Novice';
       if (scorePercentage >= 90) level = 'Advanced';
       else if (scorePercentage >= 70) level = 'Intermediate';
       else if (scorePercentage >= 50) level = 'Beginner';
 
-      const motivationalMessage = scorePercentage >= 70 ? "Great job!" : "Keep practicing!";
+      // Generate Motivational Message via AI
+      let motivationalMessage = "";
+      try {
+        const { data: feedbackData, error: feedbackError } = await supabase.functions.invoke('generate-feedback', {
+          body: { score, total, avgTimePerQuestion }
+        });
+
+        if (feedbackError) throw feedbackError;
+        motivationalMessage = feedbackData.message;
+      } catch (err) {
+        console.error("Failed to generate AI feedback:", err);
+        // Fallback logic if AI fails
+        if (scorePercentage >= 70) {
+          motivationalMessage = "Omo you try well well! (AI sleep, but you do well)";
+        } else {
+          motivationalMessage = "No wahala, try again! (AI sleep, but we dey with you)";
+        }
+      }
 
       const { data: resultData, error: resultError } = await supabase
         .from('quiz_results')

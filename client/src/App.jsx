@@ -18,6 +18,7 @@ import History from "./pages/History.jsx";
 import Leaderboard from "./pages/LeaderBoard.jsx";
 import VerifyOtp from "./features/auth/components/VerifyOtp.jsx";
 import ResendOtp from "./features/auth/components/ResendOtp.jsx";
+import ChatWithDocs from "./pages/ChatWithDocs.jsx";
 
 import Pricing from "./pages/Pricing.jsx";
 import Materials from "./pages/Materials.jsx";
@@ -110,6 +111,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Leaderboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/chat"
+                element={
+                  <ProtectedRoute>
+                    <ChatWithDocs />
                   </ProtectedRoute>
                 }
               />
