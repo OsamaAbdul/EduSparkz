@@ -1,10 +1,12 @@
 import React from "react";
-import { Check } from "lucide-react";
+import { Check, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Header from "../layouts/Header"
 
 const Pricing = () => {
+    const navigate = useNavigate();
     const plans = [
         {
             name: "Free",
@@ -61,6 +63,13 @@ const Pricing = () => {
             {/* <Header /> */}
 
             <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
+                <Button
+                    variant="ghost"
+                    className="absolute top-4 left-4 text-gray-400 hover:text-white hover:bg-white/10 z-50"
+                    onClick={() => navigate('/user/dashboard')}
+                >
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+                </Button>
                 <div className="text-center mb-16">
                     <h1 className="text-4xl font-bold text-white mb-4">
                         Simple, Transparent Pricing

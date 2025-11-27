@@ -43,7 +43,7 @@ export const StartQuiz = () => {
 
     return (
         <DashboardLayout>
-            <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-6 w-full">
+            <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-6 w-full overflow-x-hidden">
                 {loading ? (
                     quizId ? (
                         <Card className="w-full max-w-2xl mx-auto glass-card border-white/10">
@@ -79,7 +79,7 @@ export const StartQuiz = () => {
                         />
                     </div>
                 ) : (
-                    <div className="w-full px-0">
+                    <div className="w-full">
                         <FileUploadCard
                             title="Upload PDF and Start Quizzing"
                             description="Upload a PDF to generate an engaging quiz"

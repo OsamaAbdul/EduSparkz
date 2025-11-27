@@ -13,7 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useState } from "react";
-import { FileText, Search, Eye, Download, Trash2 } from "lucide-react";
+import { FileText, Search, Eye, Download, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +24,8 @@ const Materials = () => {
     const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedMaterial, setSelectedMaterial] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
     // Fetch Materials
     const { data: materials, isLoading } = useQuery({
@@ -70,6 +72,18 @@ const Materials = () => {
         m.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // Pagination Logic
+    const totalPages = Math.ceil((filteredMaterials?.length || 0) / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentMaterials = filteredMaterials?.slice(startIndex, startIndex + itemsPerPage);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
     return (
         <DashboardLayout>
             <div className="max-w-7xl mx-auto space-y-8">
@@ -115,8 +129,8 @@ const Materials = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <AnimatePresence>
-                            {filteredMaterials.map((material, index) => (
+                        <AnimatePresence mode="popLayout">
+                            {currentMaterials.map((material, index) => (
                                 <motion.div
                                     key={material.id}
                                     initial={{ opacity: 0, y: 20 }}
@@ -148,8 +162,54 @@ const Materials = () => {
                                                                     {material.title}
                                                                 </DialogTitle>
                                                             </DialogHeader>
-                                                            <div className="mt-4 whitespace-pre-wrap break-words text-gray-300 font-mono text-sm p-4 bg-black/30 rounded-xl border border-white/5">
-                                                                {material.content}
+                                                            <div className="mt-4 p-4 bg-black/30 rounded-xl border border-white/5 min-h-[300px]">
+                                                                {material.file_type === 'link' ? (
+                                                                    <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                                                                        <p className="text-gray-400">This material is a link.</p>
+                                                                        <a
+                                                                            href={material.content}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            className="text-electric-cyan hover:underline break-all"
+                                                                        >
+                                                                            {material.content}
+                                                                        </a>
+                                                                        <iframe
+                                                                            src={material.content}
+                                                                            className="w-full h-[60vh] border-0 rounded-lg bg-white"
+                                                                            title="Material Preview"
+                                                                            sandbox="allow-scripts allow-same-origin"
+                                                                        />
+                                                                    </div>
+                                                                ) : material.file_url ? (
+                                                                    <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                                                                        {material.file_url.endsWith('.pdf') ? (
+                                                                            <iframe
+                                                                                src={material.file_url}
+                                                                                className="w-full h-[70vh] border-0 rounded-lg bg-white"
+                                                                                title="PDF Preview"
+                                                                            />
+                                                                        ) : (
+                                                                            <img
+                                                                                src={material.file_url}
+                                                                                alt="Material Preview"
+                                                                                className="max-w-full max-h-[70vh] rounded-lg object-contain"
+                                                                            />
+                                                                        )}
+                                                                        <a
+                                                                            href={material.file_url}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            className="text-electric-cyan hover:underline mt-2"
+                                                                        >
+                                                                            Open Original File
+                                                                        </a>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="whitespace-pre-wrap break-words text-gray-300 font-mono text-sm">
+                                                                        {material.content}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </DialogContent>
                                                     </Dialog>
@@ -193,6 +253,35 @@ const Materials = () => {
                                 </motion.div>
                             ))}
                         </AnimatePresence>
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {!isLoading && filteredMaterials?.length > itemsPerPage && (
+                    <div className="flex justify-center items-center gap-4 mt-8 pb-8">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="border-white/10 hover:bg-white/10 text-white disabled:opacity-50"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+
+                        <span className="text-gray-400">
+                            Page <span className="text-electric-cyan font-bold">{currentPage}</span> of {totalPages}
+                        </span>
+
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="border-white/10 hover:bg-white/10 text-white disabled:opacity-50"
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
                     </div>
                 )}
             </div>

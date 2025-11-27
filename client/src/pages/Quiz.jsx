@@ -4,8 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
-import { Clock, Flame, Trophy, XCircle, CheckCircle, ArrowRight } from "lucide-react";
+import { Clock, Flame, Trophy, XCircle, CheckCircle, ArrowRight, Volume2, VolumeX } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
+
+import { useQueryClient } from "@tanstack/react-query";
 
 const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const [quiz, setQuiz] = useState(null);
@@ -13,6 +16,7 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const [error, setError] = useState(null);
   const { user } = useUser();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Quiz State
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -26,6 +30,8 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const [startTime, setStartTime] = useState(Date.now());
   const [showPidgin, setShowPidgin] = useState(false);
   const [pidginMessage, setPidginMessage] = useState("");
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const pidginPraises = [
     "Omo you too sabi!", "Chai see brain!", "Professor level activated!", "You dey cook!", "No gree for anybody!"
@@ -167,6 +173,39 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
     return () => clearInterval(interval);
   }, [quiz, currentQuestionIndex, isAnswered]);
 
+  // Text to Speech Logic
+  useEffect(() => {
+    if (ttsEnabled && quiz && !isAnswered) {
+      const currentQ = quiz.questions[currentQuestionIndex];
+      const textToRead = `${currentQ.question}. Option A: ${currentQ.options[0]}. Option B: ${currentQ.options[1]}. Option C: ${currentQ.options[2]}. Option D: ${currentQ.options[3]}.`;
+      speak(textToRead);
+    } else {
+      cancelSpeech();
+    }
+    return () => cancelSpeech();
+  }, [currentQuestionIndex, ttsEnabled, quiz]);
+
+  const speak = (text) => {
+    if ('speechSynthesis' in window) {
+      cancelSpeech();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const cancelSpeech = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  const toggleTts = () => {
+    setTtsEnabled(!ttsEnabled);
+  };
+
   const handleTimeUp = () => {
     handleAnswer(null, true);
   };
@@ -203,11 +242,12 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
     }
 
     // Save answer
-    setAnswers(prev => [...prev, {
+    const newAnswers = [...answers, {
       questionIndex: currentQuestionIndex,
       selectedAnswer: option ? option.charAt(0) : 'Timeout',
       timeTaken
-    }]);
+    }];
+    setAnswers(newAnswers);
 
     // Next Question Delay
     setTimeout(() => {
@@ -219,18 +259,18 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
         setIsCorrect(false);
         setStartTime(Date.now());
       } else {
-        finishQuiz();
+        finishQuiz(newAnswers);
       }
     }, 2000);
   };
 
-  const finishQuiz = async () => {
+  const finishQuiz = async (finalAnswers = answers) => {
     setLoading(true);
-    const totalDuration = answers.reduce((acc, curr) => acc + curr.timeTaken, 0);
+    const totalDuration = finalAnswers.reduce((acc, curr) => acc + curr.timeTaken, 0);
 
     // Construct submission data matching original structure
     const submissionData = {
-      answers: answers.map(a => ({
+      answers: finalAnswers.map(a => ({
         selectedAnswer: a.selectedAnswer,
         timeTaken: a.timeTaken
       })),
@@ -242,7 +282,7 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
 
       // Calculate detailed results
       const results = quiz.questions.map((q, i) => {
-        const ans = answers[i];
+        const ans = finalAnswers[i];
         const isRight = ans && ans.selectedAnswer === q.correctAnswer;
         return {
           question: q.question,
@@ -253,7 +293,8 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
           sourceQuizId: q.sourceQuizId,
           sourceQuizTitle: q.sourceQuizTitle,
           explanation: q.explanation,
-          reference: q.reference
+          reference: q.reference,
+          timeTaken: ans ? ans.timeTaken : 0
         };
       });
 
@@ -330,6 +371,9 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
         motivationalMessage: finalMotivationalMessage
       };
 
+      // Invalidate dashboard stats to reflect new XP/Streak
+      queryClient.invalidateQueries(['dashboardStats']);
+
       localStorage.setItem("quizResult", JSON.stringify(finalResult));
 
       // Navigate to results page with state as backup/primary
@@ -361,9 +405,9 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none" />
 
       {/* 📊 Top Bar */}
-      <div className="relative z-10 flex items-center justify-between p-6 glass-card rounded-b-3xl mx-4 mt-2 border-t-0">
-        <div className="flex items-center gap-4">
-          <div className="relative">
+      <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 glass-card rounded-b-3xl mx-4 mt-2 border-t-0 gap-4">
+        <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+          <div className="relative flex-shrink-0">
             <div className="w-12 h-12 rounded-full border-2 border-white/20 flex items-center justify-center">
               <span className="font-bold text-lg">{currentQuestionIndex + 1}/{quiz.questions.length}</span>
             </div>
@@ -371,9 +415,9 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
               <circle cx="24" cy="24" r="22" fill="none" stroke="#00F5FF" strokeWidth="2" strokeDasharray="138" strokeDashoffset={138 - (138 * ((currentQuestionIndex + 1) / quiz.questions.length))} className="transition-all duration-500" />
             </svg>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-grow sm:flex-grow-0">
             <span className="text-xs text-gray-400 uppercase tracking-wider">Progress</span>
-            <div className="h-2 w-32 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-2 w-full sm:w-32 bg-white/10 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${((currentQuestionIndex + 1) / quiz.questions.length) * 100}%` }}
@@ -383,18 +427,28 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto justify-between sm:justify-end">
           <div className="flex items-center gap-2 text-hot-magenta">
             <Flame className={`w-6 h-6 ${streak > 2 ? 'animate-bounce' : ''}`} />
             <span className="font-bold text-xl">{streak}</span>
           </div>
-          <div className="relative w-16 h-16 flex items-center justify-center">
+          <div className="relative w-16 h-16 flex items-center justify-center flex-shrink-0">
             <Clock className="w-6 h-6 text-electric-lime absolute" />
             <svg className="w-full h-full -rotate-90">
               <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
               <circle cx="32" cy="32" r="28" fill="none" stroke="#39FF14" strokeWidth="4" strokeDasharray="175" strokeDashoffset={175 - (175 * (timer / 30))} className="transition-all duration-1000 linear" />
             </svg>
           </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTts}
+            className={`rounded-full flex-shrink-0 ${ttsEnabled ? 'bg-electric-cyan/20 text-electric-cyan' : 'bg-white/10 text-gray-400'}`}
+            title={ttsEnabled ? "Disable Text-to-Speech" : "Enable Text-to-Speech"}
+          >
+            {ttsEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+          </Button>
         </div>
       </div>
 

@@ -352,8 +352,11 @@ const QuizResults = () => {
                           </Badge>
                         </div>
                       )}
-                      <div className="text-gray-300 text-sm mt-2 italic border-l-2 border-white/20 pl-3">
-                        <span className="font-semibold text-electric-cyan">Explanation: </span>{result.explanation}
+                      <div className="mt-3 p-3 bg-white/5 rounded-lg border border-white/10">
+                        <span className="font-bold text-electric-cyan block mb-1">Explanation:</span>
+                        <span className="text-gray-300 text-sm italic">
+                          {result.explanation || "No explanation provided."}
+                        </span>
                       </div>
                       {result.reference && (
                         <div className="text-gray-400 text-xs mt-2 bg-white/5 p-2 rounded border border-white/5">

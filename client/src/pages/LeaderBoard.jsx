@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Trophy, Flame, Medal } from "lucide-react";
+import { Search, Trophy, Flame, Medal, ArrowLeft } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DashboardLayout } from "../layouts/DashboardLayout.jsx";
@@ -42,7 +42,17 @@ const Leaderboard = () => {
     <DashboardLayout>
       <div className="p-6">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold text-center mb-8 text-white">Leaderboard</h1>
+          <div className="flex items-center gap-4 mb-8">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/user/dashboard')}
+              className="text-gray-400 hover:text-white hover:bg-white/10"
+            >
+              <ArrowLeft className="h-6 w-6" />
+            </Button>
+            <h1 className="text-3xl font-bold text-white">Leaderboard</h1>
+          </div>
 
           {/* Podium Section */}
           {topThree.length > 0 && (
@@ -73,8 +83,10 @@ const Leaderboard = () => {
               {topThree[0] && (
                 <div className="flex flex-col items-center z-10 -mx-2">
                   <div className="relative mb-2">
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-yellow-500 animate-bounce">
-                      <Trophy className="w-8 h-8 fill-current" />
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+                      <div className="text-yellow-500 animate-bounce">
+                        <Trophy className="w-8 h-8 fill-current" />
+                      </div>
                     </div>
                     <Avatar className="w-24 h-24 border-4 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.5)]">
                       <AvatarImage src={topThree[0].avatar_url} />

@@ -310,6 +310,27 @@ export const FileUploadCard = ({
 
       // Save material if user confirmed AND it's not already from the library
       if (saveToLibrary && payload.sourceType !== 'library') {
+        let fileUrl = null;
+
+        // Upload file to Supabase Storage if it's a file
+        if (activeTab === 'file' && file) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('materials')
+            .upload(fileName, file);
+
+          if (uploadError) {
+            console.error("Error uploading file:", uploadError);
+            // Continue without file_url if upload fails, or handle error
+          } else {
+            const { data: { publicUrl } } = supabase.storage
+              .from('materials')
+              .getPublicUrl(fileName);
+            fileUrl = publicUrl;
+          }
+        }
+
         // Check for duplicates based on title and user_id
         const { data: existing } = await supabase
           .from('materials')
@@ -324,10 +345,10 @@ export const FileUploadCard = ({
             title: payload.title,
             content: payload.text,
             file_type: payload.sourceType || 'text',
+            file_url: fileUrl // Save the file URL
           });
         } else {
           console.log("Material already exists, skipping save.");
-          // Optionally update content if needed, but for now we skip to prevent duplicates
         }
       }
 
@@ -363,7 +384,7 @@ export const FileUploadCard = ({
   return (
     <div className="relative w-full max-w-5xl mx-auto p-4">
       {/* 🌌 Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-electric-cyan/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-electric-cyan/10 rounded-full blur-[50px] sm:blur-[100px] pointer-events-none" />
 
       {loading ? (
         // 🌀 Loading State: Exploded Orb / Progress
@@ -426,7 +447,7 @@ export const FileUploadCard = ({
                 borderColor: isDragging ? '#00F5FF' : 'rgba(255,255,255,0.2)'
               }}
               className={`
-                relative flex items-center justify-center w-[400px] h-[400px] rounded-full 
+                relative flex items-center justify-center w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] rounded-full 
                 glass-orb overflow-hidden transition-all duration-500
                 ${activeTab === 'file' ? 'cursor-pointer' : ''}
               `}
