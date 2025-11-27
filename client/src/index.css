@@ -2,107 +2,129 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===========================
-   🎨 Design System (Color Tokens)
-   =========================== */
 @layer base {
   :root {
-    /* 🌞 Light Mode */
-    --background: 0 0% 100%; /* White */
-    --foreground: 0 0% 52%; /* #858585 - regular text/info */
+    --background: 222 35% 7%; /* #0B0E17 */
+    --foreground: 0 0% 100%;
     
-    --primary: 221 41% 21%; /* #1E2D4C - headers */
-    --primary-foreground: 0 0% 100%; /* white text on dark bg */
-
-    --secondary: 101 16% 70%; /* #ACBDAA - accent/bg secondary */
-    --secondary-foreground: 221 41% 21%; /* #1E2D4C */
-
-    --muted: 0 0% 52%; /* #858585 - placeholders/info */
-    --muted-foreground: 0 0% 52%;
-
     --card: 0 0% 100%;
-    --card-foreground: 221 41% 21%;
+    --card-foreground: 222 47% 11%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+ 
+    --primary: 180 100% 50%; /* Electric Cyan */
+    --primary-foreground: 222 47% 11%;
+ 
+    --secondary: 345 100% 59%; /* Hot Magenta */
+    --secondary-foreground: 0 0% 100%;
+ 
+    --muted: 215 27% 17%;
+    --muted-foreground: 215 20% 65%;
+ 
+    --accent: 215 27% 17%;
+    --accent-foreground: 222 47% 11%;
+ 
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 101 16% 85%; /* light soft border */
-    --input: 101 16% 85%;
-    --ring: 221 41% 21%;
-
-    --radius: 0.5rem;
+    --border: 215 27% 17%;
+    --input: 215 27% 17%;
+    --ring: 180 100% 50%;
+ 
+    --radius: 0.75rem;
   }
-
+ 
   .dark {
-    /* 🌙 Dark Mode */
-    --background: 221 41% 21%; /* #1E2D4C */
-    --foreground: 0 0% 52%; /* #858585 - regular text/info */
-
-    --primary: 101 16% 70%; /* #ACBDAA - headers */
-    --primary-foreground: 221 41% 21%; /* #1E2D4C */
-
-    --secondary: 221 41% 21%; /* #1E2D4C - bg secondary */
-    --secondary-foreground: 101 16% 70%; /* #ACBDAA */
-
-    --muted: 0 0% 52%;
-    --muted-foreground: 0 0% 52%;
-
-    --card: 221 41% 21%;
-    --card-foreground: 101 16% 70%;
-
-    --border: 101 16% 40%;
-    --input: 101 16% 40%;
-    --ring: 101 16% 70%;
-
-    --radius: 0.5rem;
+    --background: 222 35% 7%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 180 100% 50%;
+    --primary-foreground: 222 47% 11%;
+ 
+    --secondary: 345 100% 59%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 215 27% 17%;
+    --muted-foreground: 215 20% 65%;
+ 
+    --accent: 215 27% 17%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 215 27% 17%;
+    --input: 215 27% 17%;
+    --ring: 180 100% 50%;
   }
+}
 
+@layer base {
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-space-dark text-white font-sans antialiased selection:bg-electric-cyan selection:text-space-dark;
+    background-image: linear-gradient(to bottom right, #0B0E17, #1A0E2E);
+    min-height: 100vh;
   }
 }
 
-/* ===========================
-   🧱 Layout Utilities
-   =========================== */
-.sticky-sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
+@layer utilities {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl;
+  }
+  
+  .glass-orb {
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 245, 255, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+  }
+  
+  .text-glow-magenta {
+    text-shadow: 0 0 20px rgba(255, 46, 99, 0.5);
+  }
+
+  .neon-border {
+    position: relative;
+  }
+  
+  .neon-border::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(90deg, #00F5FF, #FF2E63);
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0.5;
+    filter: blur(5px);
+  }
 }
 
-.sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  backdrop-filter: blur(8px);
-  background-color: hsl(var(--background) / 0.8);
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
-
-/* ===========================
-   📜 Main Content
-   =========================== */
-.main-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
+::-webkit-scrollbar-track {
+  background: #0B0E17; 
 }
-
-/* ===========================
-   🌀 Swiper Navigation
-   =========================== */
-.mySwiper .swiper-button-prev,
-.mySwiper .swiper-button-next {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  transition: background 0.3s;
+::-webkit-scrollbar-thumb {
+  background: #1A0E2E; 
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
 }
-
-.mySwiper .swiper-button-prev:hover,
-.mySwiper .swiper-button-next:hover {
-  background: rgba(255, 255, 255, 0.2);
+::-webkit-scrollbar-thumb:hover {
+  background: #00F5FF; 
 }

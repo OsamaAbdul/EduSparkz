@@ -42,6 +42,7 @@ const App = () => (
               <Route path="/api/auth/register" element={<Register />} />
               <Route path="/api/auth/verify-otp" element={<VerifyOtp />} />
               <Route path="/api/auth/resend-otp" element={<ResendOtp />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
               {/* <Route path="/user/dashboard" element={<Dashboard />} />
               <Route path="/user/quiz" element={<Quiz />} />
               <Route path="/user/quiz-result" element={<QuizResults />} />

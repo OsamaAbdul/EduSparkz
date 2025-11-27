@@ -13,13 +13,12 @@ import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import { ArrowUp } from 'lucide-react';
-
+import { ProofSection } from './components/ProofSection';
+import { ShowcaseSection } from './components/ShowcaseSection';
+import { LeaderboardShowcaseSection } from './components/LeaderboardShowcaseSection';
 
 export const LandingPage = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDarkBackground, setIsDarkBackground] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const navigate = useNavigate();
@@ -46,36 +45,34 @@ export const LandingPage = () => {
     });
   };
 
-
-  const backgroundClass = isDarkBackground
-    ? "min-h-screen bg-black text-black overflow-x-hidden"
-    : "min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-x-hidden";
-
   return (
-    <div className={`min-h-screen ${backgroundClass} relative overflow-hidden`}>
+    <div className="min-h-screen bg-space-dark text-white overflow-x-hidden relative">
       {/* Header */}
       <Header />
 
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
-      {/* {!isDarkMode && <div className={`absolute inset-0 ${overlayClass}`} />} */}
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none z-0" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-electric-cyan/10 rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-hot-magenta/10 rounded-full blur-[100px] pointer-events-none z-0" />
 
       {/* Floating Elements */}
-      <div className="absolute top-20 left-10 w-20 h-20 bg-purple-500/10 rounded-full blur-xl animate-pulse" />
-      <div className="absolute top-40 right-20 w-32 h-32 bg-cyan-500/10 rounded-full blur-xl animate-pulse delay-1000" />
-      <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-pink-500/10 rounded-full blur-xl animate-pulse delay-2000" />
+      <div className="absolute top-20 left-10 w-20 h-20 bg-electric-cyan/10 rounded-full blur-xl animate-pulse" />
+      <div className="absolute top-40 right-20 w-32 h-32 bg-hot-magenta/10 rounded-full blur-xl animate-pulse delay-1000" />
+      <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-electric-lime/10 rounded-full blur-xl animate-pulse delay-2000" />
 
       {/* Main Content */}
       <div className="relative z-10 pt-20">
         <HeroSection isVisible={isVisible} />
+        <ProofSection />
         <FeaturesSection />
+        <ShowcaseSection />
+        <LeaderboardShowcaseSection />
         {/* <DeveloperSection /> */}
         {/* <TechStackSection /> */}
         <TestimonialsSection />
         <ContactSection />
         <FAQSection />
-        <CTASection />
+        {/* <CTASection /> */}
         <FooterSection />
       </div>
 
@@ -83,7 +80,7 @@ export const LandingPage = () => {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-50 p-3 rounded-full bg-[#ACBDAA] text-[#1E2D4C] shadow-lg hover:bg-[#CECBBA] transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ACBDAA]"
+          className="fixed bottom-8 right-8 z-50 p-3 rounded-full bg-electric-cyan text-space-dark shadow-[0_0_20px_rgba(0,245,255,0.4)] hover:bg-electric-cyan/90 transition-all duration-300 transform hover:scale-110 focus:outline-none"
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-6 h-6" />

@@ -42,8 +42,6 @@ const Header = ({ toggleSidebar }) => {
   useEffect(() => {
     if (user) {
       fetchNotifications();
-
-      // Subscribe to new notifications
       const subscription = supabase
         .channel('public:notifications')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, (payload) => {
@@ -52,88 +50,50 @@ const Header = ({ toggleSidebar }) => {
           toast.info("New notification: " + payload.new.title);
         })
         .subscribe();
-
-      return () => {
-        supabase.removeChannel(subscription);
-      };
+      return () => { supabase.removeChannel(subscription); };
     }
   }, [user]);
 
   const fetchNotifications = async () => {
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
+      const { data, error } = await supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
       if (error) throw error;
       setNotifications(data || []);
       setUnreadCount(data?.filter(n => !n.is_read).length || 0);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
+    } catch (error) { console.error("Error fetching notifications:", error); }
   };
 
   const handleMarkAsRead = async (notification) => {
     if (notification.is_read) return;
-
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', notification.id);
-
+      const { error } = await supabase.from('notifications').update({ is_read: true }).eq('id', notification.id);
       if (error) throw error;
-
       setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n));
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-    }
+    } catch (error) { console.error("Error marking notification as read:", error); }
   };
 
   const handleMarkAllAsRead = async () => {
     if (unreadCount === 0) return;
-
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-
+      const { error } = await supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false);
       if (error) throw error;
-
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
       toast.success("All notifications marked as read");
-    } catch (error) {
-      console.error("Error marking all as read:", error);
-      toast.error("Failed to mark all as read");
-    }
+    } catch (error) { toast.error("Failed to mark all as read"); }
   };
 
   const handleClearAllNotifications = async () => {
     if (notifications.length === 0) return;
-
     if (!window.confirm("Are you sure you want to clear all notifications?")) return;
-
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('user_id', user.id);
-
+      const { error } = await supabase.from('notifications').delete().eq('user_id', user.id);
       if (error) throw error;
-
       setNotifications([]);
       setUnreadCount(0);
       toast.success("All notifications cleared");
-    } catch (error) {
-      console.error("Error clearing notifications:", error);
-      toast.error("Failed to clear notifications");
-    }
+    } catch (error) { toast.error("Failed to clear notifications"); }
   };
 
   const handleNotificationClick = (notification) => {
@@ -142,13 +102,9 @@ const Header = ({ toggleSidebar }) => {
     handleMarkAsRead(notification);
   };
 
-  // Sync form data when user opens modal or user data changes
   const handleOpenChange = (open) => {
     if (open && user) {
-      setFormData({
-        fullName: user.name || "",
-        username: user.username || "",
-      });
+      setFormData({ fullName: user.name || "", username: user.username || "" });
     }
     setIsProfileOpen(open);
   };
@@ -156,119 +112,51 @@ const Header = ({ toggleSidebar }) => {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
-
     try {
-      // 1. Update Supabase Auth Metadata (updates session & context)
-      const { data: authData, error: authError } = await supabase.auth.updateUser({
-        data: {
-          full_name: formData.fullName,
-          username: formData.username,
-        },
-      });
-
+      const { error: authError } = await supabase.auth.updateUser({ data: { full_name: formData.fullName, username: formData.username } });
       if (authError) throw authError;
-
-      // 2. Update Profiles Table (keeps DB in sync)
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({
-          full_name: formData.fullName,
-          username: formData.username,
-          updated_at: new Date(),
-        })
-        .eq("id", user.id);
-
+      const { error: profileError } = await supabase.from("profiles").update({ full_name: formData.fullName, username: formData.username, updated_at: new Date() }).eq("id", user.id);
       if (profileError) throw profileError;
-
       toast.success("Profile updated successfully!");
       setIsProfileOpen(false);
-    } catch (error) {
-      console.error("Profile update error:", error);
-      toast.error(error.message || "Failed to update profile");
-    } finally {
-      setIsUpdating(false);
-    }
+    } catch (error) { toast.error(error.message || "Failed to update profile"); } finally { setIsUpdating(false); }
   };
 
-  const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to logout your account? ")) {
-      return;
-    }
 
+  const handleLogOut = async () => {
+    if (!window.confirm("Are you sure you want to logout?")) return;
     try {
       setIsUpdating(true);
-      const { error } = await supabase.from('profiles').delete().eq('id', user.id);
-
-      if (error) throw error;
-
       await supabase.auth.signOut();
       window.location.href = "/";
       toast.success("You have been logged out successfully.");
-      s
-    } catch (error) {
-      console.error("Delete account error:", error);
-      toast.error("Failed to delete account. Please contact support.");
-    } finally {
-      setIsUpdating(false);
-    }
+    } catch (error) { toast.error("Failed to logout."); } finally { setIsUpdating(false); }
   };
 
-  // == greet user ===
   const getGreetings = () => {
-    const formatter = new Intl.DateTimeFormat("en-NG", {
-      hour: "numeric",
-      hour12: false,
-      timeZone: "Africa/Lagos",
-    });
-
-    const hour = Number(formatter.format(new Date()));
-
+    const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
   };
 
   return (
-    <header
-      className="
-        w-full sticky top-0 z-50 
-        border-b transition-colors duration-300
-        bg-white/80 border-[#ACBDAA]/40 
-        dark:bg-[#1E2D4C]/80 dark:border-[#ACBDAA]/30
-        backdrop-blur-xl
-      "
-    >
+    <header className="w-full sticky top-0 z-50 border-b border-white/10 bg-space-dark/80 backdrop-blur-xl transition-colors duration-300">
       <div className="flex items-center justify-between px-4 sm:px-6 py-3">
         {/* Left Section */}
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleSidebar}
-            className="
-              text-[#1E2D4C] dark:text-[#ACBDAA] hover:opacity-80
-              transition-colors duration-200
-            "
-          >
+          <Button variant="ghost" size="sm" onClick={toggleSidebar} className="text-gray-400 hover:text-white hover:bg-white/5">
             <Menu className="w-5 h-5" />
           </Button>
-
-          <h1
-            className="
-              text-lg sm:text-2xl font-bold 
-              text-[#1E2D4C] dark:text-[#ACBDAA]
-              truncate max-w-[150px] sm:max-w-none
-            "
-          >
-            {getGreetings()}, {user?.name || "Guest"}
+          <h1 className="text-lg sm:text-2xl font-bold text-white truncate max-w-[150px] sm:max-w-none">
+            {getGreetings()}
           </h1>
         </div>
 
         {/* Right Section */}
         <div className="flex items-center space-x-2 sm:space-x-4">
-
           {/* Plan Badge */}
-          <Badge variant="outline" className="flex items-center gap-1 border-[#ACBDAA]/50 text-[#1E2D4C] dark:text-[#ACBDAA] bg-[#ACBDAA]/10 whitespace-nowrap">
+          <Badge variant="outline" className="flex items-center gap-1 border-electric-cyan/30 text-electric-cyan bg-electric-cyan/10 whitespace-nowrap">
             <Crown className="w-3 h-3" />
             <span className="hidden sm:inline">{user?.plan || "Free"} Plan</span>
           </Badge>
@@ -276,71 +164,39 @@ const Header = ({ toggleSidebar }) => {
           {/* Notifications Popover */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-[#1E2D4C] dark:text-[#ACBDAA] hover:bg-transparent relative"
-              >
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-white/5 relative">
                 <Bell className="w-5 h-5" />
                 <span className="sr-only">Notifications</span>
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border-2 border-white dark:border-[#1E2D4C]" />
+                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-hot-magenta rounded-full animate-pulse border-2 border-space-dark" />
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[90vw] sm:w-80 p-0 bg-white dark:bg-[#1E2D4C] border-[#ACBDAA]/30" align="end">
-              <div className="p-4 border-b border-[#ACBDAA]/30 flex justify-between items-center">
-                <h4 className="font-semibold text-[#1E2D4C] dark:text-[#ACBDAA]">Notifications</h4>
+            <PopoverContent className="w-[90vw] sm:w-80 p-0 bg-space-dark border-white/10 text-white" align="end">
+              <div className="p-4 border-b border-white/10 flex justify-between items-center">
+                <h4 className="font-semibold text-white">Notifications</h4>
                 <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-[#ACBDAA] hover:text-[#1E2D4C] dark:hover:text-white"
-                    title="Mark all as read"
-                    onClick={handleMarkAllAsRead}
-                    disabled={unreadCount === 0}
-                  >
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-400 hover:text-white" title="Mark all as read" onClick={handleMarkAllAsRead} disabled={unreadCount === 0}>
                     <CheckCheck className="w-4 h-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-red-400 hover:text-red-600"
-                    title="Clear all"
-                    onClick={handleClearAllNotifications}
-                    disabled={notifications.length === 0}
-                  >
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-red-400 hover:text-red-500" title="Clear all" onClick={handleClearAllNotifications} disabled={notifications.length === 0}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
               <ScrollArea className="h-[300px]">
                 {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                    No notifications yet.
-                  </div>
+                  <div className="p-4 text-center text-sm text-gray-500">No notifications yet.</div>
                 ) : (
-                  <div className="divide-y divide-[#ACBDAA]/10">
+                  <div className="divide-y divide-white/5">
                     {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`p-4 cursor-pointer hover:bg-[#ACBDAA]/10 transition-colors ${!notification.is_read ? 'bg-[#ACBDAA]/5' : ''}`}
-                        onClick={() => handleNotificationClick(notification)}
-                      >
+                      <div key={notification.id} className={`p-4 cursor-pointer hover:bg-white/5 transition-colors ${!notification.is_read ? 'bg-white/5' : ''}`} onClick={() => handleNotificationClick(notification)}>
                         <div className="flex justify-between items-start gap-2">
-                          <h5 className={`text-sm font-medium ${!notification.is_read ? 'text-[#1E2D4C] dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}>
-                            {notification.title}
-                          </h5>
-                          {!notification.is_read && (
-                            <span className="w-2 h-2 bg-[#ACBDAA] rounded-full flex-shrink-0 mt-1.5" />
-                          )}
+                          <h5 className={`text-sm font-medium ${!notification.is_read ? 'text-electric-cyan' : 'text-gray-400'}`}>{notification.title}</h5>
+                          {!notification.is_read && <span className="w-2 h-2 bg-hot-magenta rounded-full flex-shrink-0 mt-1.5" />}
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                          {notification.message}
-                        </p>
-                        <p className="text-[10px] text-gray-400 mt-2">
-                          {new Date(notification.created_at).toLocaleDateString()}
-                        </p>
+                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{notification.message}</p>
+                        <p className="text-[10px] text-gray-600 mt-2">{new Date(notification.created_at).toLocaleDateString()}</p>
                       </div>
                     ))}
                   </div>
@@ -351,105 +207,59 @@ const Header = ({ toggleSidebar }) => {
 
           {/* Notification Detail Modal */}
           <Dialog open={isNotificationModalOpen} onOpenChange={setIsNotificationModalOpen}>
-            <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#1E2D4C] border-[#ACBDAA]/30">
+            <DialogContent className="sm:max-w-[425px] bg-space-dark border-white/10 text-white">
               <DialogHeader>
-                <DialogTitle className="text-[#1E2D4C] dark:text-[#ACBDAA]">{selectedNotification?.title}</DialogTitle>
-                <DialogDescription className="text-gray-500 dark:text-[#ACBDAA]/70">
-                  {selectedNotification && new Date(selectedNotification.created_at).toLocaleString()}
-                </DialogDescription>
+                <DialogTitle className="text-electric-cyan">{selectedNotification?.title}</DialogTitle>
+                <DialogDescription className="text-gray-400">{selectedNotification && new Date(selectedNotification.created_at).toLocaleString()}</DialogDescription>
               </DialogHeader>
-              <div className="py-4 text-[#1E2D4C] dark:text-gray-200 whitespace-pre-wrap">
-                {selectedNotification?.message}
-              </div>
+              <div className="py-4 text-gray-200 whitespace-pre-wrap">{selectedNotification?.message}</div>
               <DialogFooter>
-                <Button onClick={() => setIsNotificationModalOpen(false)} className="bg-[#ACBDAA] text-[#1E2D4C] hover:bg-[#ACBDAA]/90">
-                  Close
-                </Button>
+                <Button onClick={() => setIsNotificationModalOpen(false)} className="bg-white/10 text-white hover:bg-white/20">Close</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
 
+          {/* Profile Modal */}
           <Dialog open={isProfileOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="
-                  border-[#1E2D4C] text-[#1E2D4C]
-                  hover:opacity-90
-                  dark:border-[#ACBDAA] dark:text-[#ACBDAA]
-                "
-              >
+              <Button variant="outline" size="sm" className="border-white/10 text-gray-400 hover:text-white hover:bg-white/5 hover:border-electric-cyan/50">
                 <User className="w-5 h-5 sm:mr-2" />
                 <span className="hidden sm:inline">Profile</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#1E2D4C] border-[#ACBDAA]/30">
+            <DialogContent className="sm:max-w-[425px] bg-space-dark border-white/10 text-white">
               <DialogHeader>
-                <DialogTitle className="text-[#1E2D4C] dark:text-[#ACBDAA]">Edit Profile</DialogTitle>
-                <DialogDescription className="text-gray-500 dark:text-[#ACBDAA]/70">
-                  Make changes to your profile here. Click save when you're done.
-                </DialogDescription>
+                <DialogTitle className="text-electric-cyan">Edit Profile</DialogTitle>
+                <DialogDescription className="text-gray-400">Make changes to your profile here.</DialogDescription>
               </DialogHeader>
               <form onSubmit={handleUpdateProfile}>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right text-[#1E2D4C] dark:text-[#ACBDAA]">
-                      Name
-                    </Label>
-                    <Input
-                      id="name"
-                      value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                      className="col-span-3 bg-white dark:bg-[#1E2D4C]/50 border-[#ACBDAA]/30 text-[#1E2D4C] dark:text-[#ACBDAA]"
-                    />
+                    <Label htmlFor="name" className="text-right text-gray-400">Name</Label>
+                    <Input id="name" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} className="col-span-3 bg-white/5 border-white/10 text-white focus:border-electric-cyan" />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="username" className="text-right text-[#1E2D4C] dark:text-[#ACBDAA]">
-                      Username
-                    </Label>
-                    <Input
-                      id="username"
-                      value={formData.username}
-                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                      className="col-span-3 bg-white dark:bg-[#1E2D4C]/50 border-[#ACBDAA]/30 text-[#1E2D4C] dark:text-[#ACBDAA]"
-                    />
+                    <Label htmlFor="username" className="text-right text-gray-400">Username</Label>
+                    <Input id="username" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="col-span-3 bg-white/5 border-white/10 text-white focus:border-electric-cyan" />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right text-[#1E2D4C] dark:text-[#ACBDAA]">
-                      Email
-                    </Label>
-                    <div className="col-span-3 text-sm text-gray-500 dark:text-[#ACBDAA]/70 px-3 py-2">
-                      {user?.email}
-                    </div>
+                    <Label className="text-right text-gray-400">Email</Label>
+                    <div className="col-span-3 text-sm text-gray-500 px-3 py-2">{user?.email}</div>
                   </div>
                 </div>
                 <DialogFooter className="flex justify-between sm:justify-between w-full">
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={handleDeleteAccount}
-                    disabled={isUpdating}
-                    className="bg-red-500 hover:bg-red-600 text-white mb-4"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Log Out
+                  <Button type="button" variant="destructive" onClick={handleLogOut} disabled={isUpdating} className="bg-red-500/10 text-red-500 hover:bg-red-500/20 mb-4">
+                    <LogOut className="w-4 h-4 mr-2" /> Log Out
                   </Button>
-                  <br />
-                  <Button
-                    type="submit"
-                    disabled={isUpdating}
-                    className="bg-[#ACBDAA] text-[#1E2D4C] hover:bg-[#ACBDAA]/90 pt-4"
-                  >
-                    {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save changes
+                  <Button type="submit" disabled={isUpdating} className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold">
+                    {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save changes
                   </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
 
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
         </div>
       </div>
     </header>

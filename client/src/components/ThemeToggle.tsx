@@ -19,18 +19,17 @@ export const ThemeToggle = () => {
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={`
         w-10 h-10 flex items-center justify-center rounded-full 
-        transition-all duration-300
-        ${isDark 
-          ? "bg-[#1E2D4C] text-[#ACBDAA] border border-[#ACBDAA]" 
-          : "bg-white text-[#1E2D4C] border border-[#858585]"
+        transition-all duration-300 border
+        ${isDark
+          ? "bg-white/5 border-electric-cyan/50 text-electric-cyan shadow-[0_0_10px_rgba(0,245,255,0.3)]"
+          : "bg-white border-gray-200 text-gray-800 shadow-sm"
         }
         hover:scale-105 active:scale-95
-        shadow-md dark:shadow-none
       `}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
     >
-      <AnimatePresence exitBeforeEnter initial={false}>
+      <AnimatePresence mode="wait" initial={false}>
         {isDark ? (
           <motion.div
             key="sun"

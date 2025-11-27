@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
         // Extract base64 data (remove "data:audio/webm;base64," prefix if present)
         const base64Data = audio.split(',')[1] || audio;
 
-        const geminiAudioResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${Deno.env.get('GEMINI_API_KEY')}`, {
+        const geminiAudioResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${Deno.env.get('GEMINI_API_KEY')}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -79,8 +79,10 @@ Deno.serve(async (req) => {
       Format the output as a JSON array of objects.
       Each object should have:
       - question: string
-      - options: array of strings (for True/False, use ["True", "False"])
+      - options: array of 4 strings (for True/False, use ["True", "False"])
       - answer: string (must be one of the options)
+      - explanation: string (CRITICAL: You MUST provide a detailed explanation of why the answer is correct. Do NOT leave this empty.)
+      - reference: string (a short quote or context from the text that supports the answer)
       
       Text:
       ${processedText.substring(0, 15000)}
@@ -88,7 +90,7 @@ Deno.serve(async (req) => {
       ${userPrompt ? `Additional Instructions: ${userPrompt}` : ''}
     `;
 
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${Deno.env.get('GEMINI_API_KEY')}`, {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${Deno.env.get('GEMINI_API_KEY')}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -135,13 +137,20 @@ Deno.serve(async (req) => {
       return q;
     });
 
+    // Get User ID safely
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("User not authenticated");
+    }
+
     // Save to Database
     const { data: quizData, error: quizError } = await supabase
       .from('quizzes')
       .insert({
         title: title || 'Generated Quiz',
         questions: questions,
-        user_id: (await supabase.auth.getUser()).data.user?.id,
+        user_id: user.id,
       })
       .select()
       .single()

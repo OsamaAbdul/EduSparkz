@@ -22,13 +22,13 @@ const steps = [
         id: "goals",
         title: "What are your learning goals?",
         description: "Select all that apply.",
-        icon: <Target className="w-8 h-8 text-blue-500" />,
+        icon: <Target className="w-8 h-8 text-electric-cyan" />,
     },
     {
         id: "style",
         title: "How do you learn best?",
         description: "Choose your preferred learning style.",
-        icon: <Brain className="w-8 h-8 text-purple-500" />,
+        icon: <Brain className="w-8 h-8 text-hot-magenta" />,
     },
     {
         id: "plan",
@@ -137,16 +137,21 @@ const Onboarding = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0D1117] p-4">
-            <Card className="w-full max-w-lg border-[#ACBDAA]/30 shadow-xl bg-white/80 dark:bg-[#1E2D4C]/80 backdrop-blur-xl transition-all duration-300">
+        <div className="min-h-screen flex items-center justify-center bg-space-dark p-4 relative overflow-hidden">
+            {/* 🌌 Background Effects */}
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none z-0" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-electric-cyan/10 rounded-full blur-[100px] pointer-events-none z-0" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-hot-magenta/10 rounded-full blur-[100px] pointer-events-none z-0" />
+
+            <Card className="w-full max-w-lg glass-card border-white/10 shadow-2xl relative z-10">
                 <CardHeader className="text-center">
-                    <div className="mx-auto mb-4 bg-[#ACBDAA]/20 p-3 rounded-full w-fit">
+                    <div className="mx-auto mb-4 bg-white/5 p-3 rounded-full w-fit border border-white/10">
                         {steps[currentStep].icon}
                     </div>
-                    <CardTitle className="text-2xl font-bold text-[#1E2D4C] dark:text-[#ACBDAA]">
+                    <CardTitle className="text-2xl font-bold text-white">
                         {steps[currentStep].title}
                     </CardTitle>
-                    <CardDescription className="text-gray-500 dark:text-gray-400">
+                    <CardDescription className="text-gray-400">
                         {steps[currentStep].description}
                     </CardDescription>
                 </CardHeader>
@@ -162,7 +167,7 @@ const Onboarding = () => {
                         >
                             {currentStep === 0 && (
                                 <div className="text-center space-y-4">
-                                    <p className="text-gray-600 dark:text-gray-300">
+                                    <p className="text-gray-300">
                                         Hi {user?.user_metadata?.full_name || "there"}! We're excited to have you on board.
                                         This quick setup will help us tailor the content just for you.
                                     </p>
@@ -172,14 +177,14 @@ const Onboarding = () => {
                             {currentStep === 1 && (
                                 <div className="space-y-3">
                                     {learningGoals.map((goal) => (
-                                        <div key={goal} className="flex items-center space-x-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#ACBDAA]/10 transition-colors">
+                                        <div key={goal} className="flex items-center space-x-2 p-3 rounded-lg border border-white/10 hover:bg-white/5 transition-colors">
                                             <Checkbox
                                                 id={goal}
                                                 checked={selectedGoals.includes(goal)}
                                                 onCheckedChange={() => handleGoalToggle(goal)}
-                                                className="border-[#ACBDAA] data-[state=checked]:bg-[#ACBDAA] data-[state=checked]:text-[#1E2D4C]"
+                                                className="border-white/30 data-[state=checked]:bg-electric-cyan data-[state=checked]:text-space-dark"
                                             />
-                                            <Label htmlFor={goal} className="flex-1 cursor-pointer text-gray-700 dark:text-gray-200 font-medium">
+                                            <Label htmlFor={goal} className="flex-1 cursor-pointer text-gray-200 font-medium">
                                                 {goal}
                                             </Label>
                                         </div>
@@ -190,11 +195,11 @@ const Onboarding = () => {
                             {currentStep === 2 && (
                                 <RadioGroup value={selectedStyle} onValueChange={setSelectedStyle} className="space-y-3">
                                     {learningStyles.map((style) => (
-                                        <div key={style.id} className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedStyle === style.id ? 'border-[#ACBDAA] bg-[#ACBDAA]/10' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#ACBDAA]/5'}`}>
-                                            <RadioGroupItem value={style.id} id={style.id} className="border-[#ACBDAA] text-[#ACBDAA]" />
+                                        <div key={style.id} className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedStyle === style.id ? 'border-hot-magenta bg-hot-magenta/10' : 'border-white/10 hover:bg-white/5'}`}>
+                                            <RadioGroupItem value={style.id} id={style.id} className="border-white/30 text-hot-magenta" />
                                             <Label htmlFor={style.id} className="flex-1 cursor-pointer">
-                                                <div className="font-medium text-gray-800 dark:text-gray-200">{style.label}</div>
-                                                <div className="text-sm text-gray-500 dark:text-gray-400">{style.description}</div>
+                                                <div className="font-medium text-gray-200">{style.label}</div>
+                                                <div className="text-sm text-gray-400">{style.description}</div>
                                             </Label>
                                         </div>
                                     ))}
@@ -207,23 +212,23 @@ const Onboarding = () => {
                                         <div
                                             key={plan.id}
                                             onClick={() => setSelectedPlan(plan.id)}
-                                            className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedPlan === plan.id ? 'border-[#ACBDAA] bg-[#ACBDAA]/10' : 'border-gray-200 dark:border-gray-700 hover:border-[#ACBDAA]/50'}`}
+                                            className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedPlan === plan.id ? 'border-electric-cyan bg-electric-cyan/10' : 'border-white/10 hover:border-white/20'}`}
                                         >
                                             <div className="flex justify-between items-center mb-2">
-                                                <h3 className="font-bold text-[#1E2D4C] dark:text-[#ACBDAA]">{plan.name}</h3>
-                                                <span className="text-lg font-bold text-[#1E2D4C] dark:text-white">{plan.price}</span>
+                                                <h3 className="font-bold text-white">{plan.name}</h3>
+                                                <span className="text-lg font-bold text-electric-cyan">{plan.price}</span>
                                             </div>
-                                            <ul className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+                                            <ul className="text-sm text-gray-400 space-y-1">
                                                 {plan.features.slice(0, 2).map((feature, idx) => (
                                                     <li key={idx} className="flex items-center gap-2">
-                                                        <Check className="w-3 h-3 text-[#ACBDAA]" /> {feature}
+                                                        <Check className="w-3 h-3 text-electric-cyan" /> {feature}
                                                     </li>
                                                 ))}
                                             </ul>
                                             {selectedPlan === plan.id && (
                                                 <div className="absolute top-2 right-2">
-                                                    <div className="w-4 h-4 bg-[#ACBDAA] rounded-full flex items-center justify-center">
-                                                        <Check className="w-3 h-3 text-white" />
+                                                    <div className="w-4 h-4 bg-electric-cyan rounded-full flex items-center justify-center">
+                                                        <Check className="w-3 h-3 text-space-dark" />
                                                     </div>
                                                 </div>
                                             )}
@@ -240,7 +245,7 @@ const Onboarding = () => {
                         variant="ghost"
                         onClick={() => setCurrentStep((prev) => Math.max(0, prev - 1))}
                         disabled={currentStep === 0}
-                        className="text-gray-500 dark:text-gray-400 hover:text-[#1E2D4C] dark:hover:text-[#ACBDAA]"
+                        className="text-gray-400 hover:text-white hover:bg-white/10"
                     >
                         Back
                     </Button>
@@ -248,7 +253,7 @@ const Onboarding = () => {
                     <div className="flex gap-2">
                         {/* Skip button for Step 0 only */}
                         {currentStep === 0 && (
-                            <Button variant="ghost" onClick={() => navigate("/user/dashboard")} className="text-gray-400">Skip</Button>
+                            <Button variant="ghost" onClick={() => navigate("/user/dashboard")} className="text-gray-400 hover:text-white hover:bg-white/10">Skip</Button>
                         )}
                         <Button
                             onClick={handleNext}
@@ -257,7 +262,7 @@ const Onboarding = () => {
                                 (currentStep === 2 && !selectedStyle) ||
                                 loading
                             }
-                            className="bg-[#ACBDAA] text-[#1E2D4C] hover:bg-[#ACBDAA]/90"
+                            className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold"
                         >
                             {loading ? "Saving..." : currentStep === steps.length - 1 ? "Finish" : "Next"}
                         </Button>

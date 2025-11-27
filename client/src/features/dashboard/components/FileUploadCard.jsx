@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Mic, Link as LinkIcon, StopCircle } from "lucide-react";
+import { Upload, Mic, Link as LinkIcon, StopCircle, FileText, X, CheckCircle, Edit3 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { useUser } from '@/context/useContext.jsx';
@@ -11,7 +11,6 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import Tesseract from 'tesseract.js';
 import mammoth from 'mammoth';
 import { supabase } from "@/lib/supabase";
-
 import {
   Select,
   SelectContent,
@@ -19,46 +18,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 // PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
-
-// Spinner CSS
-const spinnerStyles = `
-  .custom-spinner {
-    width: 32px;
-    height: 32px;
-    border: 4px solid rgba(172, 189, 170, 0.2);
-    border-top: 4px solid #ACBDAA;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  .blob {
-    background: rgba(255, 82, 82, 1);
-    box-shadow: 0 0 0 0 rgba(255, 82, 82, 1);
-    animation: pulse-red 2s infinite;
-  }
-  @keyframes pulse-red {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
-  }
-`;
 
 export const FileUploadCard = ({
   accept = "application/pdf,text/plain,image/jpeg,image/png,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -71,7 +43,7 @@ export const FileUploadCard = ({
   const [loading, setLoading] = useState(false);
   const [loadingText, setLoadingText] = useState("Processing...");
   const [userPrompt, setPrompt] = useState("");
-  const [quizCount, setQuizCount] = useState("");
+  const [quizCount, setQuizCount] = useState("5");
   const [quizType, setQuizType] = useState("mixed");
   const [isDragging, setIsDragging] = useState(false);
   const [activeTab, setActiveTab] = useState("file");
@@ -79,6 +51,14 @@ export const FileUploadCard = ({
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [recognition, setRecognition] = useState(null);
+
+  // Preview & Save Dialog State
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [previewText, setPreviewText] = useState("");
+  const [saveToLibrary, setSaveToLibrary] = useState(true);
+  const [pendingPayload, setPendingPayload] = useState(null);
+
+  const { user } = useUser();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
@@ -124,12 +104,6 @@ export const FileUploadCard = ({
     }
   };
 
-  // Confirmation Dialog State
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [pendingPayload, setPendingPayload] = useState(null);
-
-  const { user } = useUser();
-
   // Reset error after timeout
   useEffect(() => {
     if (fileError) {
@@ -141,7 +115,7 @@ export const FileUploadCard = ({
   // Loading text animation
   useEffect(() => {
     if (loading) {
-      const texts = ["Getting ready...", "Processing...", "Almost ready...", "Hold on a little..."];
+      const texts = ["Initializing AI...", "Reading Content...", "Generating Questions...", "Finalizing Quiz..."];
       let index = 0;
       const interval = setInterval(() => {
         setLoadingText(texts[index]);
@@ -238,13 +212,33 @@ export const FileUploadCard = ({
     if (droppedFile) handleFileChange({ target: { files: [droppedFile] } });
   };
 
-  const convertBlobToBase64 = (blob) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+  const [existingMaterials, setExistingMaterials] = useState([]);
+  const [selectedMaterialId, setSelectedMaterialId] = useState(null);
+
+  // Fetch existing materials when library tab is active
+  useEffect(() => {
+    if (activeTab === 'library' && user?.id) {
+      const fetchMaterials = async () => {
+        const { data, error } = await supabase
+          .from('materials')
+          .select('id, title, content, created_at, file_type')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Error fetching materials:", error);
+        } else {
+          setExistingMaterials(data || []);
+        }
+      };
+      fetchMaterials();
+    }
+  }, [activeTab, user?.id]);
+
+  const handleMaterialSelect = (material) => {
+    setSelectedMaterialId(material.id);
+    setExtractedText(material.content); // Pre-fill content for generation
+    setFileName(material.title);
   };
 
   const handleUploadAndGenerate = async () => {
@@ -259,6 +253,10 @@ export const FileUploadCard = ({
     }
     if (activeTab === 'audio' && !transcript) {
       setFileError("Please transcribe some speech first.");
+      return;
+    }
+    if (activeTab === 'library' && !selectedMaterialId) {
+      setFileError("Please select a material from your library.");
       return;
     }
 
@@ -276,47 +274,61 @@ export const FileUploadCard = ({
       title: userPrompt || "Generated Quiz"
     };
 
+    let initialText = "";
+
     if (activeTab === 'file') {
-      payload.text = extractedText;
+      initialText = extractedText;
       payload.title = file.name;
       payload.sourceType = 'file';
     } else if (activeTab === 'link') {
+      initialText = urlInput;
       payload.url = urlInput;
       payload.title = urlInput;
       payload.sourceType = 'link';
     } else if (activeTab === 'audio') {
+      initialText = transcript;
       payload.title = "Speech Transcript " + new Date().toLocaleTimeString();
-      payload.sourceType = 'audio'; // Keep as audio or change to text, but backend might expect 'audio' source type logic. 
-      // Actually, since we have text now, we can treat it as text content.
-      payload.text = transcript;
-      // We don't need audio blob anymore.
+      payload.sourceType = 'audio';
+    } else if (activeTab === 'library') {
+      initialText = extractedText; // Already set in handleMaterialSelect
+      payload.title = fileName;
+      payload.sourceType = 'library';
     }
 
+    payload.text = initialText;
+    setPreviewText(initialText);
     setPendingPayload(payload);
-    setShowSaveDialog(true);
+    setShowPreviewDialog(true);
   };
 
-  const processQuizGeneration = async (shouldSave) => {
-    setShowSaveDialog(false);
+  const handleConfirmGeneration = async () => {
+    setShowPreviewDialog(false);
     setLoading(true);
 
     try {
-      const payload = pendingPayload;
+      const payload = { ...pendingPayload, text: previewText }; // Use edited text
 
-      // Save material if user confirmed
-      if (shouldSave) {
-        if (payload.sourceType === 'file') {
+      // Save material if user confirmed AND it's not already from the library
+      if (saveToLibrary && payload.sourceType !== 'library') {
+        // Check for duplicates based on title and user_id
+        const { data: existing } = await supabase
+          .from('materials')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('title', payload.title)
+          .single();
+
+        if (!existing) {
           await supabase.from('materials').insert({
             user_id: user.id,
             title: payload.title,
             content: payload.text,
-            file_type: file.type.split('/')[1] || 'text',
+            file_type: payload.sourceType || 'text',
           });
+        } else {
+          console.log("Material already exists, skipping save.");
+          // Optionally update content if needed, but for now we skip to prevent duplicates
         }
-        // For link and audio, we might save after generation if we get extracted text back,
-        // or we can save the URL/metadata now.
-        // The original logic saved extracted text for audio/link AFTER generation.
-        // We'll keep that logic but flag it.
       }
 
       const { data, error } = await supabase.functions.invoke('generate-quiz', {
@@ -326,17 +338,7 @@ export const FileUploadCard = ({
       if (error) throw error;
       if (!data.success) throw new Error(data.error || "Failed to generate quiz");
 
-      // Save extracted text for audio/link if requested and available
-      if (shouldSave && (payload.sourceType === 'audio' || payload.sourceType === 'link') && data.extractedText) {
-        await supabase.from('materials').insert({
-          user_id: user.id,
-          title: payload.title,
-          content: data.extractedText,
-          file_type: payload.sourceType,
-        });
-      }
-
-      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#00F5FF', '#FF2E63'] });
       onQuizGenerated(data.quizId, data.title);
     } catch (err) {
       console.error("Quiz generation error:", err);
@@ -354,248 +356,293 @@ export const FileUploadCard = ({
     setUrlInput("");
     setTranscript("");
     setIsListening(false);
+    setSelectedMaterialId(null);
     if (recognition) recognition.stop();
   };
 
   return (
-    <div className="space-y-6">
-      <style>{spinnerStyles}</style>
-      <Card className="bg-white/80 dark:bg-[#1E2D4C]/80 backdrop-blur-xl border border-[#ACBDAA]/30 w-full flex flex-col shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center text-[#1E2D4C] dark:text-[#ACBDAA]">Upload Study Materials</CardTitle>
-          <CardDescription className="text-[#1E2D4C]/70 dark:text-[#ACBDAA]/70">
-            Upload a file, share a link, or record audio to generate a quiz.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex-1">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-10 space-y-4">
-              <div className="custom-spinner" />
-              <span className="text-[#1E2D4C] dark:text-[#ACBDAA] animate-pulse">{loadingText}</span>
+    <div className="relative w-full max-w-5xl mx-auto p-4">
+      {/* 🌌 Background Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-electric-cyan/10 rounded-full blur-[100px] pointer-events-none" />
+
+      {loading ? (
+        // 🌀 Loading State: Exploded Orb / Progress
+        <div className="flex flex-col items-center justify-center min-h-[500px]">
+          <div className="relative w-64 h-64">
+            {/* Orbiting Dots */}
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear", delay: i * 0.2 }}
+                className="absolute inset-0 rounded-full border-t-4 border-electric-cyan/50"
+                style={{ width: `${100 + i * 20}%`, height: `${100 + i * 20}%`, left: `-${i * 10}%`, top: `-${i * 10}%` }}
+              />
+            ))}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 h-32 rounded-full bg-electric-cyan/20 animate-pulse flex items-center justify-center">
+                <Upload className="w-12 h-12 text-electric-cyan animate-bounce" />
+              </div>
             </div>
-          ) : (
-            <div className="w-full space-y-6">
-              <Tabs defaultValue="file" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-[#ACBDAA]/20">
-                  <TabsTrigger value="file" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#1E2D4C]">
-                    <Upload className="w-4 h-4 mr-2" /> File
-                  </TabsTrigger>
-                  <TabsTrigger value="link" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#1E2D4C]">
-                    <LinkIcon className="w-4 h-4 mr-2" /> Link
-                  </TabsTrigger>
-                  <TabsTrigger value="audio" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#1E2D4C]">
-                    <Mic className="w-4 h-4 mr-2" /> Audio
-                  </TabsTrigger>
-                </TabsList>
+          </div>
+          <h2 className="mt-12 text-3xl font-bold text-white animate-pulse">{loadingText}</h2>
+          <p className="text-gray-400 mt-2">AI is crafting your personalized quiz...</p>
+        </div>
+      ) : (
+        // 🔮 Upload Orb Interface
+        <div className="flex flex-col items-center gap-12">
 
-                <div className="mt-6">
-                  <TabsContent value="file" className="space-y-4">
-                    <motion.label
-                      htmlFor="file"
-                      onDragEnter={handleDrag}
-                      onDragOver={handleDrag}
-                      onDragLeave={handleDrag}
-                      onDrop={handleDrop}
-                      whileHover={{ scale: 1.01 }}
-                      className={`block w-full p-6 sm:p-8 rounded-xl text-center cursor-pointer border-2 border-dashed transition-all
-                        ${isDragging ? "border-[#ACBDAA] bg-[#ACBDAA]/20" : "border-[#ACBDAA]/30 bg-white/50 dark:bg-[#1E2D4C]/30"}
-                      `}
-                    >
-                      <motion.div
-                        animate={{ scale: file ? 1.05 : 1 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                        className="flex flex-col items-center gap-2"
-                      >
-                        <div className="p-4 rounded-full bg-[#ACBDAA]/10">
-                          <Upload className="h-8 w-8 text-[#1E2D4C] dark:text-[#ACBDAA]" />
-                        </div>
-                        <span className="font-medium text-[#1E2D4C] dark:text-[#ACBDAA]">
-                          {fileName !== "No file selected" ? fileName : "Click to upload or drag & drop"}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          PDF, DOCX, TXT, JPG, PNG (Max 10MB)
-                        </span>
-                      </motion.div>
-                      <input id="file" type="file" accept={accept} onChange={handleFileChange} className="hidden" />
-                    </motion.label>
-                  </TabsContent>
+          {/* Mode Switcher (Dock) */}
+          <div className="flex gap-4 p-2 rounded-full glass-card overflow-x-auto max-w-full">
+            {[
+              { id: 'file', icon: Upload, label: 'Upload File' },
+              { id: 'link', icon: LinkIcon, label: 'Paste Link' },
+              { id: 'audio', icon: Mic, label: 'Record Audio' },
+              { id: 'library', icon: FileText, label: 'My Library' }
+            ].map((mode) => (
+              <button
+                key={mode.id}
+                onClick={() => setActiveTab(mode.id)}
+                className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 whitespace-nowrap ${activeTab === mode.id
+                  ? 'bg-electric-cyan text-space-dark font-bold shadow-[0_0_20px_rgba(0,245,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+              >
+                <mode.icon className="w-5 h-5" />
+                {mode.label}
+              </button>
+            ))}
+          </div>
 
-                  <TabsContent value="link" className="space-y-4">
-                    <div className="p-8 rounded-xl border-2 border-dashed border-[#ACBDAA]/30 bg-white/50 dark:bg-[#1E2D4C]/30">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="p-4 rounded-full bg-[#ACBDAA]/10">
-                          <LinkIcon className="h-8 w-8 text-[#1E2D4C] dark:text-[#ACBDAA]" />
-                        </div>
-                        <input
-                          type="url"
-                          placeholder="Paste your article or website URL here..."
-                          value={urlInput}
-                          onChange={(e) => setUrlInput(e.target.value)}
-                          className="w-full p-3 rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] placeholder-[#1E2D4C]/50 dark:placeholder-[#ACBDAA]/70 bg-white dark:bg-[#0D1117] focus:outline-none focus:ring-2 focus:ring-[#ACBDAA] border border-[#ACBDAA]/30"
-                        />
-                      </div>
-                    </div>
-                  </TabsContent>
+          {/* The Orb */}
+          <motion.div
+            layout
+            className="relative group"
+          >
+            {/* Orb Container */}
+            <motion.div
+              animate={{
+                scale: isDragging ? 1.1 : 1,
+                borderColor: isDragging ? '#00F5FF' : 'rgba(255,255,255,0.2)'
+              }}
+              className={`
+                relative flex items-center justify-center w-[400px] h-[400px] rounded-full 
+                glass-orb overflow-hidden transition-all duration-500
+                ${activeTab === 'file' ? 'cursor-pointer' : ''}
+              `}
+            >
+              {/* Inner Liquid/Ripple Effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-electric-cyan/5 to-hot-magenta/5 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
 
-                  <TabsContent value="audio" className="space-y-4">
-                    <div className="p-8 rounded-xl border-2 border-dashed border-[#ACBDAA]/30 bg-white/50 dark:bg-[#1E2D4C]/30">
-                      <div className="flex flex-col items-center gap-6">
-                        <div className={`relative p-6 rounded-full transition-all duration-300 ${isListening ? 'blob' : 'bg-[#ACBDAA]/10'}`}>
-                          <Mic className={`h-10 w-10 ${isListening ? 'text-white' : 'text-[#1E2D4C] dark:text-[#ACBDAA]'}`} />
-                        </div>
+              {activeTab === 'file' && (
+                <label
+                  htmlFor="file-upload"
+                  onDragEnter={handleDrag}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDrop={handleDrop}
+                  className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 space-y-4 cursor-pointer z-20"
+                >
+                  {file ? (
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="bg-electric-cyan/20 p-6 rounded-full">
+                      <FileText className="w-16 h-16 text-electric-cyan" />
+                    </motion.div>
+                  ) : (
+                    <Upload className="w-20 h-20 text-white/50 group-hover:text-electric-cyan transition-colors duration-300" />
+                  )}
 
-                        <div className="flex gap-4">
-                          {!isListening ? (
-                            <Button
-                              onClick={startListening}
-                              className="bg-[#1E2D4C] dark:bg-[#ACBDAA] text-white dark:text-[#1E2D4C] hover:opacity-90"
-                            >
-                              Start Listening
-                            </Button>
-                          ) : (
-                            <Button
-                              onClick={stopListening}
-                              variant="destructive"
-                              className="animate-pulse"
-                            >
-                              <StopCircle className="w-4 h-4 mr-2" /> Stop Listening
-                            </Button>
-                          )}
-                        </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      {file ? file.name : "Drag & Drop or Click"}
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      {file ? "Ready to generate" : "PDF, DOCX, TXT, Images (Max 10MB)"}
+                    </p>
+                  </div>
+                </label>
+              )}
 
-                        <div className="w-full max-w-md">
-                          <textarea
-                            value={transcript}
-                            onChange={(e) => setTranscript(e.target.value)}
-                            placeholder="Speak to transcribe..."
-                            className="w-full h-32 p-3 rounded-lg bg-white dark:bg-[#0D1117] border border-[#ACBDAA]/30 text-[#1E2D4C] dark:text-[#ACBDAA] focus:outline-none focus:ring-2 focus:ring-[#ACBDAA]"
-                          />
-                        </div>
-
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {isListening ? 'Listening...' : 'Click start to convert speech to text'}
-                        </p>
-                      </div>
-                    </div>
-                  </TabsContent>
+              {activeTab === 'link' && (
+                <div className="relative z-10 w-full px-12 pointer-events-auto">
+                  <div className="flex flex-col items-center gap-4">
+                    <LinkIcon className="w-16 h-16 text-hot-magenta" />
+                    <input
+                      type="url"
+                      placeholder="Paste URL here..."
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      className="w-full bg-black/30 border border-white/20 rounded-xl p-4 text-white placeholder-gray-500 focus:border-hot-magenta focus:ring-1 focus:ring-hot-magenta outline-none text-center"
+                    />
+                  </div>
                 </div>
-              </Tabs>
+              )}
 
-              <AnimatePresence>
-                {fileError && (
-                  <motion.p
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 10 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-red-500 dark:text-red-400 text-sm text-center"
+              {activeTab === 'audio' && (
+                <div className="relative z-10 w-full px-12 pointer-events-auto flex flex-col items-center gap-6">
+                  <motion.button
+                    onClick={isListening ? stopListening : startListening}
+                    animate={{ scale: isListening ? [1, 1.1, 1] : 1 }}
+                    transition={{ repeat: isListening ? Infinity : 0, duration: 1.5 }}
+                    className={`w-24 h-24 rounded-full flex items-center justify-center ${isListening ? 'bg-red-500 shadow-[0_0_30px_red]' : 'bg-white/10 hover:bg-white/20'}`}
                   >
-                    {fileError}
-                  </motion.p>
-                )}
-              </AnimatePresence>
+                    {isListening ? <StopCircle className="w-10 h-10 text-white" /> : <Mic className="w-10 h-10 text-white" />}
+                  </motion.button>
+                  <p className="text-gray-400 text-sm text-center max-w-[200px] truncate">
+                    {transcript || (isListening ? "Listening..." : "Tap to record")}
+                  </p>
+                </div>
+              )}
 
-              <div className="space-y-4 pt-4 border-t border-[#ACBDAA]/20">
-                <motion.input
+              {activeTab === 'library' && (
+                <div className="relative z-10 w-full h-full p-8 pointer-events-auto overflow-y-auto scrollbar-thin scrollbar-thumb-electric-cyan/20">
+                  <h3 className="text-xl font-bold text-white mb-4 text-center sticky top-0 bg-space-dark/80 backdrop-blur-sm py-2 z-10">Select Material</h3>
+                  <div className="space-y-2">
+                    {existingMaterials.length > 0 ? (
+                      existingMaterials.map(material => (
+                        <div
+                          key={material.id}
+                          onClick={() => handleMaterialSelect(material)}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedMaterialId === material.id ? 'bg-electric-cyan/20 border-electric-cyan' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                        >
+                          <p className="text-sm font-medium text-white truncate">{material.title}</p>
+                          <p className="text-xs text-gray-400">{new Date(material.created_at).toLocaleDateString()}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500 mt-10">No materials found.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <input id="file-upload" type="file" accept={accept} onChange={handleFileChange} className="hidden" disabled={activeTab !== 'file'} />
+            </motion.div>
+
+            {/* Orbiting Particles around the Orb */}
+            <div className="absolute inset-0 pointer-events-none">
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute inset-[-20px] rounded-full border border-white/5 border-dashed" />
+              <motion.div animate={{ rotate: -360 }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }} className="absolute inset-[-40px] rounded-full border border-white/5 border-dashed opacity-50" />
+            </div>
+          </motion.div>
+
+          {/* Settings & Generate Button */}
+          <div className="w-full max-w-2xl space-y-6 glass-card p-6 rounded-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="text-gray-400 text-sm mb-2 block">Instruction (Optional)</label>
+                <input
                   type="text"
-                  placeholder="Add specific instructions for the AI (optional)"
                   value={userPrompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  maxLength={500}
-                  whileFocus={{ scale: 1.01 }}
-                  className="w-full p-3 rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] placeholder-[#1E2D4C]/50 dark:placeholder-[#ACBDAA]/70 bg-white/50 dark:bg-[#1E2D4C]/30 focus:outline-none focus:ring-2 focus:ring-[#ACBDAA] border border-[#ACBDAA]/30"
+                  placeholder="e.g. Focus on key dates..."
+                  className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-white focus:border-electric-cyan outline-none"
                 />
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <motion.input
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="text-gray-400 text-sm mb-2 block">Questions</label>
+                  <input
                     type="number"
-                    placeholder="Count (5)"
                     value={quizCount}
                     onChange={(e) => setQuizCount(e.target.value)}
                     min="1" max="20"
-                    whileFocus={{ scale: 1.01 }}
-                    className="w-full sm:w-1/3 p-3 rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] placeholder-[#1E2D4C]/50 dark:placeholder-[#ACBDAA]/70 bg-white/50 dark:bg-[#1E2D4C]/30 focus:outline-none focus:ring-2 focus:ring-[#ACBDAA] border border-[#ACBDAA]/30"
+                    className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-white focus:border-electric-cyan outline-none"
                   />
-
+                </div>
+                <div className="flex-1">
+                  <label className="text-gray-400 text-sm mb-2 block">Type</label>
                   <Select value={quizType} onValueChange={setQuizType}>
-                    <SelectTrigger className="w-full sm:w-2/3 p-3 h-auto rounded-lg text-[#1E2D4C] dark:text-[#ACBDAA] bg-white/50 dark:bg-[#1E2D4C]/30 border-[#ACBDAA]/30 focus:ring-[#ACBDAA]">
-                      <SelectValue placeholder="Quiz Type" />
+                    <SelectTrigger className="bg-black/20 border-white/10 text-white h-[46px]">
+                      <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-[#1E2D4C] border-[#ACBDAA]/30">
-                      <SelectItem value="mixed">Mixed (MCQ & T/F)</SelectItem>
-                      <SelectItem value="multiple-choice">Multiple Choice Only</SelectItem>
-                      <SelectItem value="true-false">True/False Only</SelectItem>
+                    <SelectContent className="bg-space-dark border-white/10 text-white">
+                      <SelectItem value="mixed">Mixed</SelectItem>
+                      <SelectItem value="multiple-choice">MCQ Only</SelectItem>
+                      <SelectItem value="true-false">True/False</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div className="flex justify-end gap-3 pt-2">
-                  {(extractedText || urlInput || transcript) && (
-                    <Button
-                      variant="outline"
-                      onClick={handleCancel}
-                      className="text-[#1E2D4C] dark:text-[#ACBDAA] border-[#ACBDAA]/30 hover:bg-[#ACBDAA]/10"
-                    >
-                      Clear
-                    </Button>
-                  )}
-                  <Button
-                    onClick={handleUploadAndGenerate}
-                    className="bg-[#ACBDAA] text-[#1E2D4C] hover:opacity-90 px-8"
-                    disabled={loading || (activeTab === 'file' && !extractedText) || (activeTab === 'link' && !urlInput) || (activeTab === 'audio' && !transcript)}
-                  >
-                    Generate Quiz
-                  </Button>
-                </div>
               </div>
             </div>
-          )}
-        </CardContent>
 
-        {/* Text Preview for File Upload only */}
-        {activeTab === 'file' && extractedText && !loading && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="border-t border-[#ACBDAA]/30"
-          >
-            <div className="p-6">
-              <h3 className="text-sm font-semibold text-[#1E2D4C] dark:text-[#ACBDAA] mb-2">Extracted Text Preview</h3>
-              <textarea
-                value={extractedText}
-                onChange={(e) => setExtractedText(e.target.value)}
-                className="w-full h-48 p-3 rounded-lg bg-white/50 dark:bg-[#1E2D4C]/30 text-[#1E2D4C] dark:text-[#ACBDAA] text-sm font-mono border border-[#ACBDAA]/30 focus:outline-none"
-              />
+            <div className="flex justify-end gap-4 pt-4 border-t border-white/10">
+              {(extractedText || urlInput || transcript) && (
+                <Button variant="ghost" onClick={handleCancel} className="text-gray-400 hover:text-white hover:bg-white/5">
+                  Clear
+                </Button>
+              )}
+              <Button
+                onClick={handleUploadAndGenerate}
+                disabled={loading || (activeTab === 'file' && !extractedText) || (activeTab === 'link' && !urlInput) || (activeTab === 'audio' && !transcript) || (activeTab === 'library' && !selectedMaterialId)}
+                className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold px-8 py-6 rounded-xl shadow-[0_0_20px_rgba(0,245,255,0.3)] hover:shadow-[0_0_30px_rgba(0,245,255,0.5)] transition-all"
+              >
+                Generate Quiz
+              </Button>
             </div>
-          </motion.div>
-        )}
-      </Card>
+          </div>
 
-      <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-        <AlertDialogContent className="bg-white dark:bg-[#1E2D4C] border-[#ACBDAA]/30">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-[#1E2D4C] dark:text-[#ACBDAA]">Save Material?</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-500 dark:text-[#ACBDAA]/70">
-              Do you want to save this material to your library for future use?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => processQuizGeneration(false)}
-              className="border-[#ACBDAA]/30 text-[#1E2D4C] dark:text-[#ACBDAA] hover:bg-[#ACBDAA]/10"
-            >
-              Don't Save
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => processQuizGeneration(true)}
-              className="bg-[#ACBDAA] text-[#1E2D4C] hover:bg-[#ACBDAA]/90"
-            >
-              Save & Generate
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          {/* Error Message */}
+          <AnimatePresence>
+            {fileError && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="absolute bottom-10 bg-red-500/10 border border-red-500/50 text-red-500 px-6 py-3 rounded-full backdrop-blur-md"
+              >
+                {fileError}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Preview & Edit Dialog */}
+      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+        <DialogContent className="bg-space-dark border-white/10 text-white max-w-3xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-electric-cyan flex items-center gap-2">
+              <Edit3 className="w-5 h-5" />
+              Review & Edit Content
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Review the extracted content below. You can edit it before generating the quiz.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-hidden py-4">
+            <textarea
+              value={previewText}
+              onChange={(e) => setPreviewText(e.target.value)}
+              className="w-full h-full min-h-[300px] bg-black/20 border border-white/10 rounded-lg p-4 text-white placeholder-gray-500 focus:border-electric-cyan focus:ring-1 focus:ring-electric-cyan outline-none resize-none font-mono text-sm"
+              placeholder="Extracted content will appear here..."
+            />
+          </div>
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-4 items-center justify-between border-t border-white/10 pt-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="save-library"
+                checked={saveToLibrary}
+                onCheckedChange={setSaveToLibrary}
+                disabled={activeTab === 'library'}
+                className="border-white/30 data-[state=checked]:bg-electric-cyan data-[state=checked]:text-space-dark disabled:opacity-50"
+              />
+              <Label htmlFor="save-library" className={`text-sm text-gray-300 cursor-pointer ${activeTab === 'library' ? 'opacity-50' : ''}`}>
+                {activeTab === 'library' ? 'Already in Library' : 'Save to Knowledge Galaxy'}
+              </Label>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button variant="ghost" onClick={() => setShowPreviewDialog(false)} className="flex-1 sm:flex-none text-gray-400 hover:text-white hover:bg-white/5">
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmGeneration} className="flex-1 sm:flex-none bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold">
+                Confirm & Generate
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

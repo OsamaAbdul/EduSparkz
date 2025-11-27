@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       
       Performance Stats:
       - Score: ${score}/${total}
-      - Average Time per Question: ${avgTimePerQuestion.toFixed(2)} seconds
+      - Average Time per Question: ${(avgTimePerQuestion || 0).toFixed(2)} seconds
       
       Generate a short, spicy, and motivational message in **Nigerian Pidgin English** based on their performance.
       
@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
       Output ONLY the message string. No quotes.
     `;
 
-        const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${Deno.env.get('GEMINI_API_KEY')}`, {
+        const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${Deno.env.get('GEMINI_API_KEY')}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

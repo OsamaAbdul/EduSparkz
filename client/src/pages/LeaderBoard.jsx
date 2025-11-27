@@ -1,493 +1,174 @@
-// import { useEffect, useState } from "react";
-// import { useQuery } from "@tanstack/react-query";
-// import { useNavigate } from "react-router-dom";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button";
-// import { Trophy, Medal, Clock } from "lucide-react";
-// import { useUser } from "../context/useContext.jsx";
-// import { toast } from "sonner";
-// import { DashboardLayout } from "../components/dasboard/DashboardLayout.jsx";
-// import { Sidebar } from "../components/dasboard/Sidebar.jsx";
-// import { Header } from "../components/dasboard/Header.jsx";
-
-// // Custom CSS for spinner (inherited from FileUploadCard and History)
-// const spinnerStyles = `
-//   .custom-spinner {
-//     width: 32px;
-//     height: 32px;
-//     border: 4px solid rgba(255, 255, 255, 0.1);
-//     border-top: 4px solid #a855f7; /* Matches purple-400 */
-//     border-radius: 50%;
-//     animation: spin 1s linear infinite;
-//   }
-//   @keyframes spin {
-//     0% { transform: rotate(0deg); }
-//     100% { transform: rotate(360deg); }
-//   }
-// `;
-
-// const Leaderboard = () => {
-//   const { user } = useUser();
-//   const navigate = useNavigate();
-//   const [sidebarOpen, setSidebarOpen] = useState(true);
-//   const [limit, setLimit] = useState(5); 
-//   const [loadingText, setLoadingText] = useState("Fetching leaderboard...");
-
-//   useEffect(() => {
-//     if (!user?.token) {
-//       navigate("/api/auth/login");
-//     }
-//   }, [user, navigate]);
-
-//   const { data, isLoading, error, refetch } = useQuery({
-//     queryKey: ["leaderboard", user?.token, limit],
-//     queryFn: async () => {
-//       const response = await fetch(
-//         `${import.meta.env.VITE_BACKEND_URL}/api/user/leaderboard?limit=${limit}`,
-//         {
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: `Bearer ${user.token}`,
-//           },
-//         }
-//       );
-//       console.log("Leaderboard fetch response:", response); 
-//       if (!response.ok) {
-//         if (response.status === 401) navigate("/login");
-//         throw new Error("Failed to fetch leaderboard");
-//       }
-//       return response.json();
-//     },
-//     enabled: !!user?.token,
-//   });
-
-//   useEffect(() => {
-//     if (isLoading) {
-//       const texts = ["Fetching leaderboard...", "Processing...", "Loading..."];
-//       let index = 0;
-//       const interval = setInterval(() => {
-//         setLoadingText(texts[index]);
-//         index = (index + 1) % texts.length;
-//       }, 2000);
-//       return () => clearInterval(interval);
-//     }
-//   }, [isLoading]);
-
-//   useEffect(() => {
-//     if (error) {
-//       toast.error(error.message || "Failed to load leaderboard");
-//     }
-//   }, [error]);
-
-//   const formatTime = (seconds) => {
-//     if (!seconds) return "N/A";
-//     const mins = Math.floor(seconds / 60);
-//     const secs = Math.round(seconds % 60);
-//     return `${mins}:${secs.toString().padStart(2, "0")}`;
-//   };
-
-//   const getRankIcon = (rank) => {
-//     if (rank === 1) return <Trophy className="w-6 h-6 text-yellow-400" />;
-//     if (rank === 2) return <Medal className="w-6 h-6 text-gray-300" />;
-//     if (rank === 3) return <Medal className="w-6 h-6 text-amber-600" />;
-//     return <span className="w-6 h-6 flex items-center justify-center text-gray-400">{rank}</span>;
-//   };
-
-//   const getLevelColor = (level) => {
-//     switch (level) {
-//       case "Advanced": return "text-blue-400";
-//       case "Intermediate": return "text-green-400";
-//       case "Beginner": return "text-yellow-400";
-//       case "Novice": return "text-gray-400";
-//       default: return "text-gray-400";
-//     }
-//   };
-
-//   const leaderboardData = data?.leaderboard || [];
-//   console.log("Leaderboard data:", leaderboardData);
-
-//   return (
-//     <DashboardLayout>
-//       <style>{spinnerStyles}</style>
-//       <div className={`sticky top-0 h-screen overflow-y-auto ${sidebarOpen ? 'block w-64 min-w-[16rem]' : 'hidden md:block md:w-16 md:min-w-[4rem]'}`}>
-//         <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-//       </div>
-//       <div className="flex-1 flex flex-col min-h-screen">
-//         <div className="sticky top-0 z-50 bg-black/80">
-//           <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-//         </div>
-//         <main className="flex-1 p-6 overflow-y-auto">
-//           {isLoading ? (
-//             <div className="flex flex-col items-center justify-center min-h-full space-y-2">
-//               <div className="custom-spinner" />
-//               <span className="text-white">{loadingText}</span>
-//             </div>
-//           ) : error ? (
-//             <div className="flex-1 flex items-center justify-center min-h-full">
-//               <div className="text-white text-xl flex flex-col items-center gap-4">
-//                 <p>Error: {error.message}</p>
-//                 <Button
-//                   onClick={() => refetch()}
-//                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-//                 >
-//                   Retry
-//                 </Button>
-//                 <Button
-//                   onClick={() => {
-//                     console.log("Navigating to dashboard from leaderboard"); 
-//                     navigate("/user/dashboard");
-//                   }}
-//                   variant="outline"
-//                   className="bg-transparent border-purple-500 text-purple-300 hover:bg-purple-900/30"
-//                 >
-//                   Back to Dashboard
-//                 </Button>
-//               </div>
-//             </div>
-//           ) : leaderboardData.length === 0 ? (
-//             <div className="flex flex-col items-center justify-center min-h-full space-y-4">
-//               <div className="text-white text-xl">No leaderboard data available</div>
-//               <Button
-//                 onClick={() => {
-//                   console.log("Navigating to dashboard from leaderboard (empty state)"); // Debug navigation
-//                   navigate("/user/dashboard");
-//                 }}
-//                 variant="outline"
-//                 className="bg-transparent border-purple-500 text-purple-300"
-//               >
-//                 Back to Dashboard
-//               </Button>
-//             </div>
-//           ) : (
-//             <div className="max-w-4xl mx-auto space-y-6">
-//               <div className="text-center space-y-4 pt-8">
-//                 <h1 className="text-4xl font-bold text-white mb-2">Leaderboard</h1>
-//                 <p className="text-purple-300">See how you stack up against other quiz champions!</p>
-//               </div>
-
-//               <Card className="bg-black/60 border border-purple-500/20 backdrop-blur-md rounded-2xl shadow-2xl">
-//                 <CardHeader>
-//                   <CardTitle className="text-white flex items-center gap-2 text-2xl font-semibold">
-//                     <Trophy className="text-yellow-400" />
-//                     Top Performers
-//                   </CardTitle>
-//                 </CardHeader>
-//                 <CardContent className="space-y-4">
-//                   {leaderboardData.map((entry, index) => {
-//                     const isTopThree = entry.rank <= 3;
-//                     return (
-//                       <div
-//                         key={entry.username}
-//                         className={`flex items-center justify-between p-4 rounded-xl transition-transform duration-200 border border-slate-700/40 hover:scale-[1.01] bg-gradient-to-r from-slate-800/40 via-slate-900/40 to-black/40 ${
-//                           isTopThree ? "shadow-[0_0_20px_2px_rgba(192,132,252,0.2)]" : ""
-//                         }`}
-//                       >
-//                         <div className="flex items-center gap-4">
-//                           <div className="w-8 h-8 flex items-center justify-center text-white font-bold text-lg">
-//                             {getRankIcon(entry.rank)}
-//                           </div>
-//                           <div>
-//                             <div className="text-white text-lg font-semibold">{entry.username}</div>
-//                             <div className={`text-sm ${getLevelColor(entry.highestLevel)}`}>
-//                               {entry.highestLevel}
-//                             </div>
-//                           </div>
-//                         </div>
-//                         <div className="text-right space-y-1">
-//                           <div className="text-purple-300 font-medium">
-//                             {entry.averageScorePercentage}% Avg Score
-//                           </div>
-//                           <div className="text-gray-400 text-sm">{entry.totalQuizzes} Quizzes</div>
-//                           <div className="flex justify-end items-center gap-1 text-gray-400 text-sm">
-//                             <Clock className="w-4 h-4" />
-//                             {formatTime(entry.averageDuration)}
-//                           </div>
-//                         </div>
-//                       </div>
-//                     );
-//                   })}
-//                 </CardContent>
-//               </Card>
-
-//               <div className="flex justify-center gap-4 pb-8">
-//                 <Button
-//                   onClick={() => setLimit((prev) => Math.max(prev - 10, 10))}
-//                   disabled={limit <= 10}
-//                   variant="outline"
-//                   className="bg-transparent border-purple-500 text-purple-300 hover:bg-purple-900/30"
-//                 >
-//                   Show Less
-//                 </Button>
-//                 <Button
-//                   onClick={() => setLimit((prev) => Math.min(prev + 10, 100))}
-//                   disabled={limit >= 100}
-//                   variant="outline"
-//                   className="bg-transparent border-purple-500 text-purple-300 hover:bg-purple-900/30"
-//                 >
-//                   Show More
-//                 </Button>
-//                 <Button
-//                   onClick={() => {
-//                     console.log("Navigating to dashboard from leaderboard (main)"); // Debug navigation
-//                     navigate("/user/dashboard");
-//                   }}
-//                   variant="outline"
-//                   className="bg-transparent border-purple-500 text-purple-300 hover:bg-purple-900/30"
-//                 >
-//                   Back to Dashboard
-//                 </Button>
-//               </div>
-//             </div>
-//           )}
-//         </main>
-//       </div>
-//     </DashboardLayout>
-//   );
-// };
-
-// export default Leaderboard;
-
-
-
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { useMediaQuery } from "react-responsive";
-import { motion, AnimatePresence } from "framer-motion";
-import { DashboardLayout } from "../layouts/DashboardLayout.jsx";
-import { Sidebar } from "../layouts/Sidebar.jsx";
-import Header from "../layouts/Header.jsx";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Medal, Clock } from "lucide-react";
-import { useUser } from "../context/useContext.jsx";
-import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Search, Trophy, Flame, Medal } from "lucide-react";
 import { supabase } from "../lib/supabase";
-
-const spinnerStyles = `
-  .custom-spinner {
-    width: 32px;
-    height: 32px;
-    border: 4px solid rgba(172, 189, 170, 0.2);
-    border-top: 4px solid #ACBDAA;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DashboardLayout } from "../layouts/DashboardLayout.jsx";
 
 const Leaderboard = () => {
-  const { user } = useUser();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [limit, setLimit] = useState(5);
-  const [loadingText, setLoadingText] = useState("Fetching leaderboard...");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const isLaptop = useMediaQuery({ minWidth: 1024 });
-  const isMobile = useMediaQuery({ maxWidth: 640 });
-
-  useEffect(() => {
-    setSidebarOpen(isLaptop);
-  }, [isLaptop]);
-
-  useEffect(() => {
-    if (!user?.token) navigate("/api/auth/login");
-  }, [user, navigate]);
-
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["leaderboard", user?.token, limit],
+  const { data: leaderboardData = [], isLoading, error } = useQuery({
+    queryKey: ["leaderboard-public"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_leaderboard', { limit_count: limit });
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username, full_name, avatar_url, xp, streak')
+        .order('xp', { ascending: false })
+        .limit(100);
 
       if (error) throw error;
-
-      return { leaderboard: data };
+      return data;
     },
-    enabled: !!user?.token,
   });
 
-  useEffect(() => {
-    if (isLoading) {
-      const texts = ["Fetching leaderboard...", "Processing...", "Loading..."];
-      let index = 0;
-      const interval = setInterval(() => {
-        setLoadingText(texts[index]);
-        index = (index + 1) % texts.length;
-      }, 2000);
-      return () => clearInterval(interval);
-    }
-  }, [isLoading]);
+  const filteredData = leaderboardData.filter(user =>
+    (user.full_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (user.username?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  );
 
-  useEffect(() => {
-    if (error) toast.error(error.message || "Failed to load leaderboard");
-  }, [error]);
+  const topThree = filteredData.slice(0, 3);
+  const rest = filteredData.slice(3);
 
-  const formatTime = (seconds) => {
-    if (!seconds) return "N/A";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.round(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  const getInitials = (name) => {
+    return name ? name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : '??';
   };
-
-  const getRankIcon = (rank) => {
-    if (rank === 1) return <Trophy className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />;
-    if (rank === 2) return <Medal className="w-6 h-6 text-gray-400 dark:text-[#ACBDAA]" />;
-    if (rank === 3) return <Medal className="w-6 h-6 text-amber-600" />;
-    return <span className="w-6 h-6 flex items-center justify-center text-[#1E2D4C]/60 dark:text-gray-400 font-bold">{rank}</span>;
-  };
-
-  const getLevelColor = (level) => {
-    switch (level) {
-      case "Advanced": return "text-[#1E2D4C] dark:text-[#ACBDAA]";
-      case "Intermediate": return "text-[#1E2D4C]/80 dark:text-[#ACBDAA]/80";
-      case "Beginner": return "text-[#1E2D4C]/60 dark:text-[#ACBDAA]/60";
-      case "Novice": return "text-gray-500 dark:text-gray-400";
-      default: return "text-gray-500 dark:text-gray-400";
-    }
-  };
-
-  const leaderboardData = data?.leaderboard || [];
 
   return (
     <DashboardLayout>
-      <style>{spinnerStyles}</style>
-      <div className="relative flex flex-col lg:flex-row min-h-screen bg-gray-50 dark:bg-[#0D1117] transition-colors duration-300 w-full">
-        {/* Background Accent */}
-        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#ACBDAA]/10 via-transparent to-transparent dark:from-[#ACBDAA]/10" />
+      <div className="p-6">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl font-bold text-center mb-8 text-white">Leaderboard</h1>
 
-        {/* Sidebar */}
-        <AnimatePresence initial={false}>
-          {sidebarOpen && (
-            <motion.aside
-              key="sidebar"
-              initial={{ x: isLaptop ? 0 : -300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: isLaptop ? 0 : -300, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 120, damping: 20 }}
-              className={`fixed lg:sticky top-0 left-0 z-50 lg:z-40 h-screen 
-                bg-white/80 dark:bg-[#1E2D4C]/70 border-r border-[#ACBDAA]/20 backdrop-blur-xl 
-                overflow-hidden lg:overflow-visible w-64`}
-            >
-              <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-            </motion.aside>
+          {/* Podium Section */}
+          {topThree.length > 0 && (
+            <div className="flex justify-center items-end gap-4 mb-12 min-h-[300px]">
+              {/* 2nd Place */}
+              {topThree[1] && (
+                <div className="flex flex-col items-center">
+                  <div className="relative mb-2">
+                    <Avatar className="w-16 h-16 border-2 border-gray-400">
+                      <AvatarImage src={topThree[1].avatar_url} />
+                      <AvatarFallback>{getInitials(topThree[1].full_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -top-3 -right-3 bg-gray-700 rounded-full p-1">
+                      <Medal className="w-4 h-4 text-gray-300" />
+                    </div>
+                  </div>
+                  <div className="bg-gray-800/80 rounded-t-2xl p-4 w-32 h-40 flex flex-col items-center justify-center text-center border-t-4 border-gray-400">
+                    <p className="font-bold text-sm truncate w-full text-white">{topThree[1].full_name || topThree[1].username}</p>
+                    <p className="text-xs text-gray-400">Intermediate</p>
+                    <div className="mt-2 flex items-center gap-1 text-red-500 font-bold">
+                      <Trophy className="w-3 h-3" /> {topThree[1].xp || 0} XP
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 1st Place */}
+              {topThree[0] && (
+                <div className="flex flex-col items-center z-10 -mx-2">
+                  <div className="relative mb-2">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-yellow-500 animate-bounce">
+                      <Trophy className="w-8 h-8 fill-current" />
+                    </div>
+                    <Avatar className="w-24 h-24 border-4 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.5)]">
+                      <AvatarImage src={topThree[0].avatar_url} />
+                      <AvatarFallback>{getInitials(topThree[0].full_name)}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="bg-gradient-to-b from-green-500 to-green-600 rounded-t-2xl p-6 w-40 h-52 flex flex-col items-center justify-center text-center shadow-2xl transform scale-105">
+                    <p className="font-bold text-base truncate w-full text-white">{topThree[0].full_name || topThree[0].username}</p>
+                    <p className="text-xs text-green-100 mb-2">Advanced</p>
+                    <div className="bg-black/20 rounded-full px-3 py-1 flex items-center gap-1 text-white font-bold">
+                      <Trophy className="w-3 h-3" /> {topThree[0].xp || 0} XP
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 3rd Place */}
+              {topThree[2] && (
+                <div className="flex flex-col items-center">
+                  <div className="relative mb-2">
+                    <Avatar className="w-16 h-16 border-2 border-amber-700">
+                      <AvatarImage src={topThree[2].avatar_url} />
+                      <AvatarFallback>{getInitials(topThree[2].full_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -top-3 -right-3 bg-gray-700 rounded-full p-1">
+                      <Medal className="w-4 h-4 text-amber-700" />
+                    </div>
+                  </div>
+                  <div className="bg-gray-800/80 rounded-t-2xl p-4 w-32 h-32 flex flex-col items-center justify-center text-center border-t-4 border-amber-700">
+                    <p className="font-bold text-sm truncate w-full text-white">{topThree[2].full_name || topThree[2].username}</p>
+                    <p className="text-xs text-gray-400">Beginner</p>
+                    <div className="mt-2 flex items-center gap-1 text-red-500 font-bold">
+                      <Trophy className="w-3 h-3" /> {topThree[2].xp || 0} XP
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
-        </AnimatePresence>
 
-        {/* Main Content */}
-        <motion.div
-          key="main"
-          layout
-          transition={{ type: "spring", stiffness: 100, damping: 20 }}
-          className="flex-1 flex flex-col min-h-screen transition-all duration-300"
-        >
-          <header className="w-full sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#1E2D4C]/70 border-b border-[#ACBDAA]/20 transition-colors duration-300 flex items-center justify-center px-0 sm:px-6 py-0">
-            <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} className="w-full" />
-          </header>
+          {/* Search Bar */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-300">Leaderboard</h2>
+            <div className="relative w-full max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Input
+                placeholder="Search users..."
+                className="pl-9 bg-gray-900 border-gray-800 text-white focus:ring-electric-cyan"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
 
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-                <div className="custom-spinner" />
-                <span className="text-[#1E2D4C] dark:text-[#ACBDAA]">{loadingText}</span>
-              </div>
-            ) : leaderboardData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-                <span className="text-[#1E2D4C] dark:text-[#ACBDAA] text-xl">No leaderboard data available</span>
-                <Button
-                  onClick={() => navigate("/user/dashboard")}
-                  variant="outline"
-                  className="border-[#ACBDAA] text-[#1E2D4C] dark:text-[#ACBDAA]/80 hover:bg-[#ACBDAA]/10"
-                >
-                  Back to Dashboard
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-6 max-w-4xl mx-auto">
-                <div className="text-center space-y-2 pt-4">
-                  <h1 className="text-3xl sm:text-4xl font-bold text-[#1E2D4C] dark:text-[#ACBDAA]">Leaderboard</h1>
-                  <p className="text-[#1E2D4C]/70 dark:text-[#ACBDAA]/70">See how you stack up against other quiz champions!</p>
+          {/* List Section */}
+          <div className="bg-gray-900/50 rounded-2xl border border-gray-800 overflow-hidden">
+            <div className="grid grid-cols-12 gap-4 p-4 text-gray-400 text-sm font-medium border-b border-gray-800">
+              <div className="col-span-1 text-center">Rank</div>
+              <div className="col-span-1 text-center">Avatar</div>
+              <div className="col-span-5">Name</div>
+              <div className="col-span-3 text-right">XP</div>
+              <div className="col-span-2 text-right">Streak</div>
+            </div>
+
+            {rest.map((user, index) => (
+              <div key={user.username || index} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/5 transition-colors border-b border-gray-800/50 last:border-0">
+                <div className="col-span-1 text-center font-bold text-gray-500">
+                  {index + 4}
                 </div>
-
-                <Card className="bg-white/70 dark:bg-[#1E2D4C]/80 border border-[#ACBDAA]/30 backdrop-blur-sm rounded-2xl shadow-2xl shadow-[#ACBDAA]/10 dark:shadow-[#ACBDAA]/20 overflow-hidden">
-                  <CardHeader>
-                    <CardTitle className="text-[#1E2D4C] dark:text-[#ACBDAA] flex items-center gap-2 text-2xl font-semibold">
-                      <Trophy className="text-yellow-500 dark:text-yellow-400" /> Top Performers
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {leaderboardData.map((entry) => (
-                      <div
-                        key={entry.username}
-                        className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-xl transition-transform duration-200 border border-[#ACBDAA]/20 hover:scale-[1.01] bg-white/50 dark:bg-gradient-to-r dark:from-[#1E2D4C]/40 dark:via-[#1E2D4C]/50 dark:to-[#1E2D4C]/30 hover:bg-[#ACBDAA]/5"
-                      >
-                        <div className="flex items-center gap-4 w-full sm:w-auto">
-                          <div className="w-8 h-8 flex items-center justify-center text-[#1E2D4C] dark:text-[#ACBDAA] font-bold text-lg">
-                            {getRankIcon(entry.rank)}
-                          </div>
-                          <div>
-                            <div className="text-[#1E2D4C] dark:text-[#ACBDAA] text-lg font-semibold">{entry.username}</div>
-                            <div className={`text-sm ${getLevelColor(entry.highestLevel)}`}>{entry.highestLevel}</div>
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:items-end mt-2 sm:mt-0 space-y-1 text-right w-full sm:w-auto">
-                          <span className="text-[#1E2D4C]/80 dark:text-[#ACBDAA]/80 font-medium">{entry.averageScorePercentage}% Avg Score</span>
-                          <span className="text-[#1E2D4C]/60 dark:text-[#ACBDAA]/60 text-sm">{entry.totalQuizzes} Quizzes</span>
-                          <div className="flex justify-end items-center gap-1 text-[#1E2D4C]/50 dark:text-[#ACBDAA]/50 text-sm">
-                            <Clock className="w-4 h-4" />
-                            {formatTime(entry.averageDuration)}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <div className="flex flex-wrap justify-center gap-4 pb-8">
-                  <Button
-                    onClick={() => setLimit((prev) => Math.max(prev - 10, 10))}
-                    disabled={limit <= 10}
-                    variant="outline"
-                    className="border-[#ACBDAA] text-[#1E2D4C] dark:text-[#ACBDAA]/70 hover:bg-[#ACBDAA]/10"
-                  >
-                    Show Less
-                  </Button>
-                  <Button
-                    onClick={() => setLimit((prev) => Math.min(prev + 10, 100))}
-                    disabled={limit >= 100}
-                    variant="outline"
-                    className="border-[#ACBDAA] text-[#1E2D4C] dark:text-[#ACBDAA]/70 hover:bg-[#ACBDAA]/10"
-                  >
-                    Show More
-                  </Button>
-                  <Button
-                    onClick={() => navigate("/user/dashboard")}
-                    variant="outline"
-                    className="border-[#ACBDAA] text-[#1E2D4C] dark:text-[#ACBDAA]/70 hover:bg-[#ACBDAA]/10"
-                  >
-                    Back to Dashboard
-                  </Button>
+                <div className="col-span-1 flex justify-center">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={user.avatar_url} />
+                    <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
+                  </Avatar>
                 </div>
+                <div className="col-span-5 font-medium text-white truncate">
+                  {user.full_name || user.username}
+                </div>
+                <div className="col-span-3 text-right text-red-500 font-bold flex items-center justify-end gap-1">
+                  <Trophy className="w-3 h-3" /> {user.xp || 0} XP
+                </div>
+                <div className="col-span-2 text-right text-yellow-500 font-bold flex items-center justify-end gap-1">
+                  <Flame className="w-3 h-3" /> {user.streak || 0} Days
+                </div>
+              </div>
+            ))}
+
+            {rest.length === 0 && (
+              <div className="p-8 text-center text-gray-500">
+                No other users found.
               </div>
             )}
-          </main>
-        </motion.div>
-
-        {/* Mobile Overlay */}
-        <AnimatePresence>
-          {!isLaptop && sidebarOpen && (
-            <motion.div
-              key="overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm lg:hidden"
-            />
-          )}
-        </AnimatePresence>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );

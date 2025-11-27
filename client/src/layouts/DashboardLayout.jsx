@@ -1,14 +1,97 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Sidebar } from './Sidebar';
+import Header from './Header';
+import { useMediaQuery } from 'react-responsive';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const DashboardLayout = ({ children }) => {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0D1117] relative transition-colors duration-300">
-      {/* Background gradients/patterns could go here if shared, but pages currently handle their own specific layouts */}
+  const isLaptop = useMediaQuery({ minWidth: 1024 });
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-      {/* Main layout */}
-      <div className="relative z-10 flex min-h-screen w-full">
-        {children}
+  useEffect(() => {
+    setSidebarOpen(isLaptop);
+  }, [isLaptop]);
+
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+
+  // Easter Egg Listener
+  useEffect(() => {
+    let buffer = "";
+    const handleKey = (e) => {
+      buffer += e.key;
+      if (buffer.length > 6) buffer = buffer.slice(-6);
+      if (buffer === "sparkz") {
+        import("canvas-confetti").then((confetti) => {
+          const duration = 3000;
+          const end = Date.now() + duration;
+          (function frame() {
+            confetti.default({
+              particleCount: 5,
+              angle: 60,
+              spread: 55,
+              origin: { x: 0 },
+              colors: ['#00F5FF', '#FF2E63']
+            });
+            confetti.default({
+              particleCount: 5,
+              angle: 120,
+              spread: 55,
+              origin: { x: 1 },
+              colors: ['#00F5FF', '#FF2E63']
+            });
+            if (Date.now() < end) requestAnimationFrame(frame);
+          })();
+        });
+        buffer = "";
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  return (
+    <div className="flex h-[100dvh] overflow-hidden bg-space-dark text-white relative">
+      {/* 🌌 Background Effects */}
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none z-0" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-electric-cyan/5 rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-hot-magenta/5 rounded-full blur-[100px] pointer-events-none z-0" />
+
+      {/* Sidebar */}
+      <AnimatePresence mode="wait">
+        {sidebarOpen && (
+          <motion.aside
+            initial={{ x: isLaptop ? 0 : -300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: isLaptop ? 0 : -300, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 120, damping: 20 }}
+            className={`fixed lg:static inset-y-0 left-0 z-[60] w-64 flex-shrink-0 bg-space-dark/80 backdrop-blur-xl border-r border-white/10`}
+          >
+            <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-300">
+        <Header toggleSidebar={toggleSidebar} />
+
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 scrollbar-thin scrollbar-thumb-electric-cyan/20 scrollbar-track-transparent">
+          {children}
+        </main>
       </div>
+
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {!isLaptop && sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/80 z-40 backdrop-blur-sm lg:hidden"
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
