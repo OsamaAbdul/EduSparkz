@@ -23,16 +23,16 @@ export const FooterSection = () => {
               Edu<span className="text-electric-cyan">Sparkz</span>
             </span>
           </div>
-          <p className="text-gray-400 text-sm">Incentivized Web3 AI study companion</p>
+          <p className="text-gray-400 text-sm">Upload Anything, Learn Instantly</p>
 
           <div className="flex items-center gap-4">
-            <a href="#" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
+            <a href="mailto:ibrahimabdulosama@gmail.com" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
               <MessageCircle className="w-5 h-5" />
             </a>
-            <a href="#" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
+            <a href="https://www.instagram.com/osamaabduljnr" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
               <Instagram className="w-5 h-5" />
             </a>
-            <a href="#" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
+            <a href="https://twitter.com/osama_abduljnrs" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
               <Twitter className="w-5 h-5" />
             </a>
           </div>
