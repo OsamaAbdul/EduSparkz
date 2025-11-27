@@ -168,23 +168,23 @@ const History = () => {
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-3 lg:flex-col lg:justify-center">
+                        <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto">
                           <Button
                             onClick={() => handleRetakeQuiz(result.quizId, result.quizTitle)}
-                            className="flex-1 lg:w-full bg-electric-cyan/10 text-electric-cyan hover:bg-electric-cyan/20 border border-electric-cyan/20"
+                            className="w-full sm:flex-1 lg:w-full bg-electric-cyan/10 text-electric-cyan hover:bg-electric-cyan/20 border border-electric-cyan/20"
                           >
                             <RotateCcw className="mr-2 h-4 w-4" /> Retake
                           </Button>
                           <Button
                             onClick={() => navigate("/user/quiz-result", { state: { result } })}
-                            className="flex-1 lg:w-full bg-hot-magenta/10 text-hot-magenta hover:bg-hot-magenta/20 border border-hot-magenta/20"
+                            className="w-full sm:flex-1 lg:w-full bg-hot-magenta/10 text-hot-magenta hover:bg-hot-magenta/20 border border-hot-magenta/20"
                           >
                             <Trophy className="mr-2 h-4 w-4" /> View Analysis
                           </Button>
                           <Button
                             onClick={() => handleDeleteQuiz(result.quizId, result.quizTitle)}
                             variant="destructive"
-                            className="flex-1 lg:w-full bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20"
+                            className="w-full sm:flex-1 lg:w-full bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20"
                             disabled={deleteMutation.isLoading}
                           >
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
