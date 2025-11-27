@@ -32,7 +32,7 @@ export const FooterSection = () => {
             <a href="https://www.instagram.com/osamaabduljnr" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
               <Instagram className="w-5 h-5" />
             </a>
-            <a href="https://twitter.com/osama_abduljnrs" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
+            <a href="https://x.com/osama_abduljnr" className="w-10 h-10 rounded-full bg-electric-cyan text-space-dark flex items-center justify-center hover:bg-white transition-colors">
               <Twitter className="w-5 h-5" />
             </a>
           </div>
