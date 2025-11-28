@@ -134,6 +134,10 @@ Deno.serve(async (req) => {
           q.options = ["Option A", "Option B", "Option C", "Option D"];
         }
       }
+      // Ensure explanation exists
+      if (!q.explanation) {
+        q.explanation = "No detailed explanation provided by AI.";
+      }
       return q;
     });
 

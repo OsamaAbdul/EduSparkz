@@ -18,9 +18,12 @@ DECLARE
   v_now TIMESTAMP WITH TIME ZONE := NOW();
 BEGIN
   -- Get current stats
-  SELECT last_quiz_date, streak INTO v_last_quiz_date, v_current_streak
+  SELECT last_quiz_date, current_streak INTO v_last_quiz_date, v_current_streak
   FROM profiles
   WHERE id = p_user_id;
+
+  -- Handle NULLs
+  v_current_streak := COALESCE(v_current_streak, 0);
 
   -- Calculate new streak
   IF v_last_quiz_date IS NULL THEN
@@ -41,7 +44,7 @@ BEGIN
   UPDATE profiles
   SET 
     xp = COALESCE(xp, 0) + p_xp_gained,
-    streak = v_current_streak,
+    current_streak = v_current_streak,
     last_quiz_date = v_now
   WHERE id = p_user_id;
 END;

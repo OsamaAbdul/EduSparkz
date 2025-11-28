@@ -19,7 +19,7 @@ const Leaderboard = () => {
         .from('profiles')
         .select('username, full_name, avatar_url, xp, streak')
         .order('xp', { ascending: false })
-        .limit(100);
+        .limit(10);
 
       if (error) throw error;
       return data;
@@ -51,7 +51,7 @@ const Leaderboard = () => {
             >
               <ArrowLeft className="h-6 w-6" />
             </Button>
-            <h1 className="text-3xl font-bold text-white">Leaderboard</h1>
+            <h1 className="text-3xl font-bold text-white mb-6">Leaderboard</h1>
           </div>
 
           {/* Podium Section */}
@@ -62,7 +62,7 @@ const Leaderboard = () => {
                 <div className="flex flex-col items-center">
                   <div className="relative mb-2">
                     <Avatar className="w-16 h-16 border-2 border-gray-400">
-                      <AvatarImage src={topThree[1].avatar_url} />
+                      <AvatarImage src={topThree[1].avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${topThree[1].username || topThree[1].full_name}`} />
                       <AvatarFallback>{getInitials(topThree[1].full_name)}</AvatarFallback>
                     </Avatar>
                     <div className="absolute -top-3 -right-3 bg-gray-700 rounded-full p-1">
@@ -72,8 +72,13 @@ const Leaderboard = () => {
                   <div className="bg-gray-800/80 rounded-t-2xl p-4 w-32 h-40 flex flex-col items-center justify-center text-center border-t-4 border-gray-400">
                     <p className="font-bold text-sm truncate w-full text-white">{topThree[1].full_name || topThree[1].username}</p>
                     <p className="text-xs text-gray-400">Intermediate</p>
-                    <div className="mt-2 flex items-center gap-1 text-red-500 font-bold">
-                      <Trophy className="w-3 h-3" /> {topThree[1].xp || 0} XP
+                    <div className="mt-2 flex items-center gap-3">
+                      <div className="flex items-center gap-1 text-red-500 font-bold">
+                        <Trophy className="w-3 h-3" /> {topThree[1].xp || 0} XP
+                      </div>
+                      <div className="flex items-center gap-1 text-yellow-500 font-bold">
+                        <Flame className="w-3 h-3" /> {topThree[1].streak || 0}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -89,15 +94,20 @@ const Leaderboard = () => {
                       </div>
                     </div>
                     <Avatar className="w-24 h-24 border-4 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.5)]">
-                      <AvatarImage src={topThree[0].avatar_url} />
+                      <AvatarImage src={topThree[0].avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${topThree[0].username || topThree[0].full_name}`} />
                       <AvatarFallback>{getInitials(topThree[0].full_name)}</AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="bg-gradient-to-b from-green-500 to-green-600 rounded-t-2xl p-6 w-40 h-52 flex flex-col items-center justify-center text-center shadow-2xl transform scale-105">
                     <p className="font-bold text-base truncate w-full text-white">{topThree[0].full_name || topThree[0].username}</p>
                     <p className="text-xs text-green-100 mb-2">Advanced</p>
-                    <div className="bg-black/20 rounded-full px-3 py-1 flex items-center gap-1 text-white font-bold">
-                      <Trophy className="w-3 h-3" /> {topThree[0].xp || 0} XP
+                    <div className="bg-black/20 rounded-full px-3 py-1 flex items-center gap-3 text-white font-bold">
+                      <div className="flex items-center gap-1">
+                        <Trophy className="w-3 h-3" /> {topThree[0].xp || 0} XP
+                      </div>
+                      <div className="flex items-center gap-1 text-yellow-300">
+                        <Flame className="w-3 h-3" /> {topThree[0].streak || 0}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -108,7 +118,7 @@ const Leaderboard = () => {
                 <div className="flex flex-col items-center">
                   <div className="relative mb-2">
                     <Avatar className="w-16 h-16 border-2 border-amber-700">
-                      <AvatarImage src={topThree[2].avatar_url} />
+                      <AvatarImage src={topThree[2].avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${topThree[2].username || topThree[2].full_name}`} />
                       <AvatarFallback>{getInitials(topThree[2].full_name)}</AvatarFallback>
                     </Avatar>
                     <div className="absolute -top-3 -right-3 bg-gray-700 rounded-full p-1">
@@ -118,8 +128,13 @@ const Leaderboard = () => {
                   <div className="bg-gray-800/80 rounded-t-2xl p-4 w-32 h-32 flex flex-col items-center justify-center text-center border-t-4 border-amber-700">
                     <p className="font-bold text-sm truncate w-full text-white">{topThree[2].full_name || topThree[2].username}</p>
                     <p className="text-xs text-gray-400">Beginner</p>
-                    <div className="mt-2 flex items-center gap-1 text-red-500 font-bold">
-                      <Trophy className="w-3 h-3" /> {topThree[2].xp || 0} XP
+                    <div className="mt-2 flex items-center gap-3">
+                      <div className="flex items-center gap-1 text-red-500 font-bold">
+                        <Trophy className="w-3 h-3" /> {topThree[2].xp || 0} XP
+                      </div>
+                      <div className="flex items-center gap-1 text-yellow-500 font-bold">
+                        <Flame className="w-3 h-3" /> {topThree[2].streak || 0}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -158,7 +173,7 @@ const Leaderboard = () => {
                 </div>
                 <div className="col-span-1 flex justify-center">
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src={user.avatar_url} />
+                    <AvatarImage src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username || user.full_name}`} />
                     <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
                   </Avatar>
                 </div>

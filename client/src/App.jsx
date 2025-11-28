@@ -10,6 +10,8 @@ import StartQuiz from "./pages/StartQuiz.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import UpdatePassword from "./pages/UpdatePassword.jsx";
 import { UserProvider } from "./context/useContext.jsx";
 import ProtectedRoute from "./layouts/ProtectedRoute.jsx";
 import Quiz from "./pages/Quiz.jsx";
@@ -42,6 +44,8 @@ const App = () => (
               <Route path="/api/auth/register" element={<Register />} />
               <Route path="/api/auth/verify-otp" element={<VerifyOtp />} />
               <Route path="/api/auth/resend-otp" element={<ResendOtp />} />
+              <Route path="/api/auth/forgot-password" element={<ForgotPassword />} />
+              <Route path="/api/auth/update-password" element={<UpdatePassword />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               {/* <Route path="/user/dashboard" element={<Dashboard />} />
               <Route path="/user/quiz" element={<Quiz />} />

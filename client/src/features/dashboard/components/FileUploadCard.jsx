@@ -411,194 +411,196 @@ export const FileUploadCard = ({
         </div>
       ) : (
         // 🔮 Upload Orb Interface
-        <div className="flex flex-col items-center gap-12">
+        <div className="flex flex-col items-center gap-6 w-full max-w-4xl">
 
           {/* Mode Switcher (Dock) */}
-          <div className="flex gap-4 p-2 rounded-full glass-card overflow-x-auto max-w-full">
+          <div className="flex gap-2 p-1.5 rounded-full glass-card overflow-x-auto max-w-full scrollbar-none">
             {[
-              { id: 'file', icon: Upload, label: 'Upload File' },
-              { id: 'link', icon: LinkIcon, label: 'Paste Link' },
-              { id: 'audio', icon: Mic, label: 'Record Audio' },
-              { id: 'library', icon: FileText, label: 'My Library' }
+              { id: 'file', icon: Upload, label: 'Upload' },
+              { id: 'link', icon: LinkIcon, label: 'Link' },
+              { id: 'audio', icon: Mic, label: 'Record' },
+              { id: 'library', icon: FileText, label: 'Library' }
             ].map((mode) => (
               <button
                 key={mode.id}
                 onClick={() => setActiveTab(mode.id)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 whitespace-nowrap ${activeTab === mode.id
-                  ? 'bg-electric-cyan text-space-dark font-bold shadow-[0_0_20px_rgba(0,245,255,0.4)]'
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap text-sm ${activeTab === mode.id
+                  ? 'bg-electric-cyan text-space-dark font-bold shadow-[0_0_15px_rgba(0,245,255,0.4)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
               >
-                <mode.icon className="w-5 h-5" />
+                <mode.icon className="w-4 h-4" />
                 {mode.label}
               </button>
             ))}
           </div>
 
-          {/* The Orb */}
-          <motion.div
-            layout
-            className="relative group"
-          >
-            {/* Orb Container */}
+          <div className="flex flex-col lg:flex-row items-center gap-8 w-full">
+            {/* The Orb */}
             <motion.div
-              animate={{
-                scale: isDragging ? 1.1 : 1,
-                borderColor: isDragging ? '#00F5FF' : 'rgba(255,255,255,0.2)'
-              }}
-              className={`
-                relative flex items-center justify-center w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] rounded-full 
+              layout
+              className="relative group flex-shrink-0"
+            >
+              {/* Orb Container */}
+              <motion.div
+                animate={{
+                  scale: isDragging ? 1.05 : 1,
+                  borderColor: isDragging ? '#00F5FF' : 'rgba(255,255,255,0.2)'
+                }}
+                className={`
+                relative flex items-center justify-center w-[220px] h-[220px] sm:w-[300px] sm:h-[300px] rounded-full 
                 glass-orb overflow-hidden transition-all duration-500
                 ${activeTab === 'file' ? 'cursor-pointer' : ''}
               `}
-            >
-              {/* Inner Liquid/Ripple Effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-electric-cyan/5 to-hot-magenta/5 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+              >
+                {/* Inner Liquid/Ripple Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-electric-cyan/5 to-hot-magenta/5 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
 
-              {activeTab === 'file' && (
-                <label
-                  htmlFor="file-upload"
-                  onDragEnter={handleDrag}
-                  onDragOver={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDrop={handleDrop}
-                  className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 space-y-4 cursor-pointer z-20"
-                >
-                  {file ? (
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="bg-electric-cyan/20 p-6 rounded-full">
-                      <FileText className="w-16 h-16 text-electric-cyan" />
-                    </motion.div>
-                  ) : (
-                    <Upload className="w-20 h-20 text-white/50 group-hover:text-electric-cyan transition-colors duration-300" />
-                  )}
+                {activeTab === 'file' && (
+                  <label
+                    htmlFor="file-upload"
+                    onDragEnter={handleDrag}
+                    onDragOver={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDrop={handleDrop}
+                    className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 space-y-3 cursor-pointer z-20"
+                  >
+                    {file ? (
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="bg-electric-cyan/20 p-4 rounded-full">
+                        <FileText className="w-10 h-10 text-electric-cyan" />
+                      </motion.div>
+                    ) : (
+                      <Upload className="w-14 h-14 text-white/50 group-hover:text-electric-cyan transition-colors duration-300" />
+                    )}
 
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      {file ? file.name : "Drag & Drop or Click"}
-                    </h3>
-                    <p className="text-gray-400 text-sm">
-                      {file ? "Ready to generate" : "PDF, DOCX, TXT, Images (Max 10MB)"}
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-1">
+                        {file ? file.name : "Drag & Drop"}
+                      </h3>
+                      <p className="text-gray-400 text-xs">
+                        {file ? "Ready to generate" : "PDF, DOCX, TXT (Max 10MB)"}
+                      </p>
+                    </div>
+                  </label>
+                )}
+
+                {activeTab === 'link' && (
+                  <div className="relative z-10 w-full px-8 pointer-events-auto">
+                    <div className="flex flex-col items-center gap-3">
+                      <LinkIcon className="w-12 h-12 text-hot-magenta" />
+                      <input
+                        type="url"
+                        placeholder="Paste URL..."
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        className="w-full bg-black/30 border border-white/20 rounded-lg p-3 text-white placeholder-gray-500 focus:border-hot-magenta focus:ring-1 focus:ring-hot-magenta outline-none text-center text-sm"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'audio' && (
+                  <div className="relative z-10 w-full px-8 pointer-events-auto flex flex-col items-center gap-4">
+                    <motion.button
+                      onClick={isListening ? stopListening : startListening}
+                      animate={{ scale: isListening ? [1, 1.1, 1] : 1 }}
+                      transition={{ repeat: isListening ? Infinity : 0, duration: 1.5 }}
+                      className={`w-16 h-16 rounded-full flex items-center justify-center ${isListening ? 'bg-red-500 shadow-[0_0_30px_red]' : 'bg-white/10 hover:bg-white/20'}`}
+                    >
+                      {isListening ? <StopCircle className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
+                    </motion.button>
+                    <p className="text-gray-400 text-xs text-center max-w-[180px] truncate">
+                      {transcript || (isListening ? "Listening..." : "Tap to record")}
                     </p>
                   </div>
-                </label>
-              )}
+                )}
 
-              {activeTab === 'link' && (
-                <div className="relative z-10 w-full px-12 pointer-events-auto">
-                  <div className="flex flex-col items-center gap-4">
-                    <LinkIcon className="w-16 h-16 text-hot-magenta" />
-                    <input
-                      type="url"
-                      placeholder="Paste URL here..."
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      className="w-full bg-black/30 border border-white/20 rounded-xl p-4 text-white placeholder-gray-500 focus:border-hot-magenta focus:ring-1 focus:ring-hot-magenta outline-none text-center"
-                    />
+                {activeTab === 'library' && (
+                  <div className="relative z-10 w-full h-full p-6 pointer-events-auto overflow-y-auto scrollbar-thin scrollbar-thumb-electric-cyan/20">
+                    <h3 className="text-lg font-bold text-white mb-3 text-center sticky top-0 bg-space-dark/80 backdrop-blur-sm py-2 z-10">Select Material</h3>
+                    <div className="space-y-2">
+                      {existingMaterials.length > 0 ? (
+                        existingMaterials.map(material => (
+                          <div
+                            key={material.id}
+                            onClick={() => handleMaterialSelect(material)}
+                            className={`p-2 rounded-lg border cursor-pointer transition-all ${selectedMaterialId === material.id ? 'bg-electric-cyan/20 border-electric-cyan' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                          >
+                            <p className="text-xs font-medium text-white truncate">{material.title}</p>
+                            <p className="text-[10px] text-gray-400">{new Date(material.created_at).toLocaleDateString()}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-center text-gray-500 mt-6 text-xs">No materials found.</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {activeTab === 'audio' && (
-                <div className="relative z-10 w-full px-12 pointer-events-auto flex flex-col items-center gap-6">
-                  <motion.button
-                    onClick={isListening ? stopListening : startListening}
-                    animate={{ scale: isListening ? [1, 1.1, 1] : 1 }}
-                    transition={{ repeat: isListening ? Infinity : 0, duration: 1.5 }}
-                    className={`w-24 h-24 rounded-full flex items-center justify-center ${isListening ? 'bg-red-500 shadow-[0_0_30px_red]' : 'bg-white/10 hover:bg-white/20'}`}
-                  >
-                    {isListening ? <StopCircle className="w-10 h-10 text-white" /> : <Mic className="w-10 h-10 text-white" />}
-                  </motion.button>
-                  <p className="text-gray-400 text-sm text-center max-w-[200px] truncate">
-                    {transcript || (isListening ? "Listening..." : "Tap to record")}
-                  </p>
-                </div>
-              )}
+                <input id="file-upload" type="file" accept={accept} onChange={handleFileChange} className="hidden" disabled={activeTab !== 'file'} />
+              </motion.div>
 
-              {activeTab === 'library' && (
-                <div className="relative z-10 w-full h-full p-8 pointer-events-auto overflow-y-auto scrollbar-thin scrollbar-thumb-electric-cyan/20">
-                  <h3 className="text-xl font-bold text-white mb-4 text-center sticky top-0 bg-space-dark/80 backdrop-blur-sm py-2 z-10">Select Material</h3>
-                  <div className="space-y-2">
-                    {existingMaterials.length > 0 ? (
-                      existingMaterials.map(material => (
-                        <div
-                          key={material.id}
-                          onClick={() => handleMaterialSelect(material)}
-                          className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedMaterialId === material.id ? 'bg-electric-cyan/20 border-electric-cyan' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
-                        >
-                          <p className="text-sm font-medium text-white truncate">{material.title}</p>
-                          <p className="text-xs text-gray-400">{new Date(material.created_at).toLocaleDateString()}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-center text-gray-500 mt-10">No materials found.</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <input id="file-upload" type="file" accept={accept} onChange={handleFileChange} className="hidden" disabled={activeTab !== 'file'} />
+              {/* Orbiting Particles around the Orb */}
+              <div className="absolute inset-0 pointer-events-none">
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute inset-[-15px] rounded-full border border-white/5 border-dashed" />
+                <motion.div animate={{ rotate: -360 }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }} className="absolute inset-[-30px] rounded-full border border-white/5 border-dashed opacity-50" />
+              </div>
             </motion.div>
 
-            {/* Orbiting Particles around the Orb */}
-            <div className="absolute inset-0 pointer-events-none">
-              <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute inset-[-20px] rounded-full border border-white/5 border-dashed" />
-              <motion.div animate={{ rotate: -360 }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }} className="absolute inset-[-40px] rounded-full border border-white/5 border-dashed opacity-50" />
-            </div>
-          </motion.div>
-
-          {/* Settings & Generate Button */}
-          <div className="w-full max-w-2xl space-y-6 glass-card p-6 rounded-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="text-gray-400 text-sm mb-2 block">Instruction (Optional)</label>
-                <input
-                  type="text"
-                  value={userPrompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="e.g. Focus on key dates..."
-                  className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-white focus:border-electric-cyan outline-none"
-                />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="text-gray-400 text-sm mb-2 block">Questions</label>
+            {/* Settings & Generate Button */}
+            <div className="w-full flex-1 space-y-4 glass-card p-5 rounded-xl">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="text-gray-400 text-xs mb-1.5 block">Instruction (Optional)</label>
                   <input
-                    type="number"
-                    value={quizCount}
-                    onChange={(e) => setQuizCount(e.target.value)}
-                    min="1" max="20"
-                    className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-white focus:border-electric-cyan outline-none"
+                    type="text"
+                    value={userPrompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="e.g. Focus on key dates..."
+                    className="w-full bg-black/20 border border-white/10 rounded-lg p-2.5 text-sm text-white focus:border-electric-cyan outline-none"
                   />
                 </div>
-                <div className="flex-1">
-                  <label className="text-gray-400 text-sm mb-2 block">Type</label>
-                  <Select value={quizType} onValueChange={setQuizType}>
-                    <SelectTrigger className="bg-black/20 border-white/10 text-white h-[46px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-space-dark border-white/10 text-white">
-                      <SelectItem value="mixed">Mixed</SelectItem>
-                      <SelectItem value="multiple-choice">MCQ Only</SelectItem>
-                      <SelectItem value="true-false">True/False</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-gray-400 text-xs mb-1.5 block">Questions</label>
+                    <input
+                      type="number"
+                      value={quizCount}
+                      onChange={(e) => setQuizCount(e.target.value)}
+                      min="1" max="20"
+                      className="w-full bg-black/20 border border-white/10 rounded-lg p-2.5 text-sm text-white focus:border-electric-cyan outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-xs mb-1.5 block">Type</label>
+                    <Select value={quizType} onValueChange={setQuizType}>
+                      <SelectTrigger className="bg-black/20 border-white/10 text-white h-[42px] text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-space-dark border-white/10 text-white">
+                        <SelectItem value="mixed">Mixed</SelectItem>
+                        <SelectItem value="multiple-choice">MCQ Only</SelectItem>
+                        <SelectItem value="true-false">True/False</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex justify-end gap-4 pt-4 border-t border-white/10">
-              {(extractedText || urlInput || transcript) && (
-                <Button variant="ghost" onClick={handleCancel} className="text-gray-400 hover:text-white hover:bg-white/5">
-                  Clear
+              <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
+                {(extractedText || urlInput || transcript) && (
+                  <Button variant="ghost" onClick={handleCancel} className="text-gray-400 hover:text-white hover:bg-white/5 text-sm h-10">
+                    Clear
+                  </Button>
+                )}
+                <Button
+                  onClick={handleUploadAndGenerate}
+                  disabled={loading || (activeTab === 'file' && !extractedText) || (activeTab === 'link' && !urlInput) || (activeTab === 'audio' && !transcript) || (activeTab === 'library' && !selectedMaterialId)}
+                  className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold px-6 py-2 h-10 rounded-lg shadow-[0_0_15px_rgba(0,245,255,0.3)] hover:shadow-[0_0_25px_rgba(0,245,255,0.5)] transition-all text-sm w-full sm:w-auto"
+                >
+                  Generate Quiz
                 </Button>
-              )}
-              <Button
-                onClick={handleUploadAndGenerate}
-                disabled={loading || (activeTab === 'file' && !extractedText) || (activeTab === 'link' && !urlInput) || (activeTab === 'audio' && !transcript) || (activeTab === 'library' && !selectedMaterialId)}
-                className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold px-8 py-6 rounded-xl shadow-[0_0_20px_rgba(0,245,255,0.3)] hover:shadow-[0_0_30px_rgba(0,245,255,0.5)] transition-all"
-              >
-                Generate Quiz
-              </Button>
+              </div>
             </div>
           </div>
 

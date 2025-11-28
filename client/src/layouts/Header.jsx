@@ -31,6 +31,7 @@ const Header = ({ toggleSidebar }) => {
   const [formData, setFormData] = useState({
     fullName: user?.name || "",
     username: user?.username || "",
+    avatarUrl: user?.avatar_url || "",
   });
 
   // Notification States
@@ -104,7 +105,11 @@ const Header = ({ toggleSidebar }) => {
 
   const handleOpenChange = (open) => {
     if (open && user) {
-      setFormData({ fullName: user.name || "", username: user.username || "" });
+      setFormData({
+        fullName: user.name || "",
+        username: user.username || "",
+        avatarUrl: user.avatar_url || ""
+      });
     }
     setIsProfileOpen(open);
   };
@@ -113,9 +118,9 @@ const Header = ({ toggleSidebar }) => {
     e.preventDefault();
     setIsUpdating(true);
     try {
-      const { error: authError } = await supabase.auth.updateUser({ data: { full_name: formData.fullName, username: formData.username } });
+      const { error: authError } = await supabase.auth.updateUser({ data: { full_name: formData.fullName, username: formData.username, avatar_url: formData.avatarUrl } });
       if (authError) throw authError;
-      const { error: profileError } = await supabase.from("profiles").update({ full_name: formData.fullName, username: formData.username, updated_at: new Date() }).eq("id", user.id);
+      const { error: profileError } = await supabase.from("profiles").update({ full_name: formData.fullName, username: formData.username, avatar_url: formData.avatarUrl, updated_at: new Date() }).eq("id", user.id);
       if (profileError) throw profileError;
       toast.success("Profile updated successfully!");
       setIsProfileOpen(false);
@@ -168,7 +173,7 @@ const Header = ({ toggleSidebar }) => {
                 <Bell className="w-5 h-5" />
                 <span className="sr-only">Notifications</span>
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-hot-magenta rounded-full animate-pulse border-2 border-space-dark" />
+                  <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-space-dark shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
                 )}
               </Button>
             </PopoverTrigger>
@@ -238,9 +243,55 @@ const Header = ({ toggleSidebar }) => {
                     <Label htmlFor="name" className="text-right text-gray-400">Name</Label>
                     <Input id="name" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} className="col-span-3 bg-white/5 border-white/10 text-white focus:border-electric-cyan" />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="username" className="text-right text-gray-400">Username</Label>
-                    <Input id="username" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="col-span-3 bg-white/5 border-white/10 text-white focus:border-electric-cyan" />
+
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label className="text-right text-gray-400 mt-3">Avatar</Label>
+                    <div className="col-span-3 space-y-3">
+                      {/* Avatar Selection Grid */}
+                      <div className="flex flex-wrap gap-3">
+                        {[
+                          "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+                          "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
+                          "https://api.dicebear.com/7.x/avataaars/svg?seed=Zack",
+                          "https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight",
+                          "https://api.dicebear.com/7.x/avataaars/svg?seed=Luna",
+                          "https://api.dicebear.com/7.x/avataaars/svg?seed=Shadow"
+                        ].map((url) => (
+                          <button
+                            key={url}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, avatarUrl: url })}
+                            className={`relative w-10 h-10 rounded-full overflow-hidden border-2 transition-all ${formData.avatarUrl === url
+                              ? 'border-electric-cyan ring-2 ring-electric-cyan/20 scale-110'
+                              : 'border-white/10 hover:border-white/30'
+                              }`}
+                          >
+                            <img src={url} alt="Avatar" className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Custom URL Input */}
+                      <div className="flex gap-2">
+                        <Input
+                          id="avatarUrl"
+                          value={formData.avatarUrl}
+                          onChange={(e) => setFormData({ ...formData, avatarUrl: e.target.value })}
+                          placeholder="Or paste a custom URL..."
+                          className="bg-white/5 border-white/10 text-white focus:border-electric-cyan text-xs h-9"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setFormData({ ...formData, avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}` })}
+                          title="Generate Random"
+                          className="shrink-0 border-white/10 hover:bg-white/10 h-9 w-9"
+                        >
+                          <User className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label className="text-right text-gray-400">Email</Label>
@@ -249,7 +300,7 @@ const Header = ({ toggleSidebar }) => {
                 </div>
                 <DialogFooter className="flex justify-between sm:justify-between w-full">
                   <Button type="button" variant="destructive" onClick={handleLogOut} disabled={isUpdating} className="bg-red-500/10 text-red-500 hover:bg-red-500/20 mb-4">
-                    <LogOut className="w-4 h-4 mr-2" /> Log Out
+                    <LogOut className="w-4 h-4 mr-2" /> Delete account
                   </Button>
                   <Button type="submit" disabled={isUpdating} className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold">
                     {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save changes

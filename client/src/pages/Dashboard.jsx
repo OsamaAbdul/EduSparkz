@@ -54,18 +54,17 @@ export const Dashboard = () => {
     enabled: !!user?.id,
   });
 
-  // Fetch Suggested Users
-  const { data: suggestedUsers, isLoading: usersLoading } = useQuery({
-    queryKey: ["suggestedUsers", user?.id],
+  // Fetch Top Learners
+  const { data: topLearners, isLoading: usersLoading } = useQuery({
+    queryKey: ["topLearners"],
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("id, full_name, username, avatar_url")
-        .neq("id", user.id)
+        .select("id, full_name, username, avatar_url, xp, level")
+        .order("xp", { ascending: false })
         .limit(3);
       return data || [];
     },
-    enabled: !!user?.id,
   });
 
   const containerVariants = {
@@ -190,18 +189,31 @@ export const Dashboard = () => {
                       </div>
                     </div>
                   ))
-                ) : suggestedUsers?.length > 0 ? (
-                  suggestedUsers.map((u) => (
-                    <div key={u.id} className="flex items-center justify-between group p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
+                ) : topLearners?.length > 0 ? (
+                  topLearners.map((u, index) => (
+                    <div key={u.id} className="flex items-center justify-between group p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer" onClick={() => navigate('/user/leaderboard')}>
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-electric-cyan to-hot-magenta p-[2px]">
-                          <div className="h-full w-full rounded-full bg-space-dark flex items-center justify-center text-white font-bold text-sm">
-                            {u.full_name?.[0] || u.username?.[0] || "U"}
-                          </div>
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-electric-cyan to-hot-magenta p-[2px] relative">
+                          {u.avatar_url ? (
+                            <img src={u.avatar_url} alt={u.username} className="h-full w-full rounded-full object-cover" />
+                          ) : (
+                            <div className="h-full w-full rounded-full bg-space-dark flex items-center justify-center text-white font-bold text-sm">
+                              {u.full_name?.[0] || u.username?.[0] || "U"}
+                            </div>
+                          )}
+                          {index === 0 && (
+                            <div className="absolute -top-1 -right-1 bg-yellow-500 rounded-full p-0.5">
+                              <Trophy className="w-3 h-3 text-black fill-current" />
+                            </div>
+                          )}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-white">{u.full_name || u.username}</p>
-                          <p className="text-xs text-gray-400">Level {Math.floor(Math.random() * 10) + 1}</p>
+                          <p className="text-xs text-gray-400 flex items-center gap-2">
+                            <span>{u.xp || 0} XP</span>
+                            <span className="w-1 h-1 rounded-full bg-gray-600" />
+                            <span>Level {u.level || 1}</span>
+                          </p>
                         </div>
                       </div>
                     </div>

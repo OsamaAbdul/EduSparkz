@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, BookX, ChartNoAxesCombined, LogOut, Brain, FileText, Zap } from "lucide-react";
+import { Home, BookX, ChartNoAxesCombined, LogOut, Brain, FileText, Zap, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/context/useContext";
 
@@ -20,6 +20,7 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
     { to: "/user/materials", label: "My Materials", icon: <FileText className="w-5 h-5" /> },
     { to: "/user/history", label: "History", icon: <BookX className="w-5 h-5" /> },
     { to: "/user/leaderboard", label: "Leaderboard", icon: <ChartNoAxesCombined className="w-5 h-5" /> },
+    { to: "/user/chat", label: "AI Tutor", icon: <MessageSquare className="w-5 h-5" /> },
   ];
 
   return (

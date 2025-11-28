@@ -12,10 +12,9 @@ export const ShowcaseSection = () => {
             <div className="container mx-auto px-6 relative z-10">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">
+                        That Hits Home {" "} <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">
                             Instant Feedback
-                        </span>{" "}
-                        That Hits Home
+                        </span>
                     </h2>
                     <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
                         Get detailed analysis and culturally relevant motivation (Pidgin & more) that keeps you going.

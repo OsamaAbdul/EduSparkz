@@ -130,12 +130,18 @@ const Login = () => {
 
                 {/* Password */}
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="password"
-                    className="text-gray-300"
-                  >
-                    Password
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-gray-300">
+                      Password
+                    </Label>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/api/auth/forgot-password")}
+                      className="text-xs text-electric-cyan hover:text-hot-magenta hover:underline transition-colors"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                     <Input

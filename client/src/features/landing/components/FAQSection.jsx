@@ -25,7 +25,7 @@ export const FAQSection = () => {
     },
     {
       question: "Is there a limit to how many quizzes I can generate?",
-      answer: "Free users can generate up to 5 quizzes per day. Premium users enjoy unlimited quiz generation and advanced analytics.",
+      answer: "Free users can generate up to 3 quizzes per day. Premium users enjoy unlimited quiz generation and advanced analytics.",
     },
   ];
 
@@ -34,7 +34,10 @@ export const FAQSection = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
-            Frequently Asked Questions
+            Frequently {" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">
+              Asked Questions
+            </span>
           </h2>
           <p className="text-lg text-gray-400">
             Everything you need to know about EduSparkz

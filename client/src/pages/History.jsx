@@ -141,10 +141,10 @@ const History = () => {
                       <div className="flex flex-col lg:flex-row justify-between gap-6">
                         <div className="space-y-3 flex-1">
                           <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-white group-hover:text-electric-cyan transition-colors">
+                            <h3 className="text-lg font-bold text-white group-hover:text-electric-cyan transition-colors truncate pr-4 flex-1">
                               {result.quizTitle}
                             </h3>
-                            <span className={`text-xl font-bold ${getScoreColor(percentage)}`}>
+                            <span className={`text-xl font-bold ${getScoreColor(percentage)} flex-shrink-0`}>
                               {percentage.toFixed(0)}%
                             </span>
                           </div>
@@ -163,7 +163,7 @@ const History = () => {
                             </div>
                           </div>
 
-                          <p className="text-gray-500 italic text-sm border-l-2 border-white/10 pl-3">
+                          <p className="text-gray-500 italic text-sm border-l-2 border-white/10 pl-3 break-words">
                             "{result.motivationalMessage}"
                           </p>
                         </div>

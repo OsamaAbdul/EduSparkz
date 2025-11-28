@@ -8,12 +8,52 @@ import Quiz from "../pages/Quiz.jsx";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useUser } from "../context/useContext.jsx";
+import { supabase } from "../lib/supabase";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { Lock } from "lucide-react";
 
 export const StartQuiz = () => {
     const [quizId, setQuizId] = useState(null);
     const [quizTitle, setQuizTitle] = useState("");
     const [loading, setLoading] = useState(false);
+    const [checkingLimit, setCheckingLimit] = useState(true);
+    const [canTakeQuiz, setCanTakeQuiz] = useState(true);
+    const [quizzesTaken, setQuizzesTaken] = useState(0);
     const location = useLocation();
+    const { user } = useUser();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const checkLimit = async () => {
+            if (!user) return;
+            try {
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+                const { count, error } = await supabase
+                    .from('quiz_results')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id)
+                    .gte('submitted_at', oneDayAgo);
+
+                if (error) throw error;
+
+                setQuizzesTaken(count || 0);
+                const isFree = !user.plan || user.plan.toLowerCase() === 'free';
+                if (isFree && (count || 0) >= 3) {
+                    setCanTakeQuiz(false);
+                } else {
+                    setCanTakeQuiz(true);
+                }
+            } catch (error) {
+                console.error("Error checking quiz limit:", error);
+            } finally {
+                setCheckingLimit(false);
+            }
+        };
+
+        checkLimit();
+    }, [user]);
 
     useEffect(() => {
         const { retakeQuizId, retakeQuizTitle, retentionFailed } = location.state || {};
@@ -43,7 +83,7 @@ export const StartQuiz = () => {
 
     return (
         <DashboardLayout>
-            <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-6 w-full overflow-x-hidden">
+            <div className="flex flex-col items-center justify-center min-h-full space-y-4 w-full overflow-hidden">
                 {loading ? (
                     quizId ? (
                         <Card className="w-full max-w-2xl mx-auto glass-card border-white/10">
@@ -78,6 +118,34 @@ export const StartQuiz = () => {
                             onComplete={resetQuiz}
                         />
                     </div>
+                ) : checkingLimit ? (
+                    <div className="w-full max-w-md mx-auto glass-card border-white/10 p-6 space-y-4">
+                        <Skeleton className="h-8 w-3/4 bg-white/10 mx-auto" />
+                        <Skeleton className="h-32 w-full bg-white/10" />
+                    </div>
+                ) : !canTakeQuiz ? (
+                    <Card className="w-full max-w-lg mx-auto glass-card border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                        <CardHeader className="text-center">
+                            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+                                <Lock className="w-8 h-8 text-red-500" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white">Daily Limit Reached</h2>
+                            <p className="text-gray-400">
+                                You've used your 3 free quizzes for today. Upgrade to Premium for unlimited access!
+                            </p>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-4">
+                            <div className="bg-white/5 rounded-lg p-4 text-center">
+                                <p className="text-sm text-gray-300">Quizzes taken today: <span className="text-electric-cyan font-bold">{quizzesTaken}/3</span></p>
+                            </div>
+                            <Button
+                                onClick={() => navigate('/pricing')}
+                                className="w-full bg-gradient-to-r from-electric-cyan to-hot-magenta text-white font-bold py-6 text-lg shadow-lg hover:scale-105 transition-transform"
+                            >
+                                Upgrade Now
+                            </Button>
+                        </CardContent>
+                    </Card>
                 ) : (
                     <div className="w-full">
                         <FileUploadCard

@@ -18,7 +18,10 @@ export const LeaderboardShowcaseSection = () => {
                         className="space-y-6"
                     >
                         <h2 className="text-3xl md:text-5xl font-bold leading-tight">
-                            Compete & <span className="text-electric-cyan">Climb the Ranks</span>
+                            Compete & {" "}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">
+                                Climb the Ranks
+                            </span>
                         </h2>
                         <p className="text-gray-400 text-lg">
                             Join the community of learners. Earn XP, maintain streaks, and see your name on the global leaderboard. Learning is more fun when it's a game!

@@ -37,7 +37,7 @@ export const Register = () => {
         options: {
           data: {
             username,
-            full_name: username, // Using username as full_name for now
+            full_name: username,
           },
         },
       });

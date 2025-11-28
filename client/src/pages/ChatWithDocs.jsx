@@ -21,8 +21,36 @@ const ChatWithDocs = () => {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isMaterialsLoading, setIsMaterialsLoading] = useState(true);
+    const [canChat, setCanChat] = useState(true);
+    const [chatCount, setChatCount] = useState(0);
     const scrollRef = useRef(null);
     const messagesEndRef = useRef(null);
+
+    // Check Chat Limit
+    useEffect(() => {
+        const checkLimit = async () => {
+            if (!user) return;
+            try {
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+                const { count, error } = await supabase
+                    .from('chat_logs')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', user.id)
+                    .gte('created_at', oneDayAgo);
+
+                if (error) throw error;
+
+                setChatCount(count || 0);
+                const isFree = !user.plan || user.plan.toLowerCase() === 'free';
+                if (isFree && (count || 0) >= 5) {
+                    setCanChat(false);
+                }
+            } catch (error) {
+                console.error("Error checking chat limit:", error);
+            }
+        };
+        checkLimit();
+    }, [user]);
 
     // Fetch Materials
     useEffect(() => {
@@ -91,12 +119,28 @@ const ChatWithDocs = () => {
             return;
         }
 
+        if (!canChat) {
+            toast.error("Daily chat limit reached (5/5). Upgrade to Premium for unlimited chats!");
+            return;
+        }
+
         const userMessage = { role: "user", content: input };
         setMessages(prev => [...prev, userMessage]);
         setInput("");
         setIsLoading(true);
 
         try {
+            // Log chat attempt
+            const { error: logError } = await supabase.from('chat_logs').insert({ user_id: user.id });
+            if (logError) console.error("Failed to log chat:", logError);
+
+            setChatCount(prev => {
+                const newCount = prev + 1;
+                const isFree = !user.plan || user.plan.toLowerCase() === 'free';
+                if (isFree && newCount >= 5) setCanChat(false);
+                return newCount;
+            });
+
             // Prepare context from selected materials
             const selectedDocs = materials.filter(m => selectedMaterials.includes(m.id));
             const context = selectedDocs.map(m => `Document: ${m.title}\nContent: ${m.content?.substring(0, 1000)}...`).join("\n\n");
@@ -245,17 +289,22 @@ const ChatWithDocs = () => {
 
                         {/* Input Area */}
                         <div className="p-4 bg-white/5 border-t border-white/10">
+                            {!canChat && (
+                                <div className="mb-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400 text-center">
+                                    Daily chat limit reached (5/5). Upgrade to Premium to continue.
+                                </div>
+                            )}
                             <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-3">
                                 <Input
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     placeholder="Ask a question about your selected documents..."
                                     className="flex-1 bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan focus:ring-electric-cyan/20"
-                                    disabled={isLoading}
+                                    disabled={isLoading || !canChat}
                                 />
                                 <Button
                                     type="submit"
-                                    disabled={isLoading || !input.trim() || selectedMaterials.length === 0}
+                                    disabled={isLoading || !input.trim() || selectedMaterials.length === 0 || !canChat}
                                     className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold"
                                 >
                                     <Send className="w-4 h-4 mr-2" />

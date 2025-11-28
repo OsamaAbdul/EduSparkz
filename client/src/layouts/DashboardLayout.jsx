@@ -75,7 +75,7 @@ export const DashboardLayout = ({ children }) => {
       <div className="flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-300">
         <Header toggleSidebar={toggleSidebar} />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 scrollbar-thin scrollbar-thumb-electric-cyan/20 scrollbar-track-transparent">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 scrollbar-thin scrollbar-thumb-electric-cyan/20 scrollbar-track-transparent">
           {children}
         </main>
       </div>

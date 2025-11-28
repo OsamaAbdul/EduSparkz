@@ -400,7 +400,7 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const currentQ = quiz.questions[currentQuestionIndex];
 
   return (
-    <div className="min-h-screen bg-space-dark text-white overflow-hidden relative flex flex-col">
+    <div className="h-screen bg-space-dark text-white overflow-hidden relative flex flex-col">
       {/* 🌌 Background */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none" />
 
@@ -477,7 +477,7 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
 
             {/* Question Card */}
             <div className={`
-                    relative bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl text-center mb-8
+                    relative bg-white/5 backdrop-blur-xl border border-white/10 p-6 md:p-8 rounded-3xl shadow-2xl text-center mb-4 md:mb-6
                     ${isAnswered && !isCorrect ? 'animate-shake border-red-500/50' : ''}
                     ${isAnswered && isCorrect ? 'border-electric-lime/50 shadow-[0_0_30px_rgba(57,255,20,0.3)]' : ''}
                 `}>
@@ -517,7 +517,7 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
                     whileHover={!isAnswered ? { scale: 1.02, y: -2 } : {}}
                     whileTap={!isAnswered ? { scale: 0.98 } : {}}
                     className={`
-                                    relative p-6 rounded-2xl border-2 text-left transition-all duration-300 group overflow-hidden
+                                    relative p-4 md:p-5 rounded-2xl border-2 text-left transition-all duration-300 group overflow-hidden
                                     ${stateClass}
                                 `}
                   >
