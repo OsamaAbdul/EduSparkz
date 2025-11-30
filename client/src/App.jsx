@@ -25,7 +25,7 @@ import ChatWithDocs from "./pages/ChatWithDocs.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminSignup from "./pages/admin/AdminSignup.jsx";
-
+import { AuthCallback } from "./pages/Auth/AuthCallback.tsx";
 import Pricing from "./pages/Pricing.jsx";
 import Materials from "./pages/Materials.jsx";
 
@@ -43,6 +43,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/api/auth/login" element={<Login />} />
               <Route path="/api/auth/register" element={<Register />} />
@@ -51,11 +52,7 @@ const App = () => (
               <Route path="/api/auth/forgot-password" element={<ForgotPassword />} />
               <Route path="/api/auth/update-password" element={<UpdatePassword />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
-              {/* <Route path="/user/dashboard" element={<Dashboard />} />
-              <Route path="/user/quiz" element={<Quiz />} />
-              <Route path="/user/quiz-result" element={<QuizResults />} />
-              <Route path="/user/history" element={<History />} />
-              <Route path="/user/leaderboard" element={<Leaderboard />} /> */}
+
 
 
               {/* Protected Routes */}

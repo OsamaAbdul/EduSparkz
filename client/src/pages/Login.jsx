@@ -24,6 +24,29 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { setUser } = useUser();
 
+
+
+  // handle google login
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        toast.error(error.message || "Login failed. Please try again.");
+        return;
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      toast.error("Error connecting to the server");
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -193,21 +216,7 @@ const Login = () => {
                   type="button"
                   variant="outline"
                   className="w-full border-white/10 bg-white/5 hover:bg-white/10 text-white hover:text-electric-cyan transition-colors"
-                  onClick={async () => {
-                    setLoading(true);
-                    try {
-                      const { error } = await supabase.auth.signInWithOAuth({
-                        provider: "google",
-                        options: {
-                          redirectTo: `${window.location.origin}/user/dashboard`,
-                        },
-                      });
-                      if (error) throw error;
-                    } catch (err) {
-                      toast.error("Error connecting to Google");
-                      setLoading(false);
-                    }
-                  }}
+                  onClick={handleGoogleLogin}
                   disabled={loading}
                 >
                   <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
