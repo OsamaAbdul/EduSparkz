@@ -11,7 +11,7 @@ const ProtectedRoute = ({ children }) => {
     if (!isLoading) {
       if (!user || !user.token) {
         navigate("/api/auth/login");
-      } else if (user.onboarding_completed === false && window.location.pathname !== "/user/onboarding") {
+      } else if (user.role !== 'admin' && user.onboarding_completed === false && window.location.pathname !== "/user/onboarding") {
         navigate("/user/onboarding");
       }
     }

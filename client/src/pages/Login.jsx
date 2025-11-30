@@ -61,8 +61,9 @@ const Login = () => {
       toast.success("Login successful");
 
       // Redirect based on onboarding status
-      if (profile?.onboarding_completed) {
-        setTimeout(() => navigate("/user/dashboard"), 1000);
+      if (profile?.role === 'admin' || profile?.onboarding_completed) {
+        const target = profile?.role === 'admin' ? "/admin/dashboard" : "/user/dashboard";
+        setTimeout(() => navigate(target), 1000);
       } else {
         setTimeout(() => navigate("/user/onboarding"), 1000);
       }

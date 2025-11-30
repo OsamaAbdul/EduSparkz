@@ -14,6 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import UpdatePassword from "./pages/UpdatePassword.jsx";
 import { UserProvider } from "./context/useContext.jsx";
 import ProtectedRoute from "./layouts/ProtectedRoute.jsx";
+import AdminRoute from "./layouts/AdminRoute.jsx";
 import Quiz from "./pages/Quiz.jsx";
 import QuizResults from "./pages/QuizResults.jsx";
 import History from "./pages/History.jsx";
@@ -21,6 +22,9 @@ import Leaderboard from "./pages/LeaderBoard.jsx";
 import VerifyOtp from "./features/auth/components/VerifyOtp.jsx";
 import ResendOtp from "./features/auth/components/ResendOtp.jsx";
 import ChatWithDocs from "./pages/ChatWithDocs.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import AdminLogin from "./pages/admin/AdminLogin.jsx";
+import AdminSignup from "./pages/admin/AdminSignup.jsx";
 
 import Pricing from "./pages/Pricing.jsx";
 import Materials from "./pages/Materials.jsx";
@@ -127,6 +131,16 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/signup" element={<AdminSignup />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes >

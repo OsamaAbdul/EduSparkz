@@ -1,10 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, BookX, ChartNoAxesCombined, LogOut, Brain, FileText, Zap, MessageSquare } from "lucide-react";
+import { Home, BookX, ChartNoAxesCombined, LogOut, Brain, FileText, Zap, MessageSquare, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/context/useContext";
 
 export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
-  const { logOut } = useUser();
+  const { user, logOut } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,6 +22,10 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
     { to: "/user/leaderboard", label: "Leaderboard", icon: <ChartNoAxesCombined className="w-5 h-5" /> },
     { to: "/user/chat", label: "AI Tutor", icon: <MessageSquare className="w-5 h-5" /> },
   ];
+
+  if (user?.role === 'admin') {
+    navItems.push({ to: "/admin/dashboard", label: "Admin Panel", icon: <ShieldAlert className="w-5 h-5" /> });
+  }
 
   return (
     <div

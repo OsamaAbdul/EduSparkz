@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 
-const Header = ({ toggleSidebar }) => {
+const Header = ({ toggleSidebar, showMenuButton = true }) => {
   const { user } = useUser();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -150,9 +150,11 @@ const Header = ({ toggleSidebar }) => {
       <div className="flex items-center justify-between px-4 sm:px-6 py-3">
         {/* Left Section */}
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <Button variant="ghost" size="sm" onClick={toggleSidebar} className="text-gray-400 hover:text-white hover:bg-white/5">
-            <Menu className="w-5 h-5" />
-          </Button>
+          {showMenuButton && (
+            <Button variant="ghost" size="sm" onClick={toggleSidebar} className="text-gray-400 hover:text-white hover:bg-white/5">
+              <Menu className="w-5 h-5" />
+            </Button>
+          )}
           <h1 className="text-lg sm:text-2xl font-bold text-white truncate max-w-[150px] sm:max-w-none">
             {getGreetings()}
           </h1>
