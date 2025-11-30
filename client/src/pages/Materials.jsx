@@ -86,7 +86,7 @@ const Materials = () => {
 
     return (
         <DashboardLayout>
-            <div className="max-w-7xl mx-auto space-y-8">
+            <div className="max-w-7xl mx-auto space-y-8 overflow-x-hidden px-1">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
@@ -156,7 +156,7 @@ const Materials = () => {
                                                                 <Eye className="h-4 w-4" />
                                                             </Button>
                                                         </DialogTrigger>
-                                                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-space-dark border-white/10 text-white">
+                                                        <DialogContent className="max-w-4xl w-[95vw] max-h-[80vh] overflow-y-auto bg-space-dark border-white/10 text-white">
                                                             <DialogHeader>
                                                                 <DialogTitle className="text-electric-cyan text-xl">
                                                                     {material.title}

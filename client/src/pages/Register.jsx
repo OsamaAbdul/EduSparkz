@@ -23,6 +23,7 @@ export const Register = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,6 +39,7 @@ export const Register = () => {
           data: {
             username,
             full_name: username,
+            referral_code: referralCode,
           },
         },
       });
@@ -123,6 +125,7 @@ export const Register = () => {
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="Enter your username"
                         required
+                        minLength={3}
                         className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan/50 focus:ring-electric-cyan/20"
                       />
                     </div>
@@ -154,6 +157,21 @@ export const Register = () => {
                     </button>
                   </div>
                   {password && <PasswordStrengthMeter password={password} />}
+                </div>
+
+                {/* Referral Code */}
+                <div className="space-y-2">
+                  <Label htmlFor="referralCode" className="text-gray-300">
+                    Referral Code (Optional)
+                  </Label>
+                  <Input
+                    id="referralCode"
+                    type="text"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                    placeholder="e.g. OSAMA"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan/50 focus:ring-electric-cyan/20"
+                  />
                 </div>
 
                 {/* Submit */}

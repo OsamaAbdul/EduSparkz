@@ -245,6 +245,10 @@ const Header = ({ toggleSidebar, showMenuButton = true }) => {
                     <Label htmlFor="name" className="text-right text-gray-400">Name</Label>
                     <Input id="name" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} className="col-span-3 bg-white/5 border-white/10 text-white focus:border-electric-cyan" />
                   </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="username" className="text-right text-gray-400">Username</Label>
+                    <Input id="username" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="col-span-3 bg-white/5 border-white/10 text-white focus:border-electric-cyan" />
+                  </div>
 
                   <div className="grid grid-cols-4 items-start gap-4">
                     <Label className="text-right text-gray-400 mt-3">Avatar</Label>

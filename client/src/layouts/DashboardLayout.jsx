@@ -57,24 +57,37 @@ export const DashboardLayout = ({ children }) => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-electric-cyan/5 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-hot-magenta/5 rounded-full blur-[100px] pointer-events-none z-0" />
 
-      {/* Sidebar - Desktop Only */}
+      {/* Sidebar - Desktop & Mobile */}
       <AnimatePresence mode="wait">
-        {sidebarOpen && isLaptop && (
-          <motion.aside
-            initial={{ x: 0, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -300, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 120, damping: 20 }}
-            className={`hidden lg:flex flex-col h-full z-[60] w-64 flex-shrink-0 bg-space-dark/80 backdrop-blur-xl border-r border-white/10`}
-          >
-            <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-          </motion.aside>
+        {sidebarOpen && (
+          <>
+            {/* Mobile Overlay */}
+            {!isLaptop && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSidebarOpen(false)}
+                className="fixed inset-0 bg-black/50 z-[55] lg:hidden backdrop-blur-sm"
+              />
+            )}
+
+            <motion.aside
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              className={`fixed lg:static inset-y-0 left-0 z-[60] w-64 flex-shrink-0 bg-space-dark/95 lg:bg-space-dark/80 backdrop-blur-xl border-r border-white/10 shadow-2xl lg:shadow-none`}
+            >
+              <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
 
       {/* Main Content Wrapper */}
       <div className="flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-300">
-        <Header toggleSidebar={toggleSidebar} showMenuButton={isLaptop} />
+        <Header toggleSidebar={toggleSidebar} showMenuButton={true} />
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 scrollbar-thin scrollbar-thumb-electric-cyan/20 scrollbar-track-transparent lg:pb-8 pb-24">
           {children}

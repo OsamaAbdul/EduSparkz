@@ -171,7 +171,7 @@ const ChatWithDocs = () => {
 
     return (
         <DashboardLayout>
-            <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] gap-4 w-full">
+            <div className="flex flex-col lg:flex-row h-[60vh] lg:h-[calc(100vh-8rem)] gap-4 w-full mb-20 lg:mb-0">
                 {/* Left Column: Materials List */}
                 <Card className="w-full lg:w-1/3 flex flex-col glass-card border-white/10">
                     <CardHeader className="border-b border-white/10 pb-4">

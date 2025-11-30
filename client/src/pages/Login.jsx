@@ -15,6 +15,7 @@ import { Lock, Mail, Eye, EyeOff, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "../context/useContext";
 import { supabase } from "../lib/supabase";
+import BackButton from "../features/landing/components/BackButton.jsx";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -105,6 +106,8 @@ const Login = () => {
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none z-0" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-electric-cyan/10 rounded-full blur-[100px] pointer-events-none z-0" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-hot-magenta/10 rounded-full blur-[100px] pointer-events-none z-0" />
+
+        <BackButton />
 
         <div className="relative z-10 w-full max-w-md px-4 sm:px-6">
           <Card className="glass-card border-white/10 shadow-2xl">

@@ -36,7 +36,7 @@ export const Dashboard = () => {
         supabase.from("materials").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_results").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_results").select("score, total").eq("user_id", user.id),
-        supabase.from("profiles").select("xp, current_streak, level").eq("id", user.id).single()
+        supabase.from("profiles").select("xp, current_streak, level, referral_code").eq("id", user.id).single()
       ]);
 
       const totalScore = leaderboard.data?.reduce((acc, curr) => acc + (curr.score / curr.total) * 100, 0) || 0;
@@ -48,7 +48,8 @@ export const Dashboard = () => {
         avgScore: avgScore,
         xp: profile.data?.xp || 0,
         streak: profile.data?.current_streak || 0,
-        level: profile.data?.level || 1
+        level: profile.data?.level || 1,
+        referralCode: profile.data?.referral_code || "N/A"
       };
     },
     enabled: !!user?.id,
@@ -159,6 +160,46 @@ export const Dashboard = () => {
               <p className="text-gray-400 text-sm uppercase tracking-wider font-semibold mt-4">{stat.label}</p>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Refer & Earn Section */}
+        <motion.div variants={itemVariants} className="glass-card p-6 rounded-3xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-electric-cyan/5 rounded-full blur-3xl -z-10" />
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-electric-cyan" /> Refer & Earn
+              </h3>
+              <p className="text-gray-400 max-w-md">
+                Invite your friends to join EduSparkz and earn <span className="text-electric-cyan font-bold">500 XP</span> for every successful referral!
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 bg-space-dark/50 p-4 rounded-xl border border-white/10">
+              <div className="text-center">
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Your Referral Code</p>
+                <p className="text-2xl font-bold text-white tracking-widest font-mono">
+                  {stats?.referralCode || "LOADING..."}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-white/10 hover:bg-white/10 hover:text-electric-cyan"
+                onClick={() => {
+                  if (stats?.referralCode) {
+                    navigator.clipboard.writeText(stats.referralCode);
+                    // You might want to add a toast here, but I don't have access to toast import in this snippet context
+                    // Assuming toast is available or user will add it. 
+                    // Wait, toast is not imported in Dashboard.jsx. I should add it or just rely on UI feedback.
+                    // Let's just copy for now.
+                  }
+                }}
+              >
+                <FileText className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
