@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Trophy, Users, Quote, Upload, FileText, Brain, Zap, Globe } from "lucide-react";
 import { useUser } from "../context/useContext.jsx";
 import { supabase } from "../lib/supabase";
+import { toast } from "sonner";
 
 const PIDGIN_QUOTES = [
   "No gree for anybody, read your book!",
@@ -189,10 +190,7 @@ export const Dashboard = () => {
                 onClick={() => {
                   if (stats?.referralCode) {
                     navigator.clipboard.writeText(stats.referralCode);
-                    // You might want to add a toast here, but I don't have access to toast import in this snippet context
-                    // Assuming toast is available or user will add it. 
-                    // Wait, toast is not imported in Dashboard.jsx. I should add it or just rely on UI feedback.
-                    // Let's just copy for now.
+                    toast.success("Referral code copied to clipboard!");
                   }
                 }}
               >

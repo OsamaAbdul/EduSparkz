@@ -1,28 +1,34 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { DashboardLayout } from "../layouts/DashboardLayout.jsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Loader2, FileText, Bot, User } from "lucide-react";
+import { Send, Loader2, FileText, Bot, User, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useUser } from "@/context/useContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const ChatWithDocs = () => {
     const { user } = useUser();
+    const location = useLocation();
+    const context = location.state?.context;
     const [materials, setMaterials] = useState([]);
     const [selectedMaterials, setSelectedMaterials] = useState([]);
     const [messages, setMessages] = useState([
-        { role: "assistant", content: "Hello! Select the documents you want to chat with from the left, and ask me anything." }
+        { role: "assistant", content: context ? `I see you're working on: "${context}". How can I help you with that?` : "Hello! Select the documents you want to chat with from the left, and ask me anything." }
     ]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isMaterialsLoading, setIsMaterialsLoading] = useState(true);
     const [canChat, setCanChat] = useState(true);
     const [chatCount, setChatCount] = useState(0);
+    const [activeTab, setActiveTab] = useState("chat"); // 'materials' or 'chat'
     const scrollRef = useRef(null);
     const messagesEndRef = useRef(null);
 
@@ -143,11 +149,11 @@ const ChatWithDocs = () => {
 
             // Prepare context from selected materials
             const selectedDocs = materials.filter(m => selectedMaterials.includes(m.id));
-            const context = selectedDocs.map(m => `Document: ${m.title}\nContent: ${m.content?.substring(0, 1000)}...`).join("\n\n");
+            const contextString = selectedDocs.map(m => `Document: ${m.title}\nContent: ${m.content?.substring(0, 1000)}...`).join("\n\n");
 
             // Call AI Endpoint
             const { data, error } = await supabase.functions.invoke('chat-with-materials', {
-                body: { query: input, context }
+                body: { query: input, context: contextString, user_id: user?.id }
             });
 
             if (error) {
@@ -171,151 +177,198 @@ const ChatWithDocs = () => {
 
     return (
         <DashboardLayout>
-            <div className="flex flex-col lg:flex-row h-[60vh] lg:h-[calc(100vh-8rem)] gap-4 w-full mb-20 lg:mb-0">
-                {/* Left Column: Materials List */}
-                <Card className="w-full lg:w-1/3 flex flex-col glass-card border-white/10">
-                    <CardHeader className="border-b border-white/10 pb-4">
-                        <CardTitle className="text-white flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-electric-cyan" />
-                            Select Documents
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 p-0 overflow-hidden">
-                        <ScrollArea className="h-full p-4">
-                            {isMaterialsLoading ? (
-                                <div className="space-y-2">
-                                    {[1, 2, 3].map(i => <div key={i} className="h-10 bg-white/5 animate-pulse rounded" />)}
-                                </div>
-                            ) : materials.length === 0 ? (
-                                <p className="text-center text-gray-500 mt-4">No materials found. Upload some first!</p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {materials.map((material) => (
-                                        <div key={material.id} className="flex items-start space-x-3 p-3 rounded-lg border border-transparent hover:bg-white/5 transition-colors">
-                                            <Checkbox
-                                                id={material.id}
-                                                checked={selectedMaterials.includes(material.id)}
-                                                onCheckedChange={() => handleMaterialToggle(material.id)}
-                                                className="mt-1 border-white/30 data-[state=checked]:bg-electric-cyan data-[state=checked]:text-space-dark"
-                                            />
-                                            <label
-                                                htmlFor={material.id}
-                                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                                            >
-                                                <div className="text-white font-semibold">{material.title}</div>
-                                                <div className="text-xs text-gray-400 mt-1 truncate">
-                                                    {material.file_type?.toUpperCase()} • {new Date(material.created_at).toLocaleDateString()}
-                                                </div>
-                                            </label>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
+            <div className="flex flex-col h-[calc(100dvh-120px)] lg:h-[calc(100vh-8rem)] w-full mb-0 lg:mb-0">
 
-                {/* Right Column: Chat Interface */}
-                <Card className="w-full lg:w-2/3 flex flex-col glass-card border-white/10 shadow-lg">
-                    <CardHeader className="border-b border-white/10 py-4 bg-white/5">
-                        <CardTitle className="text-white flex items-center gap-2">
-                            <Bot className="w-6 h-6 text-hot-magenta" />
-                            AI Tutor
-                        </CardTitle>
-                    </CardHeader>
+                {/* Mobile Tabs */}
+                <div className="flex lg:hidden mb-4 bg-white/5 p-1 rounded-lg border border-white/10 shrink-0">
+                    <button
+                        onClick={() => setActiveTab("materials")}
+                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${activeTab === "materials"
+                            ? "bg-electric-cyan text-space-dark shadow-lg"
+                            : "text-gray-400 hover:text-white"
+                            }`}
+                    >
+                        Documents
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("chat")}
+                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${activeTab === "chat"
+                            ? "bg-hot-magenta text-white shadow-lg"
+                            : "text-gray-400 hover:text-white"
+                            }`}
+                    >
+                        Chat
+                    </button>
+                </div>
 
-                    <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
-                        {/* Messages Area */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/20 scroll-smooth" ref={scrollRef}>
-                            <AnimatePresence mode="popLayout">
-                                {messages.map((msg, idx) => (
-                                    <motion.div
-                                        key={idx}
-                                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        transition={{ duration: 0.3, ease: "easeOut" }}
-                                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                                    >
-                                        <div className={`flex gap-3 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ${msg.role === 'user' ? 'bg-electric-cyan text-space-dark' : 'bg-hot-magenta text-white'
-                                                }`}>
-                                                {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                <div className="flex flex-1 gap-4 overflow-hidden">
+                    {/* Left Column: Materials List */}
+                    <Card className={`lg:w-1/3 flex-col glass-card border-white/10 ${activeTab === 'materials' ? 'flex w-full' : 'hidden lg:flex'}`}>
+                        <CardHeader className="border-b border-white/10 pb-4">
+                            <CardTitle className="text-white flex items-center gap-2">
+                                <FileText className="w-5 h-5 text-electric-cyan" />
+                                Select Documents
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex-1 p-0 overflow-hidden">
+                            <ScrollArea className="h-full p-4">
+                                {isMaterialsLoading ? (
+                                    <div className="space-y-2">
+                                        {[1, 2, 3].map(i => <div key={i} className="h-10 bg-white/5 animate-pulse rounded" />)}
+                                    </div>
+                                ) : materials.length === 0 ? (
+                                    <p className="text-center text-gray-500 mt-4">No materials found. Upload some first!</p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {materials.map((material) => (
+                                            <div key={material.id} className="flex items-start space-x-3 p-3 rounded-lg border border-transparent hover:bg-white/5 transition-colors">
+                                                <Checkbox
+                                                    id={material.id}
+                                                    checked={selectedMaterials.includes(material.id)}
+                                                    onCheckedChange={() => handleMaterialToggle(material.id)}
+                                                    className="mt-1 border-white/30 data-[state=checked]:bg-electric-cyan data-[state=checked]:text-space-dark"
+                                                />
+                                                <label
+                                                    htmlFor={material.id}
+                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                                                >
+                                                    <div className="text-white font-semibold">{material.title}</div>
+                                                    <div className="text-xs text-gray-400 mt-1 truncate">
+                                                        {material.file_type?.toUpperCase()} • {new Date(material.created_at).toLocaleDateString()}
+                                                    </div>
+                                                </label>
                                             </div>
-                                            <div className={`rounded-2xl px-4 py-3 text-sm shadow-md backdrop-blur-sm ${msg.role === 'user'
-                                                ? 'bg-electric-cyan/20 text-white border border-electric-cyan/20 rounded-tr-none'
-                                                : 'bg-white/5 text-gray-200 rounded-tl-none border border-white/10'
-                                                }`}>
-                                                {msg.content}
+                                        ))}
+                                    </div>
+                                )}
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+
+                    {/* Right Column: Chat Interface */}
+                    <Card className={`lg:w-2/3 flex-col glass-card border-white/10 shadow-lg ${activeTab === 'chat' ? 'flex w-full' : 'hidden lg:flex'}`}>
+                        <CardHeader className="border-b border-white/10 py-4 bg-white/5">
+                            <div className="flex justify-between items-center">
+                                <CardTitle className="text-white flex items-center gap-2">
+                                    <Bot className="w-6 h-6 text-hot-magenta" />
+                                    AI Tutor
+                                </CardTitle>
+                                {context && (
+                                    <div className="bg-electric-cyan/10 border border-electric-cyan/30 px-3 py-1 rounded-full text-xs text-electric-cyan flex items-center gap-2 max-w-[200px] truncate">
+                                        <Sparkles className="w-3 h-3" />
+                                        <span className="truncate" title={context}>Context: {context}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </CardHeader>
+
+                        <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
+                            {/* Messages Area */}
+                            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/20 scroll-smooth" ref={scrollRef}>
+                                <AnimatePresence mode="popLayout">
+                                    {messages.map((msg, idx) => (
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            transition={{ duration: 0.3, ease: "easeOut" }}
+                                            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                        >
+                                            <div className={`flex gap-3 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ${msg.role === 'user' ? 'bg-electric-cyan text-space-dark' : 'bg-hot-magenta text-white'
+                                                    }`}>
+                                                    {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                                                </div>
+                                                <div className={`rounded-2xl px-4 py-3 text-sm shadow-md backdrop-blur-sm ${msg.role === 'user'
+                                                    ? 'bg-electric-cyan/20 text-white border border-electric-cyan/20 rounded-tr-none'
+                                                    : 'bg-white/5 text-gray-200 rounded-tl-none border border-white/10'
+                                                    }`}>
+                                                    <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:p-2 prose-pre:rounded-lg">
+                                                        <ReactMarkdown
+                                                            remarkPlugins={[remarkGfm]}
+                                                            components={{
+                                                                ul: ({ node, ...props }) => <ul className="list-disc pl-4 my-2 space-y-1" {...props} />,
+                                                                ol: ({ node, ...props }) => <ol className="list-decimal pl-4 my-2 space-y-1" {...props} />,
+                                                                li: ({ node, ...props }) => <li className="my-0.5" {...props} />,
+                                                                p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                                                                strong: ({ node, ...props }) => <strong className="font-bold text-electric-cyan" {...props} />,
+                                                                a: ({ node, ...props }) => <a className="text-electric-cyan hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
+                                                            }}
+                                                        >
+                                                            {msg.content}
+                                                        </ReactMarkdown>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+
+                                {isLoading && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="flex justify-start"
+                                    >
+                                        <div className="flex gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-hot-magenta text-white flex items-center justify-center shadow-lg">
+                                                <Bot className="w-5 h-5" />
+                                            </div>
+                                            <div className="bg-white/5 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-white/10 flex items-center backdrop-blur-sm">
+                                                <div className="flex space-x-1">
+                                                    <motion.div
+                                                        className="w-2 h-2 bg-electric-cyan rounded-full"
+                                                        animate={{ y: [0, -5, 0] }}
+                                                        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0 }}
+                                                    />
+                                                    <motion.div
+                                                        className="w-2 h-2 bg-hot-magenta rounded-full"
+                                                        animate={{ y: [0, -5, 0] }}
+                                                        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                                                    />
+                                                    <motion.div
+                                                        className="w-2 h-2 bg-electric-lime rounded-full"
+                                                        animate={{ y: [0, -5, 0] }}
+                                                        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </motion.div>
-                                ))}
-                            </AnimatePresence>
+                                )}
+                                <div ref={messagesEndRef} />
+                            </div>
 
-                            {isLoading && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="flex justify-start"
-                                >
-                                    <div className="flex gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-hot-magenta text-white flex items-center justify-center shadow-lg">
-                                            <Bot className="w-5 h-5" />
-                                        </div>
-                                        <div className="bg-white/5 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-white/10 flex items-center backdrop-blur-sm">
-                                            <div className="flex space-x-1">
-                                                <motion.div
-                                                    className="w-2 h-2 bg-electric-cyan rounded-full"
-                                                    animate={{ y: [0, -5, 0] }}
-                                                    transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0 }}
-                                                />
-                                                <motion.div
-                                                    className="w-2 h-2 bg-hot-magenta rounded-full"
-                                                    animate={{ y: [0, -5, 0] }}
-                                                    transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-                                                />
-                                                <motion.div
-                                                    className="w-2 h-2 bg-electric-lime rounded-full"
-                                                    animate={{ y: [0, -5, 0] }}
-                                                    transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-                                                />
-                                            </div>
-                                        </div>
+                            {/* Input Area */}
+                            <div className="p-4 bg-white/5 border-t border-white/10">
+                                {!canChat && (
+                                    <div className="mb-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400 text-center">
+                                        Daily chat limit reached (5/5). Upgrade to Premium to continue.
                                     </div>
-                                </motion.div>
-                            )}
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        {/* Input Area */}
-                        <div className="p-4 bg-white/5 border-t border-white/10">
-                            {!canChat && (
-                                <div className="mb-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400 text-center">
-                                    Daily chat limit reached (5/5). Upgrade to Premium to continue.
-                                </div>
-                            )}
-                            <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-3">
-                                <Input
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    placeholder="Ask a question about your selected documents..."
-                                    className="flex-1 bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan focus:ring-electric-cyan/20"
-                                    disabled={isLoading || !canChat}
-                                />
-                                <Button
-                                    type="submit"
-                                    disabled={isLoading || !input.trim() || selectedMaterials.length === 0 || !canChat}
-                                    className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold"
-                                >
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Send
-                                </Button>
-                            </form>
-                        </div>
-                    </CardContent>
-                </Card>
+                                )}
+                                <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-3">
+                                    <Input
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        placeholder="Ask a question about your selected documents..."
+                                        className="flex-1 bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan focus:ring-electric-cyan/20"
+                                        disabled={isLoading || !canChat}
+                                    />
+                                    <Button
+                                        type="submit"
+                                        disabled={isLoading || !input.trim() || selectedMaterials.length === 0 || !canChat}
+                                        className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold"
+                                    >
+                                        <Send className="w-4 h-4 mr-2" />
+                                        Send
+                                    </Button>
+                                </form>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 };
 

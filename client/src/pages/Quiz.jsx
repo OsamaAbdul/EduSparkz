@@ -400,7 +400,7 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const currentQ = quiz.questions[currentQuestionIndex];
 
   return (
-    <div className="h-screen bg-space-dark text-white overflow-hidden relative flex flex-col">
+    <div className="h-[100dvh] bg-space-dark text-white overflow-y-auto relative flex flex-col pb-24">
       {/* 🌌 Background */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none" />
 
