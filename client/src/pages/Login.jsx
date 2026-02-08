@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useUser } from "../context/useContext";
 import { supabase } from "../lib/supabase";
 import BackButton from "../features/landing/components/BackButton.jsx";
-import logoIcon from "../../public/edusparkz-logo.png";
+import logoIcon from "../assets/edusparkz-logo.png";
 
 const Login = () => {
   const navigate = useNavigate();

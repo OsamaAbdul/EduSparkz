@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
-import logoIcon from '../../../../public/edusparkz-logo.png';
+import logoIcon from '../../../assets/edusparkz-logo.png';
 
 export const FooterSection = () => {
   return (
     <footer className="relative w-full py-12 px-6 bg-space-dark text-white overflow-hidden border-t border-white/5">
       {/* Background Large Logo */}
-      <div className="absolute inset-x-0 top-[10%] bottom-[-50%] flex justify-center items-center pointer-events-none select-none opacity-[0.12]">
+      <div className="absolute inset-x-0 top-[10%] bottom-[-50%] flex justify-center items-center pointer-events-none select-none opacity-[0.12] overflow-visible pb-10">
         <img
           src={logoIcon}
           alt=""
-          className="w-full max-w-[3000px] h-full object-contain"
+          className="w-full h-full object-contain scale-[1.5] "
         />
       </div>
 

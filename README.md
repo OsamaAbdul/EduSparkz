@@ -1,50 +1,97 @@
-# EduSparkz
+# 🌌 EduSparkz: The Knowledge Galaxy
 
-EduSparkz is an AI-powered educational platform designed to transform learning into an interactive and personalized experience. It enables users to upload learning materials, automatically generate quizzes, and receive instant intelligent feedback.
+**EduSparkz** is a premium, AI-driven educational platform designed to bridge the gap between static learning materials and interactive mastery. By leveraging cutting-edge Large Language Models (LLMs) and a cinematic "Knowledge Galaxy" aesthetic, it transforms PDFs and documents into dynamic, personalized learning experiences.
 
-## 🚀 Features
+---
 
-- **PDF Text Extraction**: Upload PDFs and extract clean, structured content with advanced AI processing.
-- **AI-Generated Quizzes**: Create dynamic MCQs using Gemini or OpenAI based on extracted text.
-- **Instant Evaluation**: Get immediate feedback, scores, and detailed explanations for every answer.
-- **Secure Authentication**: JWT-based login/registration to protect content and quiz results.
-- **Modern React UI**: Smooth, responsive frontend with routing, quiz-taking screens, and loading states.
-- **Motivation**: Receive motivational quotes based on user performance.
+##  Key Features
 
-## 🛠 Built With
+### AI-Powered Intelligence
+- **Dynamic Quiz Generation**: Instantly transform any PDF, document, or image into comprehensive MCQs using **Google Gemini AI**.
+- **Chat with Docs**: Interactive AI assistant that lets you "talk" to your learning materials for real-time clarification.
+- **Intelligent Feedback**: Receive deep-dive explanations for quiz answers, moving beyond simple correct/incorrect scores.
 
-- React
-- Express.js
-- MongoDB
-- OpenAI
-- Gemini AI
-- JWT Auth
-- Netlify
-- Heroku
+### Premium User Experience
+- **Cinematic Interface**: A state-of-the-art dark theme featuring "Knowledge Galaxy" animations, glassmorphism, and smooth Framer Motion transitions.
+- **Micro-interactions**: High-end hover effects, orbital loader animations, and confetti celebrations upon achievement.
+- **Professional Analytics**: Track your progress with detailed performance charts and retention metrics.
+
+### Secure & Scalable
+- **Robust Authentication**: Secure login/signup system powered by **Supabase Auth**.
+- **Real-time Synchronization**: Instant data persistence across sessions for learning history and saved materials.
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 18, Vite, TypeScript, Tailwind CSS |
+| **Styling** | Framer Motion, Lucide React, Radix UI (Shadcn) |
+| **AI/ML** | Google Gemini Generative AI, Tesseract.js (OCR) |
+| **Backend/DB** | Supabase (PostgreSQL, Realtime, Functions) |
+| **Persistence** | Supabase Storage, Local Storage persistence |
+
+---
+
+## 📂 Project Structure
+
+```text
+EduSparkz/
+├── client/                 # React frontend (Vite)
+│   ├── src/
+│   │   ├── features/       # Modular features (Auth, Dashboard, Landing)
+│   │   ├── components/     # Reusable Shadcn/custom UI
+│   │   ├── pages/          # Full page components
+│   │   └── lib/            # Third-party configs (Supabase, AI)
+├── supabase/               # SQL migrations and Edge Functions
+└── backend/                # Shared utilities and legacy migrations
+```
+
+---
+
+## 🏁 Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- npm / yarn / bun
+- Supabase account & project
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/OsamaAbdul/EduSparkz.git
+   cd EduSparkz/client
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables**
+   Create a `.env` file in the `client` directory:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_GEMINI_API_KEY=your_google_ai_key
+   ```
+
+4. **Launch Development Server**
+   ```bash
+   npm run dev
+   ```
+
+---
 
 ## 👨‍💻 Developer
-
 **Osama Abdullahi Ibrahim**  
-Full-Stack (MERN) Developer  
-Doma, Nasarawa State  
-📧 osamaabduljnr@gmail.com
+*Full-Stack Developer | AI Integration Specialist*
 
-> Passionate about creating innovative educational tools that leverage artificial intelligence to enhance learning experiences.
+> "Dedicated to building the next generation of intelligent educational tools."
 
-## 📣 Testimonials
-
-> "One of the best tools for educators and learners across all areas of study. Kudos 👏" — 02 Innovation Lab  
-> "This AI quiz generator has revolutionized how I create assessments." — Osama Abdul  
-> "The AI-powered evaluation is remarkably accurate. It's like having a personal tutor available 24/7." — Elon Musk  
-> "This should be integrated into schools across Nigeria to help boost education." — Bola Ahmed Tinubu  
-
-## 📞 Contact
-
-- **Email Support**: EduSparkz@gmail.com
-- **Live Chat**: 9 AM - 6 PM
-- **Phone**: +234 814 509 6342
-- **Schedule Demo**: +234 814 509 6342
+---
 
 ## 📄 License
-
 MIT License © 2025 EduSparkz

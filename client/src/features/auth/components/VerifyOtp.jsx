@@ -9,7 +9,7 @@ import { AlertCircle, CheckCircle, Mail } from "lucide-react";
 import BackButton from '@/features/landing/components/BackButton.jsx';
 import { toast } from 'sonner';
 import { supabase } from "@/lib/supabase";
-import logoIcon from "../../../../public/edusparkz-logo.png";
+import logoIcon from "@/assets/edusparkz-logo.png";
 
 export const VerifyOtp = () => {
   const navigate = useNavigate();

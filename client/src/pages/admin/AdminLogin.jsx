@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ShieldAlert, Lock, Mail, Loader2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "../../lib/supabase";
-import logoIcon from "../../../public/edusparkz-logo.png";
+import logoIcon from "../../assets/edusparkz-logo.png";
 
 const AdminLogin = () => {
     const navigate = useNavigate();

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Brain, Menu, X, Twitter, Instagram, MessageCircle, Send } from "lucide-react";
-import logoIcon from '../../../../public/edusparkz-logo.png';
+import logoIcon from '../../../assets/edusparkz-logo.png';
 
 const navLinks = [
 

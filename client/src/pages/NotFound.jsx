@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Home, LayoutDashboard, Search, ArrowLeft } from "lucide-react";
-import logoIcon from "../../public/edusparkz-logo.png";
+import logoIcon from "../assets/edusparkz-logo.png";
 
 const NotFound = () => {
   const location = useLocation();

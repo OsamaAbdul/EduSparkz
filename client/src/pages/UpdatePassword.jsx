@@ -13,7 +13,7 @@ import { Lock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "../lib/supabase";
 import PasswordStrengthMeter from "../features/auth/components/PasswordStrengthMeter";
-import logoIcon from "../../public/edusparkz-logo.png";
+import logoIcon from "../assets/edusparkz-logo.png";
 
 const UpdatePassword = () => {
     const navigate = useNavigate();

@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import BackButton from "../features/landing/components/BackButton.jsx";
 import PasswordStrengthMeter from "../features/auth/components/PasswordStrengthMeter";
 import { supabase } from "../lib/supabase";
-import logoIcon from "../../public/edusparkz-logo.png";
+import logoIcon from "../assets/edusparkz-logo.png";
 
 export const Register = () => {
   const navigate = useNavigate();
