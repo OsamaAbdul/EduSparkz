@@ -6,13 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Loader2, FileText, Bot, User, Sparkles } from "lucide-react";
+import { Send, Loader2, FileText, User, Sparkles } from "lucide-react";
+import logoIcon from "@/assets/logoIcon.png";
 import { supabase } from "@/lib/supabase";
 import { useUser } from "@/context/useContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
+import Tesseract from 'tesseract.js';
+import mammoth from 'mammoth';
+import { Plus, Paperclip, X as LucideX, Trash2 } from "lucide-react";
+
+// PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
 const ChatWithDocs = () => {
     const { user } = useUser();
@@ -29,6 +37,10 @@ const ChatWithDocs = () => {
     const [canChat, setCanChat] = useState(true);
     const [chatCount, setChatCount] = useState(0);
     const [activeTab, setActiveTab] = useState("chat"); // 'materials' or 'chat'
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadTitle, setUploadTitle] = useState("");
+    const fileInputRef = useRef(null);
     const scrollRef = useRef(null);
     const messagesEndRef = useRef(null);
 
@@ -65,7 +77,7 @@ const ChatWithDocs = () => {
             try {
                 const { data, error } = await supabase
                     .from('materials')
-                    .select('id, title, content, file_type')
+                    .select('id, title, content, file_type, created_at')
                     .eq('user_id', user.id)
                     .order('created_at', { ascending: false });
 
@@ -116,6 +128,146 @@ const ChatWithDocs = () => {
                 ? prev.filter(item => item !== id)
                 : [...prev, id]
         );
+    };
+
+    const extractTextFromFile = async (file) => {
+        const fileType = file.type;
+        try {
+            if (fileType === "application/pdf") {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n';
+                }
+                return fullText;
+            } else if (fileType === "text/plain") {
+                return new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsText(file);
+                });
+            } else if (["image/jpeg", "image/png"].includes(fileType)) {
+                const { data: { text } } = await Tesseract.recognize(file, 'eng');
+                return text;
+            } else if (fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                return result.value;
+            } else {
+                throw new Error("Unsupported file type");
+            }
+        } catch (err) {
+            throw new Error(`Text extraction failed: ${err.message}`);
+        }
+    };
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const allowedTypes = [
+            "application/pdf",
+            "text/plain",
+            "image/jpeg",
+            "image/png",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            toast.error("Only PDF, text, image, or Word (.docx) files allowed");
+            return;
+        }
+
+        setIsUploading(true);
+        setUploadTitle(file.name);
+        setUploadProgress(10);
+
+        try {
+            // Extract text
+            setUploadProgress(30);
+            const extractedText = await extractTextFromFile(file);
+            setUploadProgress(60);
+
+            // Upload 
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+            const { error: uploadError } = await supabase.storage
+                .from('materials')
+                .upload(fileName, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('materials')
+                .getPublicUrl(fileName);
+
+            // Save to database
+            const { data: material, error: dbError } = await supabase
+                .from('materials')
+                .insert({
+                    user_id: user.id,
+                    title: file.name,
+                    content: extractedText,
+                    file_type: file.type.includes('image') ? 'image' : (file.type === 'application/pdf' ? 'pdf' : 'document'),
+                    file_url: publicUrl
+                })
+                .select()
+                .single();
+
+            if (dbError) throw dbError;
+
+            setUploadProgress(100);
+            toast.success("Document uploaded and processed successfully!");
+
+            // Auto-select and refresh materials
+            setMaterials(prev => [material, ...prev]);
+            setSelectedMaterials(prev => [...prev, material.id]);
+
+        } catch (error) {
+            console.error("Upload error:", error);
+            toast.error("Failed to upload document: " + error.message);
+        } finally {
+            setIsUploading(false);
+            setUploadProgress(0);
+            setUploadTitle("");
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
+    const handleDeleteMaterial = async (e, materialId) => {
+        e.stopPropagation(); // Prevent toggling selection
+        if (!confirm("Are you sure you want to delete this material? This will also remove it from your Knowledge Galaxy.")) return;
+
+        try {
+            const { error } = await supabase
+                .from('materials')
+                .delete()
+                .eq('id', materialId);
+
+            if (error) throw error;
+
+            toast.success("Material deleted successfully");
+
+            // Update local states
+            setMaterials(prev => prev.filter(m => m.id !== materialId));
+            setSelectedMaterials(prev => prev.filter(id => id !== materialId));
+        } catch (error) {
+            console.error("Error deleting material:", error);
+            toast.error("Failed to delete material: " + error.message);
+        }
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
     };
 
     const handleSend = async () => {
@@ -204,14 +356,48 @@ const ChatWithDocs = () => {
                 <div className="flex flex-1 gap-4 overflow-hidden">
                     {/* Left Column: Materials List */}
                     <Card className={`lg:w-1/3 flex-col glass-card border-white/10 ${activeTab === 'materials' ? 'flex w-full' : 'hidden lg:flex'}`}>
-                        <CardHeader className="border-b border-white/10 pb-4">
+                        <CardHeader className="border-b border-white/10 pb-4 flex flex-row items-center justify-between">
                             <CardTitle className="text-white flex items-center gap-2">
                                 <FileText className="w-5 h-5 text-electric-cyan" />
                                 Select Documents
                             </CardTitle>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileUpload}
+                                className="hidden"
+                                accept=".pdf,.txt,.docx,image/*"
+                            />
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 rounded-full border border-white/10 hover:bg-electric-cyan hover:text-space-dark transition-all"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading}
+                                title="Upload new document"
+                            >
+                                <Plus className="w-4 h-4" />
+                            </Button>
                         </CardHeader>
-                        <CardContent className="flex-1 p-0 overflow-hidden">
-                            <ScrollArea className="h-full p-4">
+                        <CardContent className="flex-1 p-0 overflow-hidden flex flex-col">
+                            {isUploading && (
+                                <div className="p-4 border-b border-white/10 bg-electric-cyan/5 anim-pulse">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs text-electric-cyan font-bold truncate max-w-[150px]">
+                                            Uploading: {uploadTitle}
+                                        </span>
+                                        <span className="text-[10px] text-gray-400">{uploadProgress}%</span>
+                                    </div>
+                                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                                        <motion.div
+                                            className="h-full bg-electric-cyan"
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${uploadProgress}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            <ScrollArea className="flex-1 p-4">
                                 {isMaterialsLoading ? (
                                     <div className="space-y-2">
                                         {[1, 2, 3].map(i => <div key={i} className="h-10 bg-white/5 animate-pulse rounded" />)}
@@ -221,22 +407,34 @@ const ChatWithDocs = () => {
                                 ) : (
                                     <div className="space-y-3">
                                         {materials.map((material) => (
-                                            <div key={material.id} className="flex items-start space-x-3 p-3 rounded-lg border border-transparent hover:bg-white/5 transition-colors">
+                                            <div key={material.id} className="group flex items-start space-x-3 p-3 rounded-lg border border-transparent hover:bg-white/5 transition-colors">
                                                 <Checkbox
                                                     id={material.id}
                                                     checked={selectedMaterials.includes(material.id)}
                                                     onCheckedChange={() => handleMaterialToggle(material.id)}
                                                     className="mt-1 border-white/30 data-[state=checked]:bg-electric-cyan data-[state=checked]:text-space-dark"
                                                 />
-                                                <label
-                                                    htmlFor={material.id}
-                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-                                                >
-                                                    <div className="text-white font-semibold">{material.title}</div>
-                                                    <div className="text-xs text-gray-400 mt-1 truncate">
-                                                        {material.file_type?.toUpperCase()} • {new Date(material.created_at).toLocaleDateString()}
+                                                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleMaterialToggle(material.id)}>
+                                                    <div className="text-white font-semibold flex items-center gap-2">
+                                                        <span className="truncate">{material.title}</span>
+                                                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-gray-400 font-normal shrink-0">
+                                                            {material.file_type?.toUpperCase()}
+                                                        </span>
                                                     </div>
-                                                </label>
+                                                    <div className="text-[11px] text-electric-cyan/80 mt-1 font-medium flex items-center gap-1">
+                                                        <span className="opacity-60">Added:</span>
+                                                        {formatDate(material.created_at)}
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-500/20 transition-all shrink-0 bg-white/5"
+                                                    onClick={(e) => handleDeleteMaterial(e, material.id)}
+                                                    title="Delete material"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
                                             </div>
                                         ))}
                                     </div>
@@ -250,7 +448,7 @@ const ChatWithDocs = () => {
                         <CardHeader className="border-b border-white/10 py-4 bg-white/5">
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-white flex items-center gap-2">
-                                    <Bot className="w-6 h-6 text-hot-magenta" />
+                                    <img src={logoIcon} alt="AI" className="w-12 h-12 object-cover" />
                                     AI Tutor
                                 </CardTitle>
                                 {context && (
@@ -277,7 +475,7 @@ const ChatWithDocs = () => {
                                             <div className={`flex gap-3 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ${msg.role === 'user' ? 'bg-electric-cyan text-space-dark' : 'bg-hot-magenta text-white'
                                                     }`}>
-                                                    {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                                                    {msg.role === 'user' ? <User className="w-24 h-24" /> : <img src={logoIcon} alt="AI" className="w-24 h-24 object-contain" />}
                                                 </div>
                                                 <div className={`rounded-2xl px-4 py-3 text-sm shadow-md backdrop-blur-sm ${msg.role === 'user'
                                                     ? 'bg-electric-cyan/20 text-white border border-electric-cyan/20 rounded-tr-none'
@@ -311,8 +509,8 @@ const ChatWithDocs = () => {
                                         className="flex justify-start"
                                     >
                                         <div className="flex gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-hot-magenta text-white flex items-center justify-center shadow-lg">
-                                                <Bot className="w-5 h-5" />
+                                            <div className="w-8 h-8 rounded-full bg-hot-magenta/10 flex items-center justify-center shadow-lg border border-hot-magenta/20 overflow-hidden">
+                                                <img src={logoIcon} alt="AI" className="w-6 h-6 object-contain" />
                                             </div>
                                             <div className="bg-white/5 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-white/10 flex items-center backdrop-blur-sm">
                                                 <div className="flex space-x-1">
@@ -346,7 +544,17 @@ const ChatWithDocs = () => {
                                         Daily chat limit reached (5/5). Upgrade to Premium to continue.
                                     </div>
                                 )}
-                                <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-3">
+                                <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-3 items-center">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="shrink-0 text-gray-400 hover:text-electric-cyan"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={isUploading || !canChat}
+                                    >
+                                        <Paperclip className="w-5 h-5" />
+                                    </Button>
                                     <Input
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}

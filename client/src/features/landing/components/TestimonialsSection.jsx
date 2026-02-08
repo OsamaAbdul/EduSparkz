@@ -10,6 +10,16 @@ import { MessageCircle, Heart, Share2, BarChart3, Star, CheckCircle2 } from "luc
 export const TestimonialsSection = () => {
   const testimonials = [
     {
+      name: "BOHMI",
+      handle: "praisebaba_27",
+      avatar: "https://pbs.twimg.com/profile_images/2020571173353070592/iHuryNDq.jpg",
+      content: "Edu Sparks has been a game-changer for me! 🚀 The AI tutor is like having a personal study buddy that's always there to help. The platform's streamlined approach makes learning so much easier and fun. With its awesome educational features",
+      metrics: { comments: "1", retweets: "1", likes: "1", views: "3" },
+      verified: true,
+      postLink: "https://x.com/i/status/2020570874273829320",
+      date: "Feb 8, 2026"
+    },
+    {
       name: "02 Innovation Lab",
       handle: "02innovations",
       avatar: "https://pbs.twimg.com/profile_images/1563644914549792769/3f1fTVtu_400x400.jpg",
