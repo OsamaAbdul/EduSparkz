@@ -34,6 +34,8 @@ export default {
           magenta: "#FF2E63",
           lime: "#39FF14",
         },
+        "edu-cyan": "#7bf6fc",
+        "vibrant-green": "#4ADE80",
 
         // Shadcn/UI mappings
         border: "rgba(255, 255, 255, 0.1)",

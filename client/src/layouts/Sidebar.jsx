@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, BookX, ChartNoAxesCombined, LogOut, Brain, FileText, Zap, MessageSquare, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/context/useContext";
+import logoIcon from "@/assets/edusparkz-logo.png";
 
 export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
   const { user, logOut } = useUser();
@@ -33,19 +34,18 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
         } h-full bg-space-dark/50 backdrop-blur-xl border-r border-white/10 transition-all duration-300 flex flex-col`}
     >
       {/* Brand */}
-      <div className="p-6 flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-electric-cyan to-hot-magenta p-[1px]">
-            <div className="w-full h-full rounded-xl bg-space-dark flex items-center justify-center">
-              <Brain className="w-7 h-7 text-white" />
-            </div>
+      <div className="p-4 flex items-center justify-center h-20 border-b border-white/5">
+        <div
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => navigate("/")}
+        >
+          <div className={`${isOpen ? "w-32 h-12" : "w-10 h-10"} transition-all duration-500 ease-in-out`}>
+            <img
+              src={logoIcon}
+              alt="EduSparkz Logo"
+              className="w-25 h-25 object-contain drop-shadow-[0_0_15px_rgba(0,245,255,0.3)]"
+            />
           </div>
-          {!iconOnly && isOpen && (
-            <span className="text-xl font-bold tracking-tight">
-              <span className="text-white">Edu</span>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-electric-cyan to-hot-magenta">Sparkz</span>
-            </span>
-          )}
         </div>
       </div>
 

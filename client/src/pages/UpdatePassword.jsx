@@ -88,7 +88,7 @@ const UpdatePassword = () => {
                                         name="password"
                                         type={showPassword ? "text" : "password"}
                                         placeholder="••••••••"
-                                        className="pl-10 pr-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan/50 focus:ring-electric-cyan/20"
+                                        className="pl-10 pr-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-edu-cyan/50 focus:ring-edu-cyan/20"
                                         value={password}
                                         disabled={loading}
                                         onChange={(e) => setPassword(e.target.value)}
@@ -122,7 +122,7 @@ const UpdatePassword = () => {
                                         name="confirmPassword"
                                         type="password"
                                         placeholder="••••••••"
-                                        className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan/50 focus:ring-electric-cyan/20"
+                                        className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-edu-cyan/50 focus:ring-edu-cyan/20"
                                         value={confirmPassword}
                                         disabled={loading}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -133,7 +133,7 @@ const UpdatePassword = () => {
 
                             <Button
                                 type="submit"
-                                className="w-full bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold py-6 shadow-[0_0_20px_rgba(0,245,255,0.3)] hover:shadow-[0_0_30px_rgba(0,245,255,0.5)] transition-all"
+                                className="w-full bg-edu-cyan text-space-dark hover:bg-edu-cyan/90 font-bold py-6 shadow-[0_4px_20px_rgba(123,246,252,0.2)] hover:shadow-[0_4px_30px_rgba(123,246,252,0.4)] transition-all"
                                 disabled={loading}
                             >
                                 {loading ? "Updating..." : "Update Password"}

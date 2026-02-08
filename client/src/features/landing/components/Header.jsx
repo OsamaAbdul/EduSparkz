@@ -5,9 +5,9 @@ import { Brain, Menu, X, Twitter, Instagram, MessageCircle, Send } from "lucide-
 import logoIcon from '../../../assets/edusparkz-logo.png';
 
 const navLinks = [
-
   { label: "Features", href: "/#features" },
   { label: "Leaderboard", href: "/#leaderboard" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Testimonials", href: "/#testimonials" },
   { label: "FAQ", href: "/#faq" },
 ];
@@ -73,7 +73,7 @@ const Header = () => {
               </Button>
               <Button
                 size="sm"
-                className="bg-electric-cyan text-space-dark font-bold hover:bg-electric-cyan/90 shadow-[0_0_15px_rgba(0,245,255,0.3)] transition-all text-xs rounded-full"
+                className="bg-edu-cyan text-space-dark font-bold hover:bg-edu-cyan/90 shadow-[0_0_15px_rgba(123,246,252,0.3)] transition-all text-xs rounded-full"
                 onClick={() => navigate("/api/auth/register")}
               >
                 Get Started
@@ -113,7 +113,7 @@ const Header = () => {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-electric-cyan transition-colors"
+                    className="text-gray-400 hover:text-edu-cyan transition-colors"
                   >
                     <social.icon size={22} />
                   </a>
@@ -132,7 +132,7 @@ const Header = () => {
                   Login
                 </Button>
                 <Button
-                  className="rounded-full bg-electric-cyan text-space-dark font-bold hover:bg-electric-cyan/90 shadow-lg"
+                  className="rounded-full bg-edu-cyan text-space-dark font-bold hover:bg-edu-cyan/90 shadow-lg"
                   onClick={() => {
                     navigate("/api/auth/register");
                     setIsMenuOpen(false);

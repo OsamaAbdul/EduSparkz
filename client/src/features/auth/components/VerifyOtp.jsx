@@ -161,7 +161,7 @@ export const VerifyOtp = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold py-6 shadow-[0_0_20px_rgba(0,245,255,0.3)] hover:shadow-[0_0_30px_rgba(0,245,255,0.5)] transition-all"
+                className="w-full bg-edu-cyan text-space-dark hover:bg-edu-cyan/90 font-bold py-6 shadow-[0_4px_20px_rgba(123,246,252,0.2)] hover:shadow-[0_4px_30px_rgba(123,246,252,0.4)] transition-all"
               >
                 {isLoading ? 'Verifying...' : 'Verify OTP'}
               </Button>
