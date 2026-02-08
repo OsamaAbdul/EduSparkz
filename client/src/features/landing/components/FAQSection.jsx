@@ -1,5 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { HelpCircle, ChevronDown } from "lucide-react";
+import { HelpCircle, PlusCircle } from "lucide-react";
 
 export const FAQSection = () => {
   const faqs = [
@@ -30,7 +30,7 @@ export const FAQSection = () => {
   ];
 
   return (
-    <section className="relative z-10 px-6 py-20 bg-space-dark text-white">
+    <section id="faq" className="relative z-10 px-6 py-20 bg-space-dark text-white">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
@@ -49,17 +49,20 @@ export const FAQSection = () => {
             <AccordionItem
               key={index}
               value={`item-${index}`}
-              className="glass-card border border-white/10 rounded-2xl px-6 data-[state=open]:border-electric-cyan/50 data-[state=open]:bg-white/5 transition-all duration-300"
+              className="glass-card border border-white/10 rounded-2xl px-6 data-[state=open]:border-[#7AF4FA] data-[state=open]:bg-[#7AF4FA] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group"
             >
-              <AccordionTrigger className="text-white hover:text-electric-cyan text-left font-semibold py-6 [&[data-state=open]>svg]:rotate-180">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-electric-cyan">
-                    <HelpCircle className="w-4 h-4" />
+              <AccordionTrigger className="text-white group-data-[state=open]:text-space-dark hover:text-electric-cyan text-left font-semibold py-6 transition-colors duration-300 [&>svg]:hidden">
+                <div className="flex items-center justify-between w-full pr-2">
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-white/5 group-data-[state=open]:bg-space-dark/10 flex items-center justify-center text-electric-cyan group-data-[state=open]:text-space-dark transition-colors duration-300">
+                      <HelpCircle className="w-4 h-4" />
+                    </div>
+                    <span className="text-lg">{faq.question}</span>
                   </div>
-                  <span className="text-lg">{faq.question}</span>
+                  <PlusCircle className="w-6 h-6 text-gray-500 group-data-[state=open]:text-space-dark group-data-[state=open]:rotate-45 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]" />
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="text-gray-400 pb-6 pl-14 text-base leading-relaxed">
+              <AccordionContent className="text-gray-400 group-data-[state=open]:text-space-dark/80 pb-6 pl-14 text-base leading-relaxed">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>

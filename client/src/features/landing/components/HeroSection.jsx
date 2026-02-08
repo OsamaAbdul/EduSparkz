@@ -96,16 +96,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-left space-y-8"
         >
-          <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-electric-cyan text-sm font-medium border-electric-cyan/30"
-            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0, 245, 255, 0.4)" }}
-          >
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-electric-cyan opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-electric-cyan"></span>
-            </span>
-            v1.0 Now Live: AI-Powered Learning
-          </motion.div>
+
 
           <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-white leading-[1.1]">
             Upload <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta animate-pulse">Anything.</span> <br />
@@ -133,28 +124,10 @@ export const HeroSection = () => {
               </span>
             </motion.button>
 
-            {/* <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 glass-card text-white font-medium text-lg rounded-xl hover:bg-white/10 transition-all flex items-center gap-2"
-            >
-              <Play className="w-5 h-5 text-hot-magenta" /> Watch Demo
-            </motion.button> */}
+
           </div>
 
-          {/* Floating Stats */}
-          <div className="flex gap-8 pt-8 border-t border-white/10">
-            {[
-              { label: "Quizzes", val: "10K+", color: "text-electric-cyan" },
-              { label: "Users", val: "5K+", color: "text-hot-magenta" },
-              { label: "Accuracy", val: "99%", color: "text-electric-lime" }
-            ].map((stat, i) => (
-              <div key={i}>
-                <h3 className={`text-3xl font-bold ${stat.color}`}>{stat.val}</h3>
-                <p className="text-gray-500 text-sm uppercase tracking-wider">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+
         </motion.div>
 
         {/* 📱 Right Content: 3D Phone Mockup */}
@@ -249,15 +222,7 @@ export const HeroSection = () => {
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-gray-500 flex flex-col items-center gap-2"
-      >
-        <span className="text-xs uppercase tracking-widest">Scroll to Explore</span>
-        <div className="w-1 h-12 bg-gradient-to-b from-electric-cyan to-transparent rounded-full" />
-      </motion.div>
+
     </section>
   );
 };

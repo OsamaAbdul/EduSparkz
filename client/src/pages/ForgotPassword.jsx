@@ -10,9 +10,10 @@ import {
     CardTitle,
     CardFooter,
 } from "@/components/ui/card";
-import { Mail, Brain, ArrowLeft } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "../lib/supabase";
+import logoIcon from "../../public/edusparkz-logo.png";
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
@@ -56,17 +57,14 @@ const ForgotPassword = () => {
                     <Card className="glass-card border-white/10 shadow-2xl">
                         <CardHeader>
                             <CardTitle className="text-center text-2xl font-semibold text-white">
-                                <div className="mb-4 flex items-center justify-center gap-2">
-                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-electric-cyan to-hot-magenta p-[1px]">
-                                        <div className="w-full h-full bg-space-dark rounded-xl flex items-center justify-center">
-                                            <Brain className="w-6 h-6 text-electric-cyan" />
-                                        </div>
-                                    </div>
-                                    <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-electric-cyan to-hot-magenta">
-                                        EduSparkz
-                                    </span>
+                                <div className="mb-6 flex justify-center">
+                                    <img
+                                        src={logoIcon}
+                                        alt="EduSparkz Logo"
+                                        className="h-32 w-auto object-contain"
+                                    />
                                 </div>
-                                <div className="text-xl mt-4">Reset Password</div>
+                                <div className="text-xl">Reset Password</div>
                             </CardTitle>
                             <p className="text-center text-gray-400 text-sm">
                                 Enter your email address and we'll send you a link to reset your password.

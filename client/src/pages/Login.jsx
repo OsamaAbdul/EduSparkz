@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
+
 import {
   Card,
   CardContent,
@@ -11,11 +12,12 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import { Lock, Mail, Eye, EyeOff, Brain } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "../context/useContext";
 import { supabase } from "../lib/supabase";
 import BackButton from "../features/landing/components/BackButton.jsx";
+import logoIcon from "../../public/edusparkz-logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -112,17 +114,12 @@ const Login = () => {
         <div className="relative z-10 w-full max-w-md px-4 sm:px-6">
           <Card className="glass-card border-white/10 shadow-2xl">
             <CardHeader>
-              <CardTitle className="text-center text-2xl font-semibold text-white">
-                <div className="mb-4 flex items-center justify-center gap-2">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-electric-cyan to-hot-magenta p-[1px]">
-                    <div className="w-full h-full bg-space-dark rounded-xl flex items-center justify-center">
-                      <Brain className="w-6 h-6 text-electric-cyan" />
-                    </div>
-                  </div>
-                  <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-electric-cyan to-hot-magenta">
-                    EduSparkz
-                  </span>
-                </div>
+              <CardTitle className="flex justify-center mb-4">
+                <img
+                  src={logoIcon}
+                  alt="EduSparkz Logo"
+                  className="h-32 w-auto object-contain"
+                />
               </CardTitle>
               <p className="text-center text-gray-400">
                 Login to continue your learning journey

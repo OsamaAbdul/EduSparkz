@@ -12,11 +12,12 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import { Lock, Mail, User, Brain, Eye, EyeOff } from "lucide-react";
+import { Lock, Mail, User, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import BackButton from "../features/landing/components/BackButton.jsx";
 import PasswordStrengthMeter from "../features/auth/components/PasswordStrengthMeter";
 import { supabase } from "../lib/supabase";
+import logoIcon from "../../public/edusparkz-logo.png";
 
 export const Register = () => {
   const navigate = useNavigate();
@@ -71,15 +72,12 @@ export const Register = () => {
           <Card className="glass-card border-white/10 shadow-2xl">
             <CardHeader className="text-center">
               {/* Logo */}
-              <div className="mb-6 pt-4 text-center flex justify-center items-center space-x-2">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-electric-cyan to-hot-magenta p-[1px]">
-                  <div className="w-full h-full bg-space-dark rounded-xl flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-electric-cyan" />
-                  </div>
-                </div>
-                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-electric-cyan to-hot-magenta">
-                  EduSparkz
-                </span>
+              <div className="mb-6 pt-4 flex justify-center">
+                <img
+                  src={logoIcon}
+                  alt="EduSparkz Logo"
+                  className="h-32 w-auto object-contain"
+                />
               </div>
 
               <CardTitle className="text-2xl font-bold text-white">Register</CardTitle>

@@ -35,14 +35,15 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
       {/* Brand */}
       <div className="p-6 flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-electric-cyan to-hot-magenta p-[1px]">
+          <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-electric-cyan to-hot-magenta p-[1px]">
             <div className="w-full h-full rounded-xl bg-space-dark flex items-center justify-center">
-              <Brain className="w-6 h-6 text-white" />
+              <Brain className="w-7 h-7 text-white" />
             </div>
           </div>
           {!iconOnly && isOpen && (
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-electric-cyan to-hot-magenta">
-              EduSparkz
+            <span className="text-xl font-bold tracking-tight">
+              <span className="text-white">Edu</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-electric-cyan to-hot-magenta">Sparkz</span>
             </span>
           )}
         </div>

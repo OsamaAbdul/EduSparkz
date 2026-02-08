@@ -28,6 +28,8 @@ import AdminSignup from "./pages/admin/AdminSignup.jsx";
 import { AuthCallback } from "./pages/Auth/AuthCallback.tsx";
 import Pricing from "./pages/Pricing.jsx";
 import Materials from "./pages/Materials.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
+import TermsOfService from "./pages/TermsOfService.jsx";
 
 import Onboarding from "./pages/Onboarding.jsx";
 
@@ -43,6 +45,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/api/auth/login" element={<Login />} />

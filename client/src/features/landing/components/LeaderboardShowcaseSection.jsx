@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 export const LeaderboardShowcaseSection = () => {
     return (
-        <section className="relative py-20 overflow-hidden">
+        <section id="leaderboard" className="relative py-20 overflow-hidden">
             {/* Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-electric-cyan/5 rounded-full blur-[120px] pointer-events-none" />
 

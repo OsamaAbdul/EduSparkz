@@ -70,7 +70,7 @@ export const LandingPage = () => {
         {/* <DeveloperSection /> */}
         {/* <TechStackSection /> */}
         <TestimonialsSection />
-        <ContactSection />
+        {/* <ContactSection /> */}
         <FAQSection />
         {/* <CTASection /> */}
         <FooterSection />

@@ -6,15 +6,6 @@ export const ProofSection = () => {
         <section className="relative py-20 overflow-hidden">
             <div className="container mx-auto px-6 relative z-10">
                 <div className="text-center mb-16">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-electric-cyan text-sm font-medium border-electric-cyan/30 mb-6"
-                    >
-                        <Sparkles className="w-4 h-4" />
-                        <span>See EduSparkz in Action</span>
-                    </motion.div>
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}

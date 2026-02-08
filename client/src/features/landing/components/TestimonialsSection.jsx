@@ -39,7 +39,7 @@ export const TestimonialsSection = () => {
   ];
 
   return (
-    <section className="relative z-10 px-4 py-16 md:py-24 bg-space-dark text-white overflow-hidden">
+    <section id="testimonials" className="relative z-10 px-4 py-16 md:py-24 bg-space-dark text-white overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
 

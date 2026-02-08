@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import tailwindAnimate from "tailwindcss-animate";
+
 
 export default {
   darkMode: ["class"], // Enables .dark mode toggle
@@ -17,6 +19,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Roboto Condensed", "sans-serif"],
+      },
       colors: {
         // Space Theme Palette
         space: {
@@ -90,6 +95,10 @@ export default {
         shimmer: {
           "0%": { backgroundPosition: "200% 0" },
           "100%": { backgroundPosition: "-200% 0" },
+        },
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         }
       },
       animation: {
@@ -98,6 +107,7 @@ export default {
         float: "float 6s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         shimmer: "shimmer 8s linear infinite",
+        "fade-in-up": "fade-in-up 0.5s ease-out forwards",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
@@ -106,5 +116,5 @@ export default {
       }
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindAnimate],
 } satisfies Config;

@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ShieldAlert, Lock, Mail, Loader2 } from "lucide-react";
+import { ShieldAlert, Lock, Mail, Loader2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "../../lib/supabase";
+import logoIcon from "../../../public/edusparkz-logo.png";
 
 const AdminLogin = () => {
     const navigate = useNavigate();
@@ -56,15 +57,20 @@ const AdminLogin = () => {
             {/* 🌌 Background Effects */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none z-0" />
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
 
-            <Card className="w-full max-w-md glass-card border-red-500/20 shadow-[0_0_50px_rgba(239,68,68,0.1)] relative z-10">
+            <Card className="w-full max-w-md glass-card border-red-500/20 shadow-2xl relative z-10 overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-orange-600" />
+
                 <CardHeader className="text-center space-y-2">
-                    <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-orange-600 p-[1px] mb-4">
-                        <div className="w-full h-full bg-space-dark rounded-2xl flex items-center justify-center">
-                            <ShieldAlert className="w-8 h-8 text-red-500" />
-                        </div>
+                    <div className="mb-6 flex justify-center">
+                        <img
+                            src={logoIcon}
+                            alt="EduSparkz Logo"
+                            className="h-32 w-auto object-contain drop-shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                        />
                     </div>
-                    <CardTitle className="text-2xl font-bold text-white">Admin Portal</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-white tracking-tight">Admin Portal</CardTitle>
                     <CardDescription className="text-gray-400">Secure access for system administrators</CardDescription>
                 </CardHeader>
                 <CardContent>
