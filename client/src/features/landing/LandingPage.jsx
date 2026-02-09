@@ -61,7 +61,7 @@ export const LandingPage = () => {
       <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-electric-lime/10 rounded-full blur-xl animate-pulse delay-2000" />
 
       {/* Main Content */}
-      <div className="relative z-10 pt-20">
+      <div className="relative z-10 pt-10">
         <HeroSection isVisible={isVisible} />
         <ProofSection />
         <FeaturesSection />

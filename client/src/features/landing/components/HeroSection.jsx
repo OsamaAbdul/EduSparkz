@@ -87,7 +87,7 @@ export const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-space-dark/50 to-space-dark pointer-events-none" />
       </div>
 
-      <div className="container relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-6 pt-20">
+      <div className="container relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-6 pt-12">
 
         {/* 📝 Left Content: Text & CTA */}
         <motion.div
