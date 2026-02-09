@@ -10,7 +10,7 @@ import { MessageCircle, Heart, Share2, BarChart3, Star, CheckCircle2 } from "luc
 export const TestimonialsSection = () => {
   const testimonials = [{
     name: "AQ",
-    handle: "OsamaabduUJnr",
+    handle: "OsamaabdulJnr",
     avatar: "https://osamaabdul-portfolio.netlify.app/images/osama.jpg",
     content: "As a founder I can say it clearly: EduSparkz is literally all a student or lifelong learner needs. Your smart 🤓 buddy is here.",
     metrics: { comments: "4", retweets: "12", likes: "48", views: "1.2K" },
