@@ -38,6 +38,16 @@ export const TestimonialsSection = () => {
     postLink: "https://x.com/02innovations",
     date: "Feb 5, 2026"
   },
+  {
+    name: "AO²",
+    handle: "Yagami_OA",
+    avatar: "https://pbs.twimg.com/profile_images/1560673384991805440/oo55-mOT.jpg",
+    content: "Edusparkz turned something about me around!\n\nIt showed me I can really learn and do better\n\nI love how personalized the learning experience is. It feels like the platform understands my pace and learning style.",
+    metrics: { comments: "2", retweets: "5", likes: "24", views: "5" },
+    verified: true,
+    postLink: "https://x.com/i/status/2020612215670186111",
+    date: "Feb 8, 2026"
+  },
   ];
 
   return (
