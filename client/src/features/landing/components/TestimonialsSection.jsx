@@ -61,7 +61,7 @@ export const TestimonialsSection = () => {
             </motion.div>
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-none mb-6">
               Real People. <br />
-              <span className="text-gray-500">Real Results.</span>
+              <span className="text-highlight">Real Results.</span>
             </h2>
           </div>
           <p className="text-gray-400 text-lg font-medium max-w-sm">

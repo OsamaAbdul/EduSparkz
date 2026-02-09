@@ -54,7 +54,7 @@ export const FeaturesSection = () => {
             transition={{ delay: 0.2 }}
             className="text-4xl md:text-5xl font-bold text-white mb-6"
           >
-            Powerful<span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">Features</span>
+            Powerful <span className="text-highlight">Features</span>
           </motion.h2>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto">
             Everything you need to create, take, and evaluate quizzes — powered by AI.

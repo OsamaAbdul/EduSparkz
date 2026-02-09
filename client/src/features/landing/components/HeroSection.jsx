@@ -99,11 +99,8 @@ export const HeroSection = () => {
 
 
           <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-white leading-[1.1]">
-            Upload <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta animate-pulse">Anything.</span> <br />
-            Learn <span className="relative inline-block">
-              <span className="absolute inset-0 bg-electric-cyan/20 blur-xl"></span>
-              <span className="relative text-white glitch-text" data-text="Instantly">Instantly.</span>
-            </span>
+            Upload <span className="text-highlight leading-none">Anything.</span> <br />
+            Learn <span className="text-highlight leading-none mt-2 md:mt-4">Instantly.</span>
           </h1>
 
           <p className="text-xl text-gray-400 max-w-xl leading-relaxed">

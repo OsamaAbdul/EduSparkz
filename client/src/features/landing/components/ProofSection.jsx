@@ -14,7 +14,7 @@ export const ProofSection = () => {
                         transition={{ delay: 0.2 }}
                         className="text-4xl md:text-5xl font-bold text-white mb-6"
                     >
-                        Your Personal <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">AI Tutor</span>
+                        Your Personal <span className="text-highlight">AI Tutor</span>
                     </motion.h2>
 
                     <motion.p

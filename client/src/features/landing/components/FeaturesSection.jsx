@@ -56,7 +56,7 @@ export const FeaturesSection = () => {
             className="md:max-w-xl"
           >
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
-              Why <span className="text-white">Edu</span><span className="text-electric-cyan">Sparkz</span> Stands Out
+              Why <span className="text-highlight">EduSparkz</span> Stands Out
             </h2>
           </motion.div>
 

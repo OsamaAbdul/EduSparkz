@@ -51,7 +51,7 @@ export const ContactSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
             Get In {" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">
+            <span className="text-highlight">
               Touch
             </span>
           </h2>

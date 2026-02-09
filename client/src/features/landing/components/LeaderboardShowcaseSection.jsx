@@ -19,7 +19,7 @@ export const LeaderboardShowcaseSection = () => {
                     >
                         <h2 className="text-3xl md:text-5xl font-bold leading-tight">
                             Compete & {" "}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">
+                            <span className="text-highlight">
                                 Climb the Ranks
                             </span>
                         </h2>

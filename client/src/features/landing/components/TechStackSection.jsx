@@ -5,8 +5,8 @@ export const TechStackSection = () => {
   return (
     <section className="relative z-10 px-6 py-20 bg-space-dark text-white">
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">
-          Built with These Modern Technologies
+        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-white">
+          Built with <span className="text-highlight">Modern Technologies</span>
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {techStack.map((tech, index) => (

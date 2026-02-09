@@ -21,7 +21,7 @@ export const CTASection = () => {
 
           {/* Heading */}
           <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
-            Ready to <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-cyan to-hot-magenta">Launch</span> Your Learning?
+            Ready to <span className="text-highlight">Launch</span> Your Learning?
           </h2>
 
           {/* Subtext */}
