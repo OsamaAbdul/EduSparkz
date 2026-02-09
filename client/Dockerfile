@@ -1,0 +1,35 @@
+# BUILD THE REACT APP
+FROM node:20-slim AS build
+
+# ADD THESE ARGS
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+# Vite needs these to be in the environment DURING the build
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
+# SET THE WORKING DIRECTORY
+WORKDIR /app
+
+#COPY PACKAGE FILES
+COPY package*.json ./
+
+#INSTALL DEPENDENCIES
+RUN npm install
+
+# COPY THE REST OF THE CLIENT SOURCE CODE
+COPY . .
+RUN npm run build
+
+#SERVE THE APP WITH NGINX
+FROM nginx:alpine
+
+# COPY THE BUILD ARTIFACTS TO NGINX
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# COPY CUSTOM NGINX CONFIG
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# EXPOSE PORT
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

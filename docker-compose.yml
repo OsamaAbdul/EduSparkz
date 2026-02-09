@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./client
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    container_name: edusparkz-frontend
+    ports:
+      - "3000:80"

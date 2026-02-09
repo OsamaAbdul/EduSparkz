@@ -25,6 +25,13 @@ export const TestimonialsSection = () => {
       avatar: "https://images.unsplash.com/photo-1559722197-6960ea6ba8b2?w=100&h=100&fit=crop&crop=face",
       content: "The AI-powered evaluation is remarkably accurate. It's like having a personal tutor available 24/7 for every student.",
       rating: 5
+    },
+    {
+      name: "AQ",
+      role: "Founder",
+      avatar: "https://pbs.twimg.com/profile_images/1888562916670861312/v_i3f9gW_400x400.jpg",
+      content: "As a founder I can say it clearly: EduSparkz is literally all a student or lifelong learner needs. Your smart 🤓 buddy is here.",
+      rating: 5
     }
   ];
 
@@ -39,7 +46,7 @@ export const TestimonialsSection = () => {
             Join thousands of satisfied learners who have transformed their study experience
           </p>
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <Card key={index} className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300">

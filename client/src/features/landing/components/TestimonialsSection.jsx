@@ -8,57 +8,36 @@ import "swiper/css/pagination";
 import { MessageCircle, Heart, Share2, BarChart3, Star, CheckCircle2 } from "lucide-react";
 
 export const TestimonialsSection = () => {
-  const testimonials = [
-    {
-      name: "BOHMI",
-      handle: "praisebaba_27",
-      avatar: "https://pbs.twimg.com/profile_images/2020571173353070592/iHuryNDq.jpg",
-      content: "Edu Sparks has been a game-changer for me! 🚀 The AI tutor is like having a personal study buddy that's always there to help. The platform's streamlined approach makes learning so much easier and fun. With its awesome educational features",
-      metrics: { comments: "1", retweets: "1", likes: "1", views: "3" },
-      verified: true,
-      postLink: "https://x.com/i/status/2020570874273829320",
-      date: "Feb 8, 2026"
-    },
-    {
-      name: "02 Innovation Lab",
-      handle: "02innovations",
-      avatar: "https://pbs.twimg.com/profile_images/1563644914549792769/3f1fTVtu_400x400.jpg",
-      content: "This is one of the best tools for educationists and learners across all areas of studies. Kudos 👏 #EduSparkz #EdTech",
-      metrics: { comments: "12", retweets: "45", likes: "128", views: "12.4K" },
-      verified: true,
-      postLink: "https://x.com/02innovations",
-      date: "Feb 5, 2026"
-    },
-    {
-      name: "Valour",
-      handle: "Valour_Web3",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
-      content: "The AI quiz generator on @EduSparkz has completely changed how I track progress. Pinpointing weak spots with precision is a game changer. 🧠✨",
-      metrics: { comments: "8", retweets: "32", likes: "96", views: "8.9K" },
-      verified: true,
-      postLink: "https://x.com",
-      date: "Jan 28, 2026"
-    },
-    {
-      name: "Osama Abdul",
-      handle: "Osama_abdulJnr",
-      avatar: "https://osamaabdul-portfolio.netlify.app/images/osama.jpg",
-      content: "Just built an entire assessment in 2 minutes. The speed of EduSparkz is actually insane. The future of learning is here. 🔥",
-      metrics: { comments: "24", retweets: "89", likes: "342", views: "25K" },
-      verified: true,
-      postLink: "https://x.com/Osama_abdulJnr",
-      date: "Feb 7, 2026"
-    },
-    {
-      name: "Sarah Chen",
-      handle: "sarahcodes_ai",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-      content: "If you aren't using @EduSparkz for competitive learning yet, you're missing out. The leaderboard system is properly addictive. 🏆 #StudyTips",
-      metrics: { comments: "15", retweets: "54", likes: "187", views: "15.2K" },
-      verified: true,
-      postLink: "https://x.com",
-      date: "Feb 1, 2026"
-    }
+  const testimonials = [{
+    name: "AQ",
+    handle: "OsamaabduUJnr",
+    avatar: "https://osamaabdul-portfolio.netlify.app/images/osama.jpg",
+    content: "As a founder I can say it clearly: EduSparkz is literally all a student or lifelong learner needs. Your smart 🤓 buddy is here.",
+    metrics: { comments: "4", retweets: "12", likes: "48", views: "1.2K" },
+    verified: true,
+    postLink: "https://x.com/i/status/2020815070234616100",
+    date: "Feb 9, 2026"
+  },
+  {
+    name: "BOHMI",
+    handle: "praisebaba_27",
+    avatar: "https://pbs.twimg.com/profile_images/2020571173353070592/iHuryNDq.jpg",
+    content: "Edu Sparks has been a game-changer for me! 🚀 The AI tutor is like having a personal study buddy that's always there to help. The platform's streamlined approach makes learning so much easier and fun. With its awesome educational features",
+    metrics: { comments: "1", retweets: "1", likes: "1", views: "3" },
+    verified: true,
+    postLink: "https://x.com/i/status/2020570874273829320",
+    date: "Feb 8, 2026"
+  },
+  {
+    name: "02 Innovation Lab",
+    handle: "02innovations",
+    avatar: "https://pbs.twimg.com/profile_images/1563644914549792769/3f1fTVtu_400x400.jpg",
+    content: "This is one of the best tools for educationists and learners across all areas of studies. Kudos 👏 #EduSparkz #EdTech",
+    metrics: { comments: "12", retweets: "45", likes: "128", views: "12.4K" },
+    verified: true,
+    postLink: "https://x.com/02innovations",
+    date: "Feb 5, 2026"
+  },
   ];
 
   return (
