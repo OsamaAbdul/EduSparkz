@@ -29,7 +29,7 @@ export const TestimonialsSection = () => {
     {
       name: "AQ",
       role: "Founder",
-      avatar: "https://pbs.twimg.com/profile_images/1888562916670861312/v_i3f9gW_400x400.jpg",
+      avatar: "https://x.com/i/status/2020815070234616100",
       content: "As a founder I can say it clearly: EduSparkz is literally all a student or lifelong learner needs. Your smart 🤓 buddy is here.",
       rating: 5
     }
