@@ -39,8 +39,19 @@ export const StartQuiz = () => {
                 if (error) throw error;
 
                 setQuizzesTaken(count || 0);
-                const isFree = !user.plan || user.plan.toLowerCase() === 'free';
-                if (isFree && (count || 0) >= 3) {
+
+                // Get followed_socials status from profile
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('followed_socials, plan')
+                    .eq('id', user.id)
+                    .single();
+
+                const isFree = !profile?.plan || profile.plan.toLowerCase() === 'free';
+                const hasFollowed = profile?.followed_socials || false;
+                const dailyLimit = hasFollowed ? 15 : 3;
+
+                if (isFree && (count || 0) >= dailyLimit) {
                     setCanTakeQuiz(false);
                 } else {
                     setCanTakeQuiz(true);
@@ -136,7 +147,12 @@ export const StartQuiz = () => {
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4">
                             <div className="bg-white/5 rounded-lg p-4 text-center">
-                                <p className="text-sm text-gray-300">Quizzes taken today: <span className="text-electric-cyan font-bold">{quizzesTaken}/3</span></p>
+                                <p className="text-sm text-gray-300">Quizzes taken today: <span className="text-electric-cyan font-bold">{quizzesTaken}/{quizzesTaken >= 15 ? 15 : (quizzesTaken >= 3 ? (user?.followed_socials ? 15 : 3) : 3)}</span></p>
+                                {!user?.followed_socials && user?.plan?.toLowerCase() !== 'premium' && (
+                                    <p className="text-xs text-electric-cyan mt-2">
+                                        💡 Tip: Follow us on socials to unlock 15 quizzes/day!
+                                    </p>
+                                )}
                             </div>
                             <Button
                                 onClick={() => navigate('/pricing')}

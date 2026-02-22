@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useUser } from "../context/useContext";
 import { supabase } from "../lib/supabase";
 import BackButton from "../features/landing/components/BackButton.jsx";
 import logoIcon from "../assets/edusparkz-logo.png";
+import { checkRateLimit, recordAttempt, clearRateLimit } from "../utils/rateLimit";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,7 +18,21 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(0);
   const { setUser } = useUser();
+
+  useEffect(() => {
+    const checkLimit = () => {
+      const { blocked, remainingTime } = checkRateLimit("login");
+      setIsBlocked(blocked);
+      setRemainingTime(remainingTime);
+    };
+
+    checkLimit();
+    const interval = setInterval(checkLimit, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleGoogleLogin = async () => {
     try {
@@ -40,6 +55,13 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    const { blocked, remainingTime } = checkRateLimit("login");
+    if (blocked) {
+      toast.error(`Too many attempts. Please try again in ${remainingTime} seconds.`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -49,9 +71,12 @@ const Login = () => {
       });
 
       if (error) {
+        recordAttempt("login");
         toast.error(error.message || "Login failed. Please try again.");
         return;
       }
+
+      clearRateLimit("login");
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -117,7 +142,7 @@ const Login = () => {
                   type="email"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="osamaabdul@dev.com"
+                  placeholder="eduSparkz@dev.com"
                   className="pl-11 bg-white/5 border-white/10 h-12 rounded-xl focus:border-edu-cyan/50 focus:ring-edu-cyan/20 transition-all text-white"
                   required
                 />
@@ -157,10 +182,10 @@ const Login = () => {
 
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || isBlocked}
               className="w-full bg-edu-cyan text-space-dark hover:bg-edu-cyan/90 h-14 rounded-xl font-black text-lg shadow-[0_4px_20px_rgba(123,246,252,0.2)] hover:shadow-[0_4px_30px_rgba(123,246,252,0.4)] transition-all active:scale-[0.98]"
             >
-              {loading ? "Signing In..." : "Sign In"}
+              {loading ? "Signing In..." : isBlocked ? `Wait ${remainingTime}s` : "Sign In"}
             </Button>
 
             <div className="relative py-2">

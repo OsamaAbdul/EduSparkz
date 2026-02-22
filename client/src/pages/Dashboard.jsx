@@ -9,6 +9,7 @@ import { BookOpen, Trophy, Users, Quote, Upload, FileText, Brain, Zap, Globe } f
 import { useUser } from "../context/useContext.jsx";
 import { supabase } from "../lib/supabase";
 import { toast } from "sonner";
+import { SocialProofSection } from "../features/dashboard/components/SocialProofSection.jsx";
 
 const PIDGIN_QUOTES = [
   "No gree for anybody, read your book!",
@@ -37,7 +38,7 @@ export const Dashboard = () => {
         supabase.from("materials").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_results").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_results").select("score, total").eq("user_id", user.id),
-        supabase.from("profiles").select("xp, current_streak, level, referral_code").eq("id", user.id).single()
+        supabase.from("profiles").select("xp, current_streak, level, referral_code, followed_socials, plan").eq("id", user.id).single()
       ]);
 
       const totalScore = leaderboard.data?.reduce((acc, curr) => acc + (curr.score / curr.total) * 100, 0) || 0;
@@ -50,7 +51,9 @@ export const Dashboard = () => {
         xp: profile.data?.xp || 0,
         streak: profile.data?.current_streak || 0,
         level: profile.data?.level || 1,
-        referralCode: profile.data?.referral_code || "N/A"
+        referralCode: profile.data?.referral_code || "N/A",
+        followedSocials: profile.data?.followed_socials || false,
+        plan: profile.data?.plan || "Free"
       };
     },
     enabled: !!user?.id,
@@ -107,6 +110,13 @@ export const Dashboard = () => {
             <Brain className="mr-2 h-4 w-4" /> Start New Quiz
           </Button>
         </motion.div>
+
+        {/* Social Proof Section for Free Users */}
+        {!statsLoading && stats?.plan?.toLowerCase() === 'free' && !stats?.followedSocials && (
+          <motion.div variants={itemVariants}>
+            <SocialProofSection user={user} onUpdate={() => window.location.reload()} />
+          </motion.div>
+        )}
 
         {/* 🌍 Knowledge Galaxy / Stats Grid */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

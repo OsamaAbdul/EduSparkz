@@ -15,11 +15,12 @@ const Pricing = () => {
             description: "Essential tools for casual learners",
             icon: Zap,
             features: [
-                "5 AI Quizzes per day",
+                "3 AI Quizzes per day",
+                "15 Quizzes/day with Social Bonus",
+                "5 Chats/day (Up to 15 with Social)",
                 "Basic PDF processing",
                 "Standard evaluation AI",
-                "Community access",
-                "Daily streak tracking"
+                "Community access"
             ],
             cta: "Get Started",
             popular: false,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import BackButton from "../features/landing/components/BackButton.jsx";
 import PasswordStrengthMeter from "../features/auth/components/PasswordStrengthMeter";
 import { supabase } from "../lib/supabase";
 import logoIcon from "../assets/edusparkz-logo.png";
+import { checkRateLimit, recordAttempt, clearRateLimit } from "../utils/rateLimit";
 
 export const Register = () => {
   const navigate = useNavigate();
@@ -19,9 +20,30 @@ export const Register = () => {
   const [referralCode, setReferralCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(0);
+
+  useEffect(() => {
+    const checkLimit = () => {
+      const { blocked, remainingTime } = checkRateLimit("register");
+      setIsBlocked(blocked);
+      setRemainingTime(remainingTime);
+    };
+
+    checkLimit();
+    const interval = setInterval(checkLimit, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    const { blocked, remainingTime } = checkRateLimit("register");
+    if (blocked) {
+      toast.error(`Too many attempts. Please try again in ${remainingTime} seconds.`);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -37,8 +59,12 @@ export const Register = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        recordAttempt("register");
+        throw error;
+      }
 
+      clearRateLimit("register");
       toast.success("Registration successful! Please login.");
       setTimeout(() => navigate("/api/auth/login"), 2000);
 
@@ -139,10 +165,10 @@ export const Register = () => {
 
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isBlocked}
               className="w-full bg-edu-cyan text-space-dark hover:bg-edu-cyan/90 h-14 rounded-xl font-black text-lg shadow-[0_4px_20px_rgba(123,246,252,0.2)] hover:shadow-[0_4px_30px_rgba(123,246,252,0.4)] transition-all active:scale-[0.98]"
             >
-              {isLoading ? "Signing Up..." : "Sign Up"}
+              {isLoading ? "Signing Up..." : isBlocked ? `Wait ${remainingTime}s` : "Sign Up"}
             </Button>
 
             <p className="text-center text-gray-400 text-sm font-medium">

@@ -59,8 +59,19 @@ const ChatWithDocs = () => {
                 if (error) throw error;
 
                 setChatCount(count || 0);
-                const isFree = !user.plan || user.plan.toLowerCase() === 'free';
-                if (isFree && (count || 0) >= 5) {
+
+                // Get followed_socials status from profile
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('followed_socials, plan')
+                    .eq('id', user.id)
+                    .single();
+
+                const isFree = !profile?.plan || profile.plan.toLowerCase() === 'free';
+                const hasFollowed = profile?.followed_socials || false;
+                const dailyLimit = hasFollowed ? 15 : 5;
+
+                if (isFree && (count || 0) >= dailyLimit) {
                     setCanChat(false);
                 }
             } catch (error) {
@@ -295,7 +306,8 @@ const ChatWithDocs = () => {
             setChatCount(prev => {
                 const newCount = prev + 1;
                 const isFree = !user.plan || user.plan.toLowerCase() === 'free';
-                if (isFree && newCount >= 5) setCanChat(false);
+                const dailyLimit = user.followed_socials ? 15 : 5;
+                if (isFree && newCount >= dailyLimit) setCanChat(false);
                 return newCount;
             });
 
@@ -541,7 +553,7 @@ const ChatWithDocs = () => {
                             <div className="p-4 bg-white/5 border-t border-white/10">
                                 {!canChat && (
                                     <div className="mb-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400 text-center">
-                                        Daily chat limit reached (5/5). Upgrade to Premium to continue.
+                                        Daily chat limit reached ({chatCount}/{user?.followed_socials ? 15 : 5}). {user?.followed_socials ? "Upgrade to Premium" : "Follow our socials or upgrade"} to continue.
                                     </div>
                                 )}
                                 <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-3 items-center">

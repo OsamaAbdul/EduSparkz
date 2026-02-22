@@ -12,12 +12,9 @@ export const UserProvider = ({ children }) => {
 
     const initSession = async () => {
       try {
-        console.log("UserContext: initSession started");
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) throw error;
-
-        console.log("UserContext: Session retrieved", session);
 
         if (session?.user) {
           const { data: profile, error: profileError } = await supabase
@@ -42,7 +39,7 @@ export const UserProvider = ({ children }) => {
         console.error("UserContext: initSession error", error);
       } finally {
         if (mounted) {
-          console.log("UserContext: initSession finished, setting isLoading to false");
+
           setIsLoading(false);
         }
       }
@@ -51,16 +48,13 @@ export const UserProvider = ({ children }) => {
     initSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("UserContext: Auth state changed", _event);
+
       if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
         if (session?.user) {
-          // We might want to re-fetch profile or just update user from session
-          // For now, let's just ensure user is set if it wasn't
+
           setUser(prev => {
             if (!prev || prev.id !== session.user.id) {
-              // If it's a new user/login, we might need to fetch profile again
-              // But to avoid complexity, let's just set basic session info first
-              // Ideally we should fetch profile here too if we want to be robust
+
               return { ...session.user, token: session.access_token, ...prev };
             }
             return prev;
