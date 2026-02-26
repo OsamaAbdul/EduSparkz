@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
+import { useUser } from '@/context/useContext';
+
 import { ArrowUp } from 'lucide-react';
 import { ProofSection } from './components/ProofSection';
 import { ShowcaseSection } from './components/ShowcaseSection';
@@ -22,6 +24,14 @@ export const LandingPage = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const navigate = useNavigate();
+  const { user, isLoading } = useUser();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      navigate("/user/dashboard");
+    }
+  }, [user, isLoading, navigate]);
+
 
   useEffect(() => {
     setIsVisible(true);

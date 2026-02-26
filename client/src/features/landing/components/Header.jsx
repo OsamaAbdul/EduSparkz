@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Twitter, Instagram, MessageCircle, Send } from "lucide-react";
+import { Brain, Menu, X, Twitter, Instagram, MessageCircle, Send, LayoutDashboard } from "lucide-react";
 import logoIcon from '../../../assets/edusparkz-logo.png';
+import { useUser } from "@/context/useContext";
+
 
 const navLinks = [
   { label: "Features", href: "/#features" },
@@ -20,7 +22,9 @@ const socialLinks = [
 
 const Header = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
 
   return (
     <header className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
@@ -63,22 +67,36 @@ const Header = () => {
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-300 hover:text-white hover:bg-white/5 text-xs font-bold"
-                onClick={() => navigate("/api/auth/login")}
-              >
-                Login
-              </Button>
-              <Button
-                size="sm"
-                className="bg-edu-cyan text-space-dark font-bold hover:bg-edu-cyan/90 shadow-[0_0_15px_rgba(123,246,252,0.3)] transition-all text-xs rounded-full"
-                onClick={() => navigate("/api/auth/register")}
-              >
-                Get Started
-              </Button>
+              {user ? (
+                <Button
+                  size="sm"
+                  className="bg-edu-cyan text-space-dark font-bold hover:bg-edu-cyan/90 shadow-[0_0_15px_rgba(123,246,252,0.3)] transition-all text-xs rounded-full px-5"
+                  onClick={() => navigate("/user/dashboard")}
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" />
+                  Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-300 hover:text-white hover:bg-white/5 text-xs font-bold"
+                    onClick={() => navigate("/api/auth/login")}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-edu-cyan text-space-dark font-bold hover:bg-edu-cyan/90 shadow-[0_0_15px_rgba(123,246,252,0.3)] transition-all text-xs rounded-full"
+                    onClick={() => navigate("/api/auth/register")}
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
+
           </div>
 
           {/* Mobile Menu Button */}
@@ -121,26 +139,42 @@ const Header = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3 mt-2">
-                <Button
-                  variant="outline"
-                  className="rounded-full border-white/10 text-white hover:bg-white/5"
-                  onClick={() => {
-                    navigate("/api/auth/login");
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  Login
-                </Button>
-                <Button
-                  className="rounded-full bg-edu-cyan text-space-dark font-bold hover:bg-edu-cyan/90 shadow-lg"
-                  onClick={() => {
-                    navigate("/api/auth/register");
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  Sign Up
-                </Button>
+                {user ? (
+                  <Button
+                    className="col-span-2 rounded-full bg-edu-cyan text-space-dark font-bold hover:bg-edu-cyan/90 shadow-lg"
+                    onClick={() => {
+                      navigate("/user/dashboard");
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Go to Dashboard
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="rounded-full border-white/10 text-white hover:bg-white/5"
+                      onClick={() => {
+                        navigate("/api/auth/login");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Login
+                    </Button>
+                    <Button
+                      className="rounded-full bg-edu-cyan text-space-dark font-bold hover:bg-edu-cyan/90 shadow-lg"
+                      onClick={() => {
+                        navigate("/api/auth/register");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Sign Up
+                    </Button>
+                  </>
+                )}
               </div>
+
             </div>
           </nav>
         )}

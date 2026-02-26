@@ -3,7 +3,9 @@ import { useLocation } from "react-router-dom";
 import { DashboardLayout } from "../layouts/DashboardLayout.jsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, FileText, User, Sparkles } from "lucide-react";
@@ -44,8 +46,11 @@ const ChatWithDocs = () => {
 
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadTitle, setUploadTitle] = useState("");
+
     const fileInputRef = useRef(null);
+    const textareaRef = useRef(null);
     const scrollRef = useRef(null);
+
     const messagesEndRef = useRef(null);
 
     // Check Chat Limit
@@ -144,6 +149,19 @@ const ChatWithDocs = () => {
             localStorage.setItem('chatHistory', JSON.stringify(messages));
         }
     }, [messages]);
+
+    // Auto-resize textarea
+    useEffect(() => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+            textarea.style.height = "44px"; // Reset to min-height
+            const scrollHeight = textarea.scrollHeight;
+            if (scrollHeight > 44) {
+                textarea.style.height = `${Math.min(scrollHeight, 200)}px`;
+            }
+        }
+    }, [input]);
+
 
     const handleMaterialToggle = (id) => {
         setSelectedMaterials(prev =>
@@ -293,7 +311,15 @@ const ChatWithDocs = () => {
         });
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    };
+
     const handleSend = async () => {
+
         if (!input.trim()) return;
         if (selectedMaterials.length === 0) {
             toast.warning("Please select at least one document to chat with.");
@@ -598,21 +624,26 @@ const ChatWithDocs = () => {
                                     >
                                         <Paperclip className="w-5 h-5" />
                                     </Button>
-                                    <Input
+                                    <Textarea
+                                        ref={textareaRef}
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
+                                        onKeyDown={handleKeyDown}
                                         placeholder="Ask a question about your selected documents..."
-                                        className="flex-1 bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan focus:ring-electric-cyan/20"
+                                        className="flex-1 bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan focus:ring-electric-cyan/20 min-h-[44px] max-h-[200px] py-3 resize-none transition-all duration-200"
                                         disabled={isLoading || !canChat}
+                                        rows={1}
                                     />
+
                                     <Button
                                         type="submit"
                                         disabled={isLoading || !input.trim() || selectedMaterials.length === 0 || !canChat}
-                                        className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold"
+                                        className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold h-11 self-end"
                                     >
                                         <Send className="w-4 h-4 mr-2" />
                                         Send
                                     </Button>
+
                                 </form>
                             </div>
                         </CardContent>
