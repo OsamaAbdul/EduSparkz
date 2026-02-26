@@ -18,6 +18,8 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import Tesseract from 'tesseract.js';
 import mammoth from 'mammoth';
 import { Plus, Paperclip, X as LucideX, Trash2 } from "lucide-react";
+import { SocialEngagementDialog } from "@/components/SocialEngagementDialog";
+
 
 // PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
@@ -37,7 +39,9 @@ const ChatWithDocs = () => {
     const [canChat, setCanChat] = useState(true);
     const [chatCount, setChatCount] = useState(0);
     const [activeTab, setActiveTab] = useState("chat"); // 'materials' or 'chat'
+    const [isSocialDialogOpen, setIsSocialDialogOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadTitle, setUploadTitle] = useState("");
     const fileInputRef = useRef(null);
@@ -45,41 +49,49 @@ const ChatWithDocs = () => {
     const messagesEndRef = useRef(null);
 
     // Check Chat Limit
-    useEffect(() => {
-        const checkLimit = async () => {
-            if (!user) return;
-            try {
-                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-                const { count, error } = await supabase
-                    .from('chat_logs')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', user.id)
-                    .gte('created_at', oneDayAgo);
+    const checkLimit = async () => {
+        if (!user) return;
+        try {
+            const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
 
-                if (error) throw error;
+            const { count, error } = await supabase
+                .from('chat_logs')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .gte('created_at', startOfDay.toISOString());
 
-                setChatCount(count || 0);
+            if (error) throw error;
 
-                // Get followed_socials status from profile
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('followed_socials, plan')
-                    .eq('id', user.id)
-                    .single();
+            setChatCount(count || 0);
 
-                const isFree = !profile?.plan || profile.plan.toLowerCase() === 'free';
-                const hasFollowed = profile?.followed_socials || false;
-                const dailyLimit = hasFollowed ? 15 : 5;
+            // Get profile details
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('plan, last_social_engagement_date')
+                .eq('id', user.id)
+                .single();
 
-                if (isFree && (count || 0) >= dailyLimit) {
-                    setCanChat(false);
-                }
-            } catch (error) {
-                console.error("Error checking chat limit:", error);
+            const isFree = !profile?.plan || profile.plan.toLowerCase() === 'free';
+            const hasSocialBonus = profile?.last_social_engagement_date === today;
+            const baseLimit = 15;
+            const dailyLimit = hasSocialBonus ? 25 : baseLimit;
+
+            if (isFree && (count || 0) >= dailyLimit) {
+                setCanChat(false);
+            } else {
+                setCanChat(true);
             }
-        };
+        } catch (error) {
+            console.error("Error checking chat limit:", error);
+        }
+    };
+
+    useEffect(() => {
         checkLimit();
     }, [user]);
+
 
     // Fetch Materials
     useEffect(() => {
@@ -289,9 +301,14 @@ const ChatWithDocs = () => {
         }
 
         if (!canChat) {
-            toast.error("Daily chat limit reached (5/5). Upgrade to Premium for unlimited chats!");
+            const isFree = !user.plan || user.plan.toLowerCase() === 'free';
+            if (isFree && chatCount === 15) {
+                setIsSocialDialogOpen(true);
+            }
+            toast.error(`Daily chat limit reached (${chatCount}/${chatCount >= 25 ? 25 : 15}). ${chatCount < 25 ? "Engage with socials for +10 more!" : "Upgrade to Premium for unlimited chats!"}`);
             return;
         }
+
 
         const userMessage = { role: "user", content: input };
         setMessages(prev => [...prev, userMessage]);
@@ -305,11 +322,13 @@ const ChatWithDocs = () => {
 
             setChatCount(prev => {
                 const newCount = prev + 1;
-                const isFree = !user.plan || user.plan.toLowerCase() === 'free';
-                const dailyLimit = user.followed_socials ? 15 : 5;
-                if (isFree && newCount >= dailyLimit) setCanChat(false);
+                // We'll re-check limit logic properly in checkLimit after the log is inserted
                 return newCount;
             });
+
+            // Re-verify limit after sending
+            setTimeout(checkLimit, 500);
+
 
             // Prepare context from selected materials
             const selectedDocs = materials.filter(m => selectedMaterials.includes(m.id));
@@ -340,15 +359,16 @@ const ChatWithDocs = () => {
     };
 
     return (
-        <DashboardLayout>
+        <DashboardLayout hideHeaderOnMobile={true}>
+
             <div className="flex flex-col h-[calc(100dvh-120px)] lg:h-[calc(100vh-8rem)] w-full mb-0 lg:mb-0">
 
                 {/* Mobile Tabs */}
-                <div className="flex lg:hidden mb-4 bg-white/5 p-1 rounded-lg border border-white/10 shrink-0">
+                <div className="flex lg:hidden sticky top-0 z-20 mb-4 bg-space-dark/90 backdrop-blur-md p-1 rounded-lg border border-white/10 shrink-0 shadow-xl">
                     <button
                         onClick={() => setActiveTab("materials")}
-                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${activeTab === "materials"
-                            ? "bg-electric-cyan text-space-dark shadow-lg"
+                        className={`flex-1 py-2.5 px-4 rounded-md text-sm font-bold transition-all ${activeTab === "materials"
+                            ? "bg-electric-cyan text-space-dark shadow-[0_0_15px_rgba(0,255,255,0.3)]"
                             : "text-gray-400 hover:text-white"
                             }`}
                     >
@@ -356,14 +376,15 @@ const ChatWithDocs = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab("chat")}
-                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${activeTab === "chat"
-                            ? "bg-hot-magenta text-white shadow-lg"
+                        className={`flex-1 py-2.5 px-4 rounded-md text-sm font-bold transition-all ${activeTab === "chat"
+                            ? "bg-hot-magenta text-white shadow-[0_0_15px_rgba(255,0,255,0.3)]"
                             : "text-gray-400 hover:text-white"
                             }`}
                     >
                         Chat
                     </button>
                 </div>
+
 
                 <div className="flex flex-1 gap-4 overflow-hidden">
                     {/* Left Column: Materials List */}
@@ -457,7 +478,7 @@ const ChatWithDocs = () => {
 
                     {/* Right Column: Chat Interface */}
                     <Card className={`lg:w-2/3 flex-col glass-card border-white/10 shadow-lg ${activeTab === 'chat' ? 'flex w-full' : 'hidden lg:flex'}`}>
-                        <CardHeader className="border-b border-white/10 py-4 bg-white/5">
+                        <CardHeader className="hidden lg:flex border-b border-white/10 py-4 bg-white/5">
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-white flex items-center gap-2">
                                     <img src={logoIcon} alt="AI" className="w-12 h-12 object-cover" />
@@ -471,6 +492,7 @@ const ChatWithDocs = () => {
                                 )}
                             </div>
                         </CardHeader>
+
 
                         <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
                             {/* Messages Area */}
@@ -553,9 +575,18 @@ const ChatWithDocs = () => {
                             <div className="p-4 bg-white/5 border-t border-white/10">
                                 {!canChat && (
                                     <div className="mb-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400 text-center">
-                                        Daily chat limit reached ({chatCount}/{user?.followed_socials ? 15 : 5}). {user?.followed_socials ? "Upgrade to Premium" : "Follow our socials or upgrade"} to continue.
+                                        Daily chat limit reached ({chatCount}/{chatCount >= 25 ? 25 : 15}).
+                                        {chatCount < 25 ? (
+                                            <button
+                                                onClick={() => setIsSocialDialogOpen(true)}
+                                                className="ml-1 text-electric-cyan hover:underline font-bold"
+                                            >
+                                                Follow socials for +10 more!
+                                            </button>
+                                        ) : " Upgrade to Premium to continue."}
                                     </div>
                                 )}
+
                                 <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-3 items-center">
                                     <Button
                                         type="button"
@@ -588,7 +619,15 @@ const ChatWithDocs = () => {
                     </Card>
                 </div>
             </div>
+
+            <SocialEngagementDialog
+                isOpen={isSocialDialogOpen}
+                onOpenChange={setIsSocialDialogOpen}
+                userId={user?.id}
+                onBonusAwarded={checkLimit}
+            />
         </DashboardLayout >
+
     );
 };
 

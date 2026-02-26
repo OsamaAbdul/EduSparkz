@@ -5,7 +5,8 @@ import Header from './Header';
 import { useMediaQuery } from 'react-responsive';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export const DashboardLayout = ({ children }) => {
+export const DashboardLayout = ({ children, hideHeaderOnMobile = false }) => {
+
   const isLaptop = useMediaQuery({ minWidth: 1024 });
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -87,7 +88,13 @@ export const DashboardLayout = ({ children }) => {
 
       {/* Main Content Wrapper */}
       <div className="flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-300">
-        <Header toggleSidebar={toggleSidebar} showMenuButton={true} />
+        {(!hideHeaderOnMobile) && <Header toggleSidebar={toggleSidebar} showMenuButton={true} />}
+        {hideHeaderOnMobile && (
+          <div className="lg:block hidden">
+            <Header toggleSidebar={toggleSidebar} showMenuButton={true} />
+          </div>
+        )}
+
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 scrollbar-thin scrollbar-thumb-electric-cyan/20 scrollbar-track-transparent lg:pb-8 pb-24">
           {children}

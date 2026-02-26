@@ -1,48 +1,61 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Twitter, Linkedin, Instagram, Github, Send, CheckCircle, Sparkles } from "lucide-react";
+import { Twitter, Github, Send, CheckCircle, Sparkles, ExternalLink, Info } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
 export const SocialProofSection = ({ user, onUpdate }) => {
-    const [proof, setProof] = useState("");
+    const [platform, setPlatform] = useState("github");
+    const [handle, setHandle] = useState("");
+    const [postId, setPostId] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = async (e) => {
+    const handleVerify = async (e) => {
         e.preventDefault();
-        if (!proof.trim()) {
-            toast.error("Please provide some proof (handle or link)");
+
+        const input = platform === 'github' ? handle : postId;
+        if (!input.trim()) {
+            toast.error(`Please provide your ${platform === 'github' ? 'GitHub handle' : 'Tweet ID/Link'}`);
             return;
+        }
+
+        let cleanPostId = postId;
+        if (platform === 'twitter' && postId.includes('/status/')) {
+            cleanPostId = postId.split('/status/')[1].split('?')[0];
         }
 
         setIsLoading(true);
         try {
-            const { error } = await supabase
-                .from("profiles")
-                .update({
-                    social_proof_data: proof,
-                    followed_socials: true // Auto-approving for now, or tagging for review
-                })
-                .eq("id", user.id);
+            const { data, error } = await supabase.functions.invoke('verify-socials', {
+                body: {
+                    platform,
+                    handle: platform === 'github' ? handle : undefined,
+                    postId: platform === 'twitter' ? cleanPostId : undefined
+                }
+            });
 
             if (error) throw error;
 
-            toast.success("Thank you! Your limits have been upgraded to 15 per day!");
-            setSubmitted(true);
-            if (onUpdate) onUpdate();
+            if (data.success) {
+                toast.success(data.message);
+                setSubmitted(true);
+                if (onUpdate) onUpdate();
+            } else {
+                toast.error(data.message || "Verification failed. Please try again.");
+            }
         } catch (error) {
-            console.error("Error submitting proof:", error);
-            toast.error("Failed to submit proof. Please try again.");
+            console.error("Error verifying social:", error);
+            toast.error("Failed to verify. Please make sure you followed the instructions.");
         } finally {
             setIsLoading(false);
         }
     };
 
-    if (submitted) return null;
+    if (submitted || user?.followed_socials) return null;
 
     return (
         <motion.div
@@ -55,49 +68,99 @@ export const SocialProofSection = ({ user, onUpdate }) => {
                 <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-electric-cyan" />
-                        Unlock 15 Quizzes & Chats Daily!
+                        Automated Limit Upgrade
                     </CardTitle>
                     <p className="text-sm text-gray-400">
-                        Follow our social handles and provide proof to upgrade your free plan limits.
+                        Connect your socials to unlock 15 daily limits instantly. No waiting for manual review!
                     </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="flex flex-wrap gap-4 items-center justify-center py-2">
-                        <a href="https://twitter.com/edu_sparkz" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-electric-cyan transition-all">
-                            <Twitter className="w-6 h-6 text-white group-hover:text-electric-cyan" />
-                            <span className="text-xs text-gray-500">Twitter</span>
-                        </a>
-
+                    <div className="flex p-1 bg-white/5 rounded-lg border border-white/10">
+                        <button
+                            onClick={() => setPlatform("github")}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md transition-all ${platform === 'github' ? 'bg-electric-cyan/20 text-electric-cyan' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            <Github className="w-4 h-4" />
+                            GitHub
+                        </button>
+                        <button
+                            onClick={() => setPlatform("twitter")}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md transition-all ${platform === 'twitter' ? 'bg-hot-magenta/20 text-hot-magenta' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            <Twitter className="w-4 h-4" />
+                            Twitter (X)
+                        </button>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Proof of Engagement</label>
-                            <Input
-                                value={proof}
-                                onChange={(e) => setProof(e.target.value)}
-                                placeholder="Enter your handle or a link to your post..."
-                                className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan"
-                                disabled={isLoading}
-                            />
-                        </div>
-                        <Button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full bg-gradient-to-r from-electric-cyan to-hot-magenta text-white font-bold h-12 shadow-lg hover:shadow-electric-cyan/20 transition-all"
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={platform}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-4"
                         >
-                            {isLoading ? (
-                                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-                                    <Send className="w-4 h-4" />
-                                </motion.div>
-                            ) : (
-                                <>
-                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                    Submit & Upgrade Now
-                                </>
-                            )}
-                        </Button>
-                    </form>
+                            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                                <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                                    <Info className="w-4 h-4 text-electric-cyan" />
+                                    Instructions
+                                </h4>
+                                <ul className="text-xs text-gray-400 space-y-2 list-disc pl-4">
+                                    {platform === 'github' ? (
+                                        <>
+                                            <li>Follow <strong>@edu-sparkz</strong> on GitHub</li>
+                                            <li>Enter your GitHub handle below to verify</li>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <li>Tweet about <strong>#EduSparkz</strong> mentioning <strong>@edu_sparkz</strong></li>
+                                            <li>Paste the link to your tweet below</li>
+                                        </>
+                                    )}
+                                </ul>
+                                <a
+                                    href={platform === 'github' ? "https://github.com/edu-sparkz" : "https://twitter.com/intent/tweet?text=Transforming%20my%20learning%20workflow%20with%20@edu_sparkz%20!%20%23EduSparkz%20%23AI%20#Learning"}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-xs font-medium text-electric-cyan hover:underline"
+                                >
+                                    {platform === 'github' ? "Go to GitHub Profile" : "Post a Tweet Now"}
+                                    <ExternalLink className="w-3 h-3" />
+                                </a>
+                            </div>
+
+                            <form onSubmit={handleVerify} className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300">
+                                        {platform === 'github' ? 'GitHub Handle' : 'Tweet Link / ID'}
+                                    </label>
+                                    <Input
+                                        value={platform === 'github' ? handle : postId}
+                                        onChange={(e) => platform === 'github' ? setHandle(e.target.value) : setPostId(e.target.value)}
+                                        placeholder={platform === 'github' ? "e.g. octocat" : "https://x.com/user/status/..."}
+                                        className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-electric-cyan"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+                                <Button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className={`w-full ${platform === 'github' ? 'bg-electric-cyan hover:bg-electric-cyan/80' : 'bg-hot-magenta hover:bg-hot-magenta/80'} text-white font-bold h-12 shadow-lg transition-all`}
+                                >
+                                    {isLoading ? (
+                                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
+                                            <Send className="w-4 h-4" />
+                                        </motion.div>
+                                    ) : (
+                                        <>
+                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                            Verify & Upgrade
+                                        </>
+                                    )}
+                                </Button>
+                            </form>
+                        </motion.div>
+                    </AnimatePresence>
                 </CardContent>
             </Card>
         </motion.div>
