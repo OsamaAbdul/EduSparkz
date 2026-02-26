@@ -4,8 +4,11 @@ import { MobileNav } from './MobileNav';
 import Header from './Header';
 import { useMediaQuery } from 'react-responsive';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from "@/lib/utils";
 
-export const DashboardLayout = ({ children, hideHeaderOnMobile = false }) => {
+
+export const DashboardLayout = ({ children, hideHeaderOnMobile = false, isFullHeight = false }) => {
+
 
   const isLaptop = useMediaQuery({ minWidth: 1024 });
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -96,9 +99,13 @@ export const DashboardLayout = ({ children, hideHeaderOnMobile = false }) => {
         )}
 
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 scrollbar-thin scrollbar-thumb-electric-cyan/20 scrollbar-track-transparent lg:pb-8 pb-24">
+        <main className={cn(
+          "flex-1 overflow-x-hidden scrollbar-thin scrollbar-thumb-electric-cyan/20 scrollbar-track-transparent",
+          isFullHeight ? "overflow-hidden" : "overflow-y-auto p-4 sm:p-6 lg:p-8 lg:pb-8 pb-24"
+        )}>
           {children}
         </main>
+
       </div>
 
       {/* Mobile Navigation - Mobile Only */}

@@ -385,12 +385,15 @@ const ChatWithDocs = () => {
     };
 
     return (
-        <DashboardLayout hideHeaderOnMobile={true}>
+        <DashboardLayout hideHeaderOnMobile={true} isFullHeight={true}>
 
-            <div className="flex flex-col h-[calc(100dvh-120px)] lg:h-[calc(100vh-8rem)] w-full mb-0 lg:mb-0">
+            <div className="flex flex-col h-full w-full p-3 sm:p-6 lg:p-8 overflow-hidden">
+
+
 
                 {/* Mobile Tabs */}
-                <div className="flex lg:hidden sticky top-0 z-20 mb-4 bg-space-dark/90 backdrop-blur-md p-1 rounded-lg border border-white/10 shrink-0 shadow-xl">
+                <div className="flex lg:hidden z-20 mb-3 bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/10 shrink-0 shadow-xl">
+
                     <button
                         onClick={() => setActiveTab("materials")}
                         className={`flex-1 py-2.5 px-4 rounded-md text-sm font-bold transition-all ${activeTab === "materials"
@@ -649,7 +652,10 @@ const ChatWithDocs = () => {
                         </CardContent>
                     </Card>
                 </div>
+                {/* Space for Mobile Nav */}
+                <div className="h-20 lg:hidden shrink-0" />
             </div>
+
 
             <SocialEngagementDialog
                 isOpen={isSocialDialogOpen}
