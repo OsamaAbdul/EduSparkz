@@ -26,19 +26,16 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const [quote, setQuote] = useState("");
 
-  useEffect(() => {
-    setQuote(PIDGIN_QUOTES[Math.floor(Math.random() * PIDGIN_QUOTES.length)]);
-  }, []);
-
   // Fetch Stats
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboardStats", user?.id],
     queryFn: async () => {
-      const [materials, quizzes, leaderboard, profile] = await Promise.all([
+      const [materials, quizzes, leaderboard, profile, enrollments] = await Promise.all([
         supabase.from("materials").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_results").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_results").select("score, total").eq("user_id", user.id),
-        supabase.from("profiles").select("xp, current_streak, level, referral_code, followed_socials, plan").eq("id", user.id).single()
+        supabase.from("profiles").select("xp, current_streak, level, referral_code, followed_socials, plan").eq("id", user.id).single(),
+        supabase.from("class_enrollments").select("*", { count: "exact", head: true }).eq("user_id", user.id)
       ]);
 
       const totalScore = leaderboard.data?.reduce((acc, curr) => acc + (curr.score / curr.total) * 100, 0) || 0;
@@ -53,11 +50,25 @@ export const Dashboard = () => {
         level: profile.data?.level || 1,
         referralCode: profile.data?.referral_code || "N/A",
         followedSocials: profile.data?.followed_socials || false,
+        enrollmentsCount: enrollments.count || 0,
         plan: profile.data?.plan || "Free"
       };
     },
     enabled: !!user?.id,
   });
+
+  useEffect(() => {
+    setQuote(PIDGIN_QUOTES[Math.floor(Math.random() * PIDGIN_QUOTES.length)]);
+
+    // Role-based redirection
+    if (user?.role === 'instructor') {
+      navigate('/instructor/dashboard', { replace: true });
+    } else if (user?.role === 'learner' && stats && !statsLoading) {
+      if (stats.enrollmentsCount > 0) {
+        navigate('/learner/dashboard', { replace: true });
+      }
+    }
+  }, [user, navigate, stats, statsLoading]);
 
   // Fetch Top Learners
   const { data: topLearners, isLoading: usersLoading } = useQuery({

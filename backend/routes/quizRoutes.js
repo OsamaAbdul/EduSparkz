@@ -516,7 +516,7 @@ router.post('/generate-quiz', auth, async (req, res) => {
 router.post('/submit-answers', auth, async (req, res) => {
   try {
     await rateLimiter.consume(req.ip);
-    const { quizId, answers, duration } = req.body;
+    const { quizId, answers, duration, assignmentId } = req.body;
 
     // Validate input
     if (!quizId || !Array.isArray(answers) || !Number.isFinite(Number(duration)) || duration < 0) {
@@ -528,9 +528,9 @@ router.post('/submit-answers', auth, async (req, res) => {
       throw new APIError('Each answer must include a valid timeTaken (seconds)', 400);
     }
 
-    const quiz = await Quiz.findOne({ quizId, userId: req.userId });
+    const quiz = await Quiz.findOne({ quizId }); // Removed userId requirement if it's an assignment
     if (!quiz) {
-      throw new APIError('Quiz not found or unauthorized', 404);
+      throw new APIError('Quiz not found', 404);
     }
 
     // Process answers
@@ -577,6 +577,7 @@ router.post('/submit-answers', auth, async (req, res) => {
     const quizResult = new QuizResult({
       quizId,
       userId: req.userId,
+      assignmentId, // Link to assignment
       score,
       weightedScore,
       total,
@@ -587,6 +588,25 @@ router.post('/submit-answers', auth, async (req, res) => {
       submittedAt: new Date(),
     });
     await quizResult.save();
+
+    // Also update Supabase if it's an assignment
+    if (assignmentId) {
+      try {
+        await supabase
+          .from('quiz_results')
+          .insert({
+            user_id: req.userId,
+            quiz_id: quizId,
+            assignment_id: assignmentId,
+            score,
+            total,
+            duration,
+            level
+          });
+      } catch (e) {
+        console.error("Failed to sync assignment result to Supabase:", e);
+      }
+    }
 
     return res.status(200).json({
       quizId,

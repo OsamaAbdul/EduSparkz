@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 
 const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const [quiz, setQuiz] = useState(null);
@@ -16,7 +17,16 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const [error, setError] = useState(null);
   const { user } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
+
+  // Get IDs from props or location state
+  const { quizId: urlQuizId, assignmentId: urlAssignmentId } = useParams();
+  const effectiveQuizId = quizId || location.state?.quizId || urlQuizId;
+  const effectiveAssignmentId = location.state?.assignmentId || urlAssignmentId;
+  const effectiveQuizTitle = quizTitle || location.state?.quizTitle;
+
+  const [assignment, setAssignment] = useState(null);
 
   // Quiz State
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -26,7 +36,9 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [streak, setStreak] = useState(0);
   const [score, setScore] = useState(0);
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(30); // Seconds per question (default)
+  const [totalTimer, setTotalTimer] = useState(null); // Total quiz seconds
+  const [isTotalTimeMode, setIsTotalTimeMode] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
   const [showPidgin, setShowPidgin] = useState(false);
   const [pidginMessage, setPidginMessage] = useState("");
@@ -47,18 +59,58 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
     const fetchQuiz = async () => {
       try {
         setLoading(true);
-        if (!quizId) throw new Error("No quiz ID provided");
+        if (!effectiveQuizId) throw new Error("No quiz ID provided");
         const { data: { user: authUser } } = await supabase.auth.getUser();
         if (!authUser) throw new Error("Unauthorized");
 
         const { data, error } = await supabase
           .from('quizzes')
           .select('*')
-          .eq('id', quizId)
-          .single();
+          .eq('id', effectiveQuizId)
+          .maybeSingle();
 
         if (error) throw error;
-        if (!data) throw new Error("Quiz not found");
+        if (!data) throw new Error("Quiz not found or has been deleted.");
+
+        // Fetch assignment details if assignmentId exists
+        if (effectiveAssignmentId) {
+          const { data: assignData, error: assignError } = await supabase
+            .from('quiz_assignments')
+            .select('*')
+            .eq('id', effectiveAssignmentId)
+            .maybeSingle();
+
+          if (assignError) console.error("Error fetching assignment:", assignError);
+          else if (!assignData) console.warn("Assignment not found for ID:", effectiveAssignmentId);
+          else {
+            const now = new Date();
+            const start = new Date(assignData.start_time);
+            const end = new Date(assignData.end_time);
+
+            if (now < start) throw new Error(`Quiz scheduled to start at ${start.toLocaleString()}`);
+            if (now > end) throw new Error("Quiz assignment has expired.");
+
+            setAssignment(assignData);
+            if (assignData.duration_minutes) {
+              setTotalTimer(assignData.duration_minutes * 60);
+              setIsTotalTimeMode(true);
+            }
+
+            // Check if user already has a result for this assignment
+            const { data: existingResult } = await supabase
+              .from('quiz_results')
+              .select('*')
+              .eq('assignment_id', effectiveAssignmentId)
+              .eq('user_id', authUser.id)
+              .maybeSingle();
+
+            if (existingResult) {
+              toast.error("You have already submitted this assignment.");
+              navigate('/user/quiz-result', { state: { result: { ...existingResult, quizTitle: data.title } } });
+              return;
+            }
+          }
+        }
 
         let questions = data.questions.map((mcq) => ({
           question: mcq.question,
@@ -82,13 +134,14 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
           return q;
         });
 
-        // Client-side Retention Logic
-        try {
-          const { data: history } = await supabase
-            .from('quiz_results')
-            .select('quiz_id, score, total, submitted_at, quizzes (id, title, questions)')
-            .eq('user_id', authUser.id)
-            .order('submitted_at', { ascending: false });
+        // Retention logic: Disable for assignments to ensure all students take same questions
+        if (!effectiveAssignmentId) {
+          try {
+            const { data: history } = await supabase
+              .from('quiz_results')
+              .select('quiz_id, score, total, submitted_at, quizzes (id, title, questions)')
+              .eq('user_id', authUser.id)
+              .order('submitted_at', { ascending: false });
 
           if (history && history.length > 0) {
             const latestAttempts = {};
@@ -139,15 +192,17 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
                 questions.splice(insertIndex, 0, rq);
               });
             }
+            }
+          } catch (retentionError) {
+            console.error("Error fetching retention questions:", retentionError);
           }
-        } catch (retentionError) {
-          console.error("Error fetching retention questions:", retentionError);
         }
 
         setQuiz({
           quizId: data.id,
-          title: quizTitle || data.title || "Generated Quiz",
+          title: effectiveQuizTitle || data.title || "Generated Quiz",
           questions: questions,
+          assignmentId: effectiveAssignmentId
         });
       } catch (err) {
         setError(err.message);
@@ -156,22 +211,34 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
       }
     };
     fetchQuiz();
-  }, [quizId, quizTitle]);
+  }, [effectiveQuizId, effectiveAssignmentId, effectiveQuizTitle]);
 
   // Timer Logic
   useEffect(() => {
     if (!quiz || isAnswered) return;
-    const interval = setInterval(() => {
-      setTimer((prev) => {
-        if (prev <= 1) {
-          handleTimeUp();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [quiz, currentQuestionIndex, isAnswered]);
+
+    if (isTotalTimeMode) {
+      if (totalTimer <= 0) {
+        finishQuiz();
+        return;
+      }
+      const interval = setInterval(() => {
+        setTotalTimer(prev => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else {
+      const interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            handleTimeUp();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [quiz, currentQuestionIndex, isAnswered, isTotalTimeMode, totalTimer]);
 
   // Text to Speech Logic
   useEffect(() => {
@@ -353,6 +420,7 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
         .insert({
           quiz_id: quiz.quizId,
           user_id: user.id,
+          assignment_id: effectiveAssignmentId || null,
           score: finalScore,
           total,
           duration: totalDuration,
@@ -433,11 +501,22 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
             <span className="font-bold text-xl">{streak}</span>
           </div>
           <div className="relative w-16 h-16 flex items-center justify-center flex-shrink-0">
-            <Clock className="w-6 h-6 text-electric-lime absolute" />
-            <svg className="w-full h-full -rotate-90">
-              <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
-              <circle cx="32" cy="32" r="28" fill="none" stroke="#39FF14" strokeWidth="4" strokeDasharray="175" strokeDashoffset={175 - (175 * (timer / 30))} className="transition-all duration-1000 linear" />
-            </svg>
+            {isTotalTimeMode ? (
+              <div className="text-center">
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-none">Total</p>
+                <p className={`font-bold text-sm ${totalTimer < 60 ? 'text-red-500 animate-pulse' : 'text-electric-lime'}`}>
+                  {Math.floor(totalTimer / 60)}:{(totalTimer % 60).toString().padStart(2, '0')}
+                </p>
+              </div>
+            ) : (
+              <>
+                <Clock className="w-6 h-6 text-electric-lime absolute" />
+                <svg className="w-full h-full -rotate-90">
+                  <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
+                  <circle cx="32" cy="32" r="28" fill="none" stroke="#39FF14" strokeWidth="4" strokeDasharray="175" strokeDashoffset={175 - (175 * (timer / 30))} className="transition-all duration-1000 linear" />
+                </svg>
+              </>
+            )}
           </div>
 
           <Button

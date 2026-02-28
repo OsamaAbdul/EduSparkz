@@ -6,11 +6,21 @@ export const MobileNav = () => {
     const { user } = useUser();
     const location = useLocation();
 
-    const navItems = [
-        { to: "/user/dashboard", label: "Home", icon: <Home className="w-4 h-4" /> },
-        { to: "/user/start-quiz", label: "Start Quiz", icon: <Brain className="w-5 h-5" />, isMain: true },
-        { to: "/user/chat", label: "AI Tutor", icon: <MessageSquare className="w-4 h-4" /> },
-    ];
+    let navItems = [];
+
+    if (user?.role === 'instructor') {
+        navItems = [
+            { to: "/instructor/dashboard", label: "Home", icon: <Home className="w-4 h-4" /> },
+            { to: "/instructor/assign-quiz", label: "Assign", icon: <Brain className="w-5 h-5" />, isMain: true },
+            { to: "/user/chat", label: "AI Tutor", icon: <MessageSquare className="w-4 h-4" /> },
+        ];
+    } else {
+        navItems = [
+            { to: "/user/dashboard", label: "Home", icon: <Home className="w-4 h-4" /> },
+            { to: "/user/start-quiz", label: "Start Quiz", icon: <Brain className="w-5 h-5" />, isMain: true },
+            { to: "/user/chat", label: "AI Tutor", icon: <MessageSquare className="w-4 h-4" /> },
+        ];
+    }
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-space-dark/95 backdrop-blur-xl border-t border-white/10 pb-safe">

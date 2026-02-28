@@ -23,6 +23,7 @@ const QuizSchema = new mongoose.Schema({
 const QuizResultSchema = new mongoose.Schema({
   quizId: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  assignmentId: { type: String }, // NEW: Link to Supabase quiz_assignments.id
   score: { type: Number, required: true },
   total: { type: Number, required: true },
   duration: { type: Number, required: true }, // Duration in seconds

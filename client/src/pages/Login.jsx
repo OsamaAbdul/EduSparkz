@@ -96,8 +96,12 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(userData));
       toast.success("Login successful");
 
-      if (profile?.role === 'admin' || profile?.onboarding_completed) {
-        const target = profile?.role === 'admin' ? "/admin/dashboard" : "/user/dashboard";
+      if (profile?.role === 'admin' || profile?.role === 'instructor' || profile?.role === 'learner' || profile?.onboarding_completed) {
+        let target = "/user/dashboard";
+        if (profile?.role === 'admin') target = "/admin/dashboard";
+        else if (profile?.role === 'instructor') target = "/instructor/dashboard";
+        else if (profile?.role === 'learner') target = "/user/dashboard";
+
         setTimeout(() => navigate(target), 1000);
       } else {
         setTimeout(() => navigate("/user/onboarding"), 1000);

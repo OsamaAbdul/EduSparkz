@@ -191,8 +191,11 @@ import { CheckCircle, XCircle, Clock, Trophy, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { DashboardLayout } from "../layouts/DashboardLayout.jsx";
 import { motion } from "framer-motion";
+import { Trophy as TrophyIcon, LayoutDashboard, ListOrdered } from "lucide-react";
+import { useUser } from "../context/useContext.jsx";
 
 const QuizResults = () => {
+  const { user } = useUser();
   const [results, setResults] = useState(null);
   const navigate = useNavigate();
 
@@ -225,9 +228,12 @@ const QuizResults = () => {
         },
       });
     } else {
-      navigate('/user/dashboard');
+      const dashboardPath = user?.role === 'instructor' ? '/instructor/dashboard' :
+        user?.role === 'learner' ? '/learner/dashboard' :
+          '/user/dashboard';
+      navigate(dashboardPath);
     }
-  }, [navigate, location]);
+  }, [navigate, location, user]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -255,6 +261,10 @@ const QuizResults = () => {
       });
     }
   };
+
+  const dashboardPath = user?.role === 'instructor' ? '/instructor/dashboard' :
+    user?.role === 'learner' ? '/learner/dashboard' :
+      '/user/dashboard';
 
   if (!results) {
     return (
@@ -374,7 +384,16 @@ const QuizResults = () => {
           </CardContent>
         </Card>
 
-        <div className="flex justify-center gap-4 pb-8">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 pb-8">
+          {results.assignment_id && (
+            <Button
+              onClick={() => navigate(`/user/assignment-leaderboard/${results.assignment_id}`)}
+              className="bg-hot-magenta text-white hover:bg-hot-magenta/90 font-bold shadow-[0_0_20px_rgba(255,0,245,0.3)]"
+            >
+              <ListOrdered className="mr-2 h-4 w-4" />
+              Class Leaderboard
+            </Button>
+          )}
           <Button
             onClick={handleRetakeQuiz}
             className="bg-electric-cyan text-space-dark hover:bg-electric-cyan/90 font-bold shadow-[0_0_20px_rgba(0,245,255,0.3)]"
@@ -383,10 +402,11 @@ const QuizResults = () => {
             Retake Quiz
           </Button>
           <Button
-            onClick={() => navigate('/user/dashboard')}
+            onClick={() => navigate(dashboardPath)}
             variant="outline"
             className="border-white/10 text-white hover:bg-white/10 hover:text-electric-cyan"
           >
+            <LayoutDashboard className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
         </div>

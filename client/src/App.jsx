@@ -32,6 +32,11 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 import TermsOfService from "./pages/TermsOfService.jsx";
 
 import Onboarding from "./pages/Onboarding.jsx";
+import InstructorDashboard from "./pages/instructor/InstructorDashboard.jsx";
+import ClassManagement from "./pages/instructor/ClassManagement.jsx";
+import AssignQuiz from "./pages/instructor/AssignQuiz.jsx";
+import LearnerDashboard from "./pages/learner/LearnerDashboard.jsx";
+import AssignmentLeaderboard from "./pages/learner/AssignmentLeaderboard.jsx";
 
 const queryClient = new QueryClient();
 
@@ -142,6 +147,58 @@ const App = () => (
               />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/signup" element={<AdminSignup />} />
+
+              {/* Instructor Routes */}
+              <Route
+                path="/instructor/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <InstructorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/instructor/manage-classes"
+                element={
+                  <ProtectedRoute>
+                    <ClassManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/instructor/assign-quiz"
+                element={
+                  <ProtectedRoute>
+                    <AssignQuiz />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/learner/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <LearnerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/learner/dashboard/take-quiz/:quizId/:assignmentId"
+                element={
+                  <ProtectedRoute>
+                    <Quiz />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/user/assignment-leaderboard/:assignmentId"
+                element={
+                  <ProtectedRoute>
+                    <AssignmentLeaderboard />
+                  </ProtectedRoute>
+                }
+              />
 
               <Route path="*" element={<NotFound />} />
             </Routes >

@@ -9,14 +9,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useUser } from "../context/useContext";
 import { supabase } from "../lib/supabase";
 import { toast } from "sonner";
-import { Brain, Target, BookOpen, Sparkles, CreditCard, Check } from "lucide-react";
+import { Brain, Target, BookOpen, Sparkles, CreditCard, Check, Users } from "lucide-react";
 
 const steps = [
     {
-        id: "welcome",
-        title: "Welcome to EduSparkz",
-        description: "Let's personalize your learning experience.",
-        icon: <Sparkles className="w-8 h-8 text-yellow-500" />,
+        id: "role",
+        title: "What's your role?",
+        description: "Choose how you'll use EduSparkz.",
+        icon: <Users className="w-8 h-8 text-blue-500" />,
     },
     {
         id: "goals",
@@ -67,6 +67,7 @@ const Onboarding = () => {
     const [selectedGoals, setSelectedGoals] = useState([]);
     const [selectedStyle, setSelectedStyle] = useState("");
     const [selectedPlan, setSelectedPlan] = useState("Free");
+    const [selectedRole, setSelectedRole] = useState("learner");
     const [loading, setLoading] = useState(false);
 
     const handleGoalToggle = (goal) => {
@@ -91,6 +92,7 @@ const Onboarding = () => {
                 .from("profiles")
                 .update({
                     onboarding_completed: true,
+                    role: selectedRole,
                     learning_goals: selectedGoals,
                     learning_style: selectedStyle,
                     plan: selectedPlan
@@ -115,6 +117,7 @@ const Onboarding = () => {
             setUser({
                 ...user,
                 onboarding_completed: true,
+                role: selectedRole,
                 learning_goals: selectedGoals,
                 learning_style: selectedStyle,
                 plan: selectedPlan
@@ -126,7 +129,8 @@ const Onboarding = () => {
             if (selectedPlan !== "Free") {
                 navigate("/pricing"); // Or payment gateway
             } else {
-                navigate("/user/dashboard");
+                const target = selectedRole === 'instructor' ? "/instructor/dashboard" : "/user/dashboard";
+                navigate(target);
             }
         } catch (error) {
             console.error("Onboarding error:", error);
@@ -166,12 +170,22 @@ const Onboarding = () => {
                             transition={{ duration: 0.3 }}
                         >
                             {currentStep === 0 && (
-                                <div className="text-center space-y-4">
-                                    <p className="text-gray-300">
-                                        Hi {user?.user_metadata?.full_name || "there"}! We're excited to have you on board.
-                                        This quick setup will help us tailor the content just for you.
-                                    </p>
-                                </div>
+                                <RadioGroup value={selectedRole} onValueChange={setSelectedRole} className="space-y-4">
+                                    {[
+                                        { id: "learner", label: "Learner / Student", desc: "Take quizzes, track progress, and join classes.", icon: <Brain className="w-5 h-5" /> },
+                                        { id: "instructor", label: "Instructor / Teacher", desc: "Manage students, assign quizzes, and view results.", icon: <Users className="w-5 h-5" /> }
+                                    ].map((role) => (
+                                        <div key={role.id} onClick={() => setSelectedRole(role.id)} className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedRole === role.id ? 'border-electric-cyan bg-electric-cyan/10' : 'border-white/10 hover:border-white/20'}`}>
+                                            <div className={`p-2 rounded-lg ${selectedRole === role.id ? 'bg-electric-cyan text-space-dark' : 'bg-white/5 text-gray-400'}`}>
+                                                {role.icon}
+                                            </div>
+                                            <div>
+                                                <Label className="font-bold text-white cursor-pointer">{role.label}</Label>
+                                                <p className="text-xs text-gray-500 mt-1">{role.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </RadioGroup>
                             )}
 
                             {currentStep === 1 && (
@@ -251,10 +265,7 @@ const Onboarding = () => {
                     </Button>
 
                     <div className="flex gap-2">
-                        {/* Skip button for Step 0 only */}
-                        {currentStep === 0 && (
-                            <Button variant="ghost" onClick={() => navigate("/user/dashboard")} className="text-gray-400 hover:text-white hover:bg-white/10">Skip</Button>
-                        )}
+                        {/* Skip button removed for specific role choice */}
                         <Button
                             onClick={handleNext}
                             disabled={

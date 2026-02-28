@@ -5,7 +5,8 @@ import dotenv from 'dotenv';
 import job from './config/cron.js'
 import authRoutes from './routes/authRoutes.js';
 import connectToDb from './config/db.js';
-import fileUpload  from 'express-fileupload';
+import fileUpload from 'express-fileupload';
+import schoolRoutes from './routes/schoolRoutes.js';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // only if in production mode
-if(process.env.NODE_ENV ==="development") job.start();
+if (process.env.NODE_ENV === "development") job.start();
 
 // === frontend url ===
 
@@ -43,19 +44,20 @@ app.use(fileUpload());
 // ✅ Middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(express.static('public')); 
+app.use(express.static('public'));
 
 // ✅ DB Connection
-  connectToDb()
+connectToDb()
 
 // ✅ Routes
 app.use('/api/user', routes);
 app.use('/api/user/auth/', authRoutes);
+app.use('/api/instructor', schoolRoutes);
 
 // Route to check server
 
 app.get('/server-check', (req, res) => {
-    res.status(200).json({ message: "Server up and running.........."})
+  res.status(200).json({ message: "Server up and running.........." })
 })
 
 // ✅ Start server

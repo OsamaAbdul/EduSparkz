@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, BookX, ChartNoAxesCombined, LogOut, Brain, FileText, Zap, MessageSquare, ShieldAlert } from "lucide-react";
+import { Home, BookX, ChartNoAxesCombined, LogOut, Brain, FileText, Zap, MessageSquare, ShieldAlert, ClipboardList, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/context/useContext";
 import logoIcon from "@/assets/edusparkz-logo.png";
@@ -15,14 +15,27 @@ export const Sidebar = ({ isOpen, iconOnly, toggleSidebar }) => {
     navigate("/api/auth/login");
   };
 
-  const navItems = [
-    { to: "/user/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
-    { to: "/user/start-quiz", label: "Start Quiz", icon: <Brain className="w-5 h-5" /> },
-    { to: "/user/materials", label: "My Materials", icon: <FileText className="w-5 h-5" /> },
-    { to: "/user/history", label: "History", icon: <BookX className="w-5 h-5" /> },
-    { to: "/user/leaderboard", label: "Leaderboard", icon: <ChartNoAxesCombined className="w-5 h-5" /> },
-    { to: "/user/chat", label: "AI Tutor", icon: <MessageSquare className="w-5 h-5" /> },
-  ];
+  let navItems = [];
+
+  if (user?.role === 'instructor') {
+    navItems = [
+      { to: "/instructor/dashboard", label: "Instructor Hub", icon: <Home className="w-5 h-5" /> },
+      { to: "/instructor/manage-classes", label: "Manage Classes", icon: <ClipboardList className="w-5 h-5" /> },
+      { to: "/instructor/assign-quiz", label: "Assign Quiz", icon: <Plus className="w-5 h-5" /> },
+      { to: "/user/materials", label: "My Materials", icon: <FileText className="w-5 h-5" /> },
+      { to: "/user/chat", label: "AI Tutor", icon: <MessageSquare className="w-5 h-5" /> },
+    ];
+  } else {
+    // Default / Learner view
+    navItems = [
+      { to: "/user/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
+      { to: "/user/start-quiz", label: "Start Quiz", icon: <Brain className="w-5 h-5" /> },
+      { to: "/user/materials", label: "My Materials", icon: <FileText className="w-5 h-5" /> },
+      { to: "/user/history", label: "History", icon: <BookX className="w-5 h-5" /> },
+      { to: "/user/leaderboard", label: "Leaderboard", icon: <ChartNoAxesCombined className="w-5 h-5" /> },
+      { to: "/user/chat", label: "AI Tutor", icon: <MessageSquare className="w-5 h-5" /> },
+    ];
+  }
 
   if (user?.role === 'admin') {
     navItems.push({ to: "/admin/dashboard", label: "Admin Panel", icon: <ShieldAlert className="w-5 h-5" /> });
