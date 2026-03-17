@@ -19,8 +19,16 @@ export const AuthCallback = () => {
                 }
 
                 if (session) {
-                    // Successful login
-                    navigate("/user/dashboard");
+                    // Check if this is a password recovery session
+                    const { data: { user } } = await supabase.auth.getUser();
+                    const isRecovery = session?.user?.recovery_sent_at || window.location.hash.includes('type=recovery');
+
+                    if (isRecovery) {
+                        navigate("/api/auth/update-password");
+                    } else {
+                        // Successful login
+                        navigate("/user/dashboard");
+                    }
                 } else {
                     // No session found, maybe redirect to login
                     console.warn("No session found in callback");

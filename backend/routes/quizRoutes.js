@@ -355,8 +355,8 @@ router.post('/generate-quiz', auth, async (req, res) => {
       parsedQuizCount = 5; // Default only if not provided
     } else {
       parsedQuizCount = parseInt(quizCount);
-      if (isNaN(parsedQuizCount) || parsedQuizCount < 1 || parsedQuizCount > 20) {
-        throw new APIError('Quiz count must be a number between 1 and 20', 400);
+      if (isNaN(parsedQuizCount) || parsedQuizCount < 1 || parsedQuizCount > 50) {
+        throw new APIError('Quiz count must be a number between 1 and 50', 400);
       }
     }
 

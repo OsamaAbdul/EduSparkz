@@ -74,6 +74,7 @@ Deno.serve(async (req) => {
     // Generate Quiz using Gemini
     const prompt = `
       Generate a ${quizCount}-question quiz based on the following text.
+      IMPORTANT: You must generate EXACTLY ${quizCount} questions.
       Quiz Type: ${quizType} (If 'mixed', include both Multiple Choice and True/False. If 'multiple-choice', only MCQs. If 'true-false', only T/F).
       
       Format the output as a JSON array of objects.
@@ -81,7 +82,7 @@ Deno.serve(async (req) => {
       - question: string
       - options: array of 4 strings (for True/False, use ["True", "False"])
       - answer: string (must be one of the options)
-      - explanation: string (CRITICAL: You MUST provide a detailed explanation of why the answer is correct. Do NOT leave this empty.)
+      - explanation: string (CRITICAL: You MUST provide a detailed explanation of why the answer is correct. Do NOT leave this empty. Provide 2-3 sentences if possible.)
       - reference: string (a short quote or context from the text that supports the answer)
       
       Text:
@@ -166,6 +167,7 @@ Deno.serve(async (req) => {
         success: true,
         quizId: quizData.id,
         title: quizData.title,
+        questions: questions,
         extractedText: processedText // Return this so frontend can save it
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

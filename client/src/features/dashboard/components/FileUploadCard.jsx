@@ -262,8 +262,8 @@ export const FileUploadCard = ({
 
     // Prepare payload for confirmation
     const count = quizCount ? parseInt(quizCount) : 5;
-    if (isNaN(count) || count < 1 || count > 20) {
-      setFileError("Quiz count must be 1-20");
+    if (isNaN(count) || count < 1 || count > 50) {
+      setFileError("Quiz count must be 1-50");
       return;
     }
 
@@ -360,7 +360,7 @@ export const FileUploadCard = ({
       if (!data.success) throw new Error(data.error || "Failed to generate quiz");
 
       confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#00F5FF', '#FF2E63'] });
-      onQuizGenerated(data.quizId, data.title);
+      onQuizGenerated(data.quizId, data.title, data.questions);
     } catch (err) {
       console.error("Quiz generation error:", err);
       setFileError(err.message || "Failed to generate quiz. Please try again.");

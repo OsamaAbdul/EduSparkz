@@ -19,6 +19,7 @@ import {
 import { useUser } from "../../context/useContext.jsx";
 import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
+import { ReviewQuizModal } from "../../features/quiz/components/ReviewQuizModal.jsx";
 
 const AssignQuiz = () => {
     const { user } = useUser();
@@ -32,6 +33,8 @@ const AssignQuiz = () => {
     const [duration, setDuration] = useState("30");
     const [step, setStep] = useState(1);
     const [showUpload, setShowUpload] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [pendingQuizData, setPendingQuizData] = useState(null);
 
     // Fetch Instructor's Quizzes
     const { data: quizzes, isLoading: quizzesLoading } = useQuery({
@@ -172,9 +175,9 @@ const AssignQuiz = () => {
                             ) : (
                                 <div className="w-full">
                                     <FileUploadCard
-                                        onQuizGenerated={(id, title) => {
-                                            setSelectedQuiz({ id, title });
-                                            setStep(2);
+                                        onQuizGenerated={(id, title, questions) => {
+                                            setPendingQuizData({ id, title, questions });
+                                            setShowReviewModal(true);
                                         }}
                                     />
                                 </div>
@@ -276,6 +279,17 @@ const AssignQuiz = () => {
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                <ReviewQuizModal 
+                    isOpen={showReviewModal}
+                    onClose={() => setShowReviewModal(false)}
+                    quizData={pendingQuizData}
+                    onConfirm={(updatedQuiz) => {
+                        setSelectedQuiz(updatedQuiz);
+                        setShowReviewModal(false);
+                        setStep(2);
+                    }}
+                />
             </div>
         </DashboardLayout>
     );
