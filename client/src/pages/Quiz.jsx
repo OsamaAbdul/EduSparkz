@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Clock, Flame, Trophy, XCircle, CheckCircle, ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useParams } from "react-router-dom";
 
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -45,8 +46,9 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
   const [ttsEnabled, setTtsEnabled] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
+
   const pidginPraises = [
-    "Omo you too sabi!", "Chai see brain!", "Professor level activated!", "You dey cook!", "No gree for anybody!"
+    "Omo you na boss!", "Chai see brain!", "Professor level activated!", "You dey cook!", "No gree for anybody!"
   ];
 
   const pidginResultQuotes = {
@@ -143,55 +145,55 @@ const Quiz = ({ quizId, quizTitle, onComplete }) => {
               .eq('user_id', authUser.id)
               .order('submitted_at', { ascending: false });
 
-          if (history && history.length > 0) {
-            const latestAttempts = {};
-            history.forEach(h => {
-              if (!latestAttempts[h.quiz_id] && h.quizzes) {
-                latestAttempts[h.quiz_id] = h;
-              }
-            });
-
-            const failedQuizzes = Object.values(latestAttempts).filter(h => (h.score / h.total) < 0.7);
-
-            if (failedQuizzes.length > 0) {
-              const retentionQuestions = [];
-              // Pick up to 2 random failed quizzes
-              const shuffledFailed = failedQuizzes.sort(() => 0.5 - Math.random()).slice(0, 2);
-
-              shuffledFailed.forEach(fq => {
-                if (fq.quizzes && fq.quizzes.questions && fq.quizzes.questions.length > 0) {
-                  const randomQ = fq.quizzes.questions[Math.floor(Math.random() * fq.quizzes.questions.length)];
-
-                  // Ensure options are formatted correctly for retention questions too
-                  let options = randomQ.options || [randomQ.optionA, randomQ.optionB, randomQ.optionC, randomQ.optionD].filter(Boolean);
-                  let correctAnswer = randomQ.correctAnswer;
-
-                  if (options && options.includes(randomQ.answer)) {
-                    const idx = options.indexOf(randomQ.answer);
-                    correctAnswer = ['A', 'B', 'C', 'D'][idx];
-                  } else if (!correctAnswer && randomQ.answer) {
-                    const idx = options.findIndex(opt => opt === randomQ.answer);
-                    if (idx !== -1) correctAnswer = ['A', 'B', 'C', 'D'][idx];
-                  }
-
-                  retentionQuestions.push({
-                    question: randomQ.question,
-                    options: options,
-                    correctAnswer: correctAnswer,
-                    correctAnswerText: randomQ.answer,
-                    explanation: randomQ.explanation || "No explanation provided.",
-                    isRetention: true,
-                    sourceQuizId: fq.quizzes.id,
-                    sourceQuizTitle: fq.quizzes.title
-                  });
+            if (history && history.length > 0) {
+              const latestAttempts = {};
+              history.forEach(h => {
+                if (!latestAttempts[h.quiz_id] && h.quizzes) {
+                  latestAttempts[h.quiz_id] = h;
                 }
               });
 
-              retentionQuestions.forEach(rq => {
-                const insertIndex = Math.floor(Math.random() * (questions.length - 1)) + 1;
-                questions.splice(insertIndex, 0, rq);
-              });
-            }
+              const failedQuizzes = Object.values(latestAttempts).filter(h => (h.score / h.total) < 0.7);
+
+              if (failedQuizzes.length > 0) {
+                const retentionQuestions = [];
+                // Pick up to 2 random failed quizzes
+                const shuffledFailed = failedQuizzes.sort(() => 0.5 - Math.random()).slice(0, 2);
+
+                shuffledFailed.forEach(fq => {
+                  if (fq.quizzes && fq.quizzes.questions && fq.quizzes.questions.length > 0) {
+                    const randomQ = fq.quizzes.questions[Math.floor(Math.random() * fq.quizzes.questions.length)];
+
+                    // Ensure options are formatted correctly for retention questions too
+                    let options = randomQ.options || [randomQ.optionA, randomQ.optionB, randomQ.optionC, randomQ.optionD].filter(Boolean);
+                    let correctAnswer = randomQ.correctAnswer;
+
+                    if (options && options.includes(randomQ.answer)) {
+                      const idx = options.indexOf(randomQ.answer);
+                      correctAnswer = ['A', 'B', 'C', 'D'][idx];
+                    } else if (!correctAnswer && randomQ.answer) {
+                      const idx = options.findIndex(opt => opt === randomQ.answer);
+                      if (idx !== -1) correctAnswer = ['A', 'B', 'C', 'D'][idx];
+                    }
+
+                    retentionQuestions.push({
+                      question: randomQ.question,
+                      options: options,
+                      correctAnswer: correctAnswer,
+                      correctAnswerText: randomQ.answer,
+                      explanation: randomQ.explanation || "No explanation provided.",
+                      isRetention: true,
+                      sourceQuizId: fq.quizzes.id,
+                      sourceQuizTitle: fq.quizzes.title
+                    });
+                  }
+                });
+
+                retentionQuestions.forEach(rq => {
+                  const insertIndex = Math.floor(Math.random() * (questions.length - 1)) + 1;
+                  questions.splice(insertIndex, 0, rq);
+                });
+              }
             }
           } catch (retentionError) {
             console.error("Error fetching retention questions:", retentionError);
